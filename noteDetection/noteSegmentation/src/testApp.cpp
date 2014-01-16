@@ -81,34 +81,10 @@ void testApp::setup(){
     sinAngle = 0;
 
     
-    lpf = ofxAudioUnit(kAudioUnitType_Effect, kAudioUnitSubType_LowPassFilter);
-    lpf.setParameter(kLowPassParam_CutoffFrequency, kAudioUnitScope_Global, 20000);
-
-    player.setFile(ofToDataPath("lankra.wav")); //Marc Terenzi - Love To Be Loved By You [692].mp3
-    
-    tap.setBufferLength(1024);
-    
-    sampler = ofxAudioUnitSampler('aumu', 'dls ', 'appl');
-    sampler.setBank(0, 0);
-    sampler.setProgram(0);
-    
-    mixer.setInputBusCount(2);
-    mixer.setInputVolume(0.0, 0);
-    mixer.setInputVolume(0.2, 1);
-    
-    player.connectTo(lpf).connectTo(tap).connectTo(mixer, 0);
-    sampler.connectTo(mixer, 1);
-    mixer.connectTo(output);
-    
-    output.start();
-    player.loop();
-    
-    tapSamples.assign(hopSize, 0.0);
+    au.setup("lankra.wav", hopSize);
+    au.playFile();
     
     
-    
-    
-
     ss.setup(this, 1, 1, samplerate, hopSize, 4);
 }
 
