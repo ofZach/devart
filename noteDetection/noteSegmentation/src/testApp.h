@@ -23,6 +23,7 @@ struct audioNote {
     
     bool bPlaying;
     bool bWasPlaying;
+    
     vector < float > samples;
     vector < float > analysisFrames;
     int mostCommonPitch;
@@ -85,6 +86,8 @@ public:
     int PDMethod;
     vector<char_t *> methods;
     vector<basePitchDetector*> pitchDetectors;
+    int minPitch;
+    bool bBelowMinPitch;
     
     //graphs
     vector<smoother> smoothers;

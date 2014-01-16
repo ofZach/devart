@@ -81,6 +81,8 @@ void testApp::setup(){
     sinAngle = 0;
 
     
+    minPitch = 20;
+    
     au.setup("lankra.wav", hopSize);
     au.playFile();
     
@@ -111,10 +113,9 @@ void testApp::update(){
 
     
     // count how many frames in a row the vel is below the threshold
-    if ( velGraphs[PDMethod].getLast() < (bVelFine ? fineThreshold : coarseThreshold) ) {
+    if ( velGraphs[PDMethod].getLast() < (bVelFine ? fineThreshold : coarseThreshold) && !bBelowMinPitch ) {
         noteRun++;
         bAmRecording = true;
-//        currentNote.analysisFrames.push_back(medianGraphs[PDMethod].getLast());
     }
     else  {
         // if the vel is above the thresh then check if the current run is longer than the min duration. If so save the note.  Regardless, set the run count to zero.
@@ -122,7 +123,7 @@ void testApp::update(){
         
         bAmRecording = false;
         
-        if ( noteRun > minDuration ) {
+        if ( noteRun > minDuration && !bBelowMinPitch) {
 
             marker segment;
             segment.start = graphWidth - 1 - noteRun;
@@ -140,6 +141,7 @@ void testApp::update(){
         }
         
         noteRun = 0;
+        bBelowMinPitch = false;
     }
 
 //    cout << noteRun << " " << bAmRecording << " vel = " << velGraphs[PDMethod].getLast() << " thresh = " << threshold << endl;
@@ -237,29 +239,24 @@ void testApp::exit(){
 //--------------------------------------------------------------
 void testApp::audioIn(float * input, int bufferSize, int nChannels){
     //get samples
-//    tap.getSamples(tapSamples);
     float samples[bufferSize];
     au.getTapSamples(samples);
-//
-//    //pitch detection
-//    if (tapSamples.size() > 0) {
-//        for (int i = 0; i < bufferSize; i++){
-//            samples[i] = tapSamples[i];
-//        }
-    
-    
-    
-        for (int i = 0; i < pitchDetectors.size(); i++) {
-            pitchDetectors[i]->calculatePitch(samples, bufferSize, au.getSampleTime());
-        }
-//    }
+
+    //pitch detection
+    for (int i = 0; i < pitchDetectors.size(); i++) {
+        pitchDetectors[i]->calculatePitch(samples, bufferSize, au.getSampleTime());
+    }
     
     //recording
     if (bAmRecording){
         for (int i = 0; i < bufferSize; i++){
             currentNote.samples.push_back(samples[i]);
         }
-        currentNote.analysisFrames.push_back(pitchDetectors[PDMethod]->getPitch());
+        
+        float pitch = pitchDetectors[PDMethod]->getPitch();
+        if (pitch < minPitch) bBelowMinPitch = true;
+        else currentNote.analysisFrames.push_back(pitch);
+        
     } else  {
         currentNote.samples.clear();
         currentNote.analysisFrames.clear();
@@ -369,15 +366,19 @@ void testApp::setupGUI(){
     gui->addFPSSlider("FPS SLIDER", length-xInit, dim*.25, 60);
     
     gui->addSpacer(length-xInit, 1);
+    gui->addLabel("FILTERING");
     gui->addSlider("LPF cutoff", 1000, 20000, 20000, length-xInit, dim);
     gui->addSlider("LPF resonance", -20.0, 40.0, 0.0, length-xInit, dim);
     gui->addIntSlider("MF numPValues", 3, 33, 11, length-xInit, dim);
     gui->addSpacer(length-xInit, 1);
+    gui->addLabel("SEGMENTATION");
     gui->addSlider("Coarse Threshold", 0.0, graphMax, &coarseThreshold, length-xInit, dim);
     gui->addSlider("Fine Threshold", 0.0, 2.0, &fineThreshold, length-xInit, dim);
     gui->addLabelToggle("Coarse/Fine", &bVelFine);
     gui->addSlider("Min duration", 1, 60, &minDuration, length-xInit, dim);
+    gui->addIntSlider("Min pitch", 0, 30, &minPitch, length-xInit, dim);
     gui->addSpacer(length-xInit, 1);
+    gui->addLabel("AUDIO OUTPUT");
     gui->addSlider("Audio Volume", 0.0, 1.0, &audioVol, length-xInit, dim);
     gui->addSlider("Sampler volume", 0.0, 1.0, 1.0, length-xInit, dim);
     gui->addSlider("Sine wave volume", 0.0, 1.0, &sinVol, length-xInit, dim);
