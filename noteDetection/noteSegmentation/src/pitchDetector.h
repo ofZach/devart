@@ -7,12 +7,45 @@
 //
 
 #include "aubio.h"
+#include "ofMain.h"
 
-class pitchDetector {
+
+//---------------------------------------------------------------------------------
+class basePitchDetector {
+    
+    virtual void calculatePitch(float * buffer, int bufferSize, int bufferSamplePos){}
+    virtual float getPitch(){};
+    
+};
+
+
+//---------------------------------------------------------------------------------
+class aubioPitchDetector : public basePitchDetector {
+
 public:
+    
     void setup(char_t * unit, char_t * method);
+    
+    fvec_t * inputBuffer;
+    //= new_fvec (hop_s); // input buffer
+    
+    
+    virtual void calculatePitch(float * buffer, int bufferSize, int bufferSamplePos){
+        
+        // TODO: put this into a fvec_t;;;
+        if (inputBuffer == NULL){
+            inputBuffer = new_fvec (bufferSize);
+        }
+        
+        for (int i = 0; i < bufferSize; i++){
+            inputBuffer->data[i] = buffer[i];
+        }
+        
+        process_pitch(inputBuffer);
+    }
+    
     void process_pitch(fvec_t * in);
-    smpl_t getPitch() { return pitchFound; }
+    float getPitch() { return pitchFound; }
     void cleanup();
     
     //pitch detection
@@ -28,4 +61,14 @@ public:
     int blocks = 0;
     smpl_t pitchFound;
 
+};
+
+
+//---------------------------------------------------------------------------------
+class filePitchDetector : public basePitchDetector {
+public:
+    
+    void loadAssociatedFile( string fileName );
+    float getPitch();
+    
 };

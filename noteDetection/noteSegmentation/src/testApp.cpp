@@ -18,7 +18,7 @@ void testApp::setup(){
     
     numPDs = 6;
     
-    pitchDetector tempPD;
+    aubioPitchDetector tempPD;
     for (int i = 0; i < numPDs; i++) {
         pitchDetectors.push_back(tempPD);
     }
@@ -232,13 +232,16 @@ void testApp::draw(){
 
 void testApp::exit(){
     
+    // stop the audio thread first:
+    ss.stop();
+
+    
     for (int i = 0; i < numPDs; i++) {
         pitchDetectors[i].cleanup();
     }
     
     aubio_cleanup();
-    
-    ss.stop();
+
 }
 
 

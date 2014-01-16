@@ -9,7 +9,7 @@
 #include "pitchDetector.h"
 #include "ofMain.h"
 
-void pitchDetector::setup(char_t * unit, char_t * method) {
+void aubioPitchDetector::setup(char_t * unit, char_t * method) {
     
     
     samplerate = 44100;
@@ -38,14 +38,14 @@ void pitchDetector::setup(char_t * unit, char_t * method) {
 }
 
 
-void pitchDetector::process_pitch(fvec_t * in) {
+void aubioPitchDetector::process_pitch(fvec_t * in) {
     
     aubio_pitch_do (o, in, pitch);
     pitchFound = fvec_get_sample(pitch, 0);
     
 }
 
-void pitchDetector::cleanup() {
+void aubioPitchDetector::cleanup() {
     del_aubio_pitch (o);
     del_fvec (pitch);
 }

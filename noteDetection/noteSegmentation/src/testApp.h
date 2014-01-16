@@ -73,7 +73,7 @@ public:
     int numPDs;
     int PDMethod;
     vector<char_t *> methods;
-    vector<pitchDetector> pitchDetectors;
+    vector<aubioPitchDetector> pitchDetectors;
     
     //graphs
     vector<smoother> smoothers;
