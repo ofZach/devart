@@ -2,7 +2,7 @@
 
 #include "ofMain.h"
 
-#include "ofxAudioUnit.h"
+//#include "ofxAudioUnit.h"
 #include "ofxUI.h"
 #include "ofxXmlSettings.h"
 
@@ -10,6 +10,8 @@
 #include "smoother.h"
 
 #include "pitchDetector.h"
+
+#include "audioUnitManager.h"
 
 struct marker {
     float start;
@@ -36,6 +38,11 @@ public:
     void draw();
     void exit();
     
+    void updateGraphs();
+    void updateSegmentation();
+    void scrollMarkers();
+    
+    
     float findMostCommonPitch(audioNote note);
     
     void setupGUI();
@@ -52,6 +59,8 @@ public:
     void gotMessage(ofMessage msg);
 
     
+    //------soundStreamManager
+    
     //soundStream
     int samplerate, windowSize, hopSize;
     ofSoundStream ss;
@@ -63,12 +72,13 @@ public:
     vector < audioNote > notes;
     
     // recording
-    vector<float> tapSamples;
+//    vector<float> tapSamples;
     bool bAmRecording;
     float audioVol, sinVol;
     int samplerOctavesUp, sinOctavesUp;
     float sinAngle;
     
+    //===========pitch detecotr manager
     
     //pitch detector
     int numAPDs;
@@ -94,14 +104,17 @@ public:
     float minDuration, maxDuration;
     float noteRun;
     
-
+    
+    //---------------audioUnit manager
+    audioUnitManager au;
+    
     //AUs
-    ofxAudioUnitFilePlayer player;
-    ofxAudioUnit lpf;
-    ofxAudioUnitTap tap;
-    ofxAudioUnitSampler sampler;
-    ofxAudioUnitMixer mixer;
-    ofxAudioUnitOutput output;
+//    ofxAudioUnitFilePlayer player;
+//    ofxAudioUnit lpf;
+//    ofxAudioUnitTap tap;
+//    ofxAudioUnitSampler sampler;
+//    ofxAudioUnitMixer mixer;
+//    ofxAudioUnitOutput output;
 
     
     //UI
