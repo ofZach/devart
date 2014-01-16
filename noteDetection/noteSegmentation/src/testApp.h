@@ -53,6 +53,7 @@ public:
 
     
     //soundStream
+    int samplerate, windowSize, hopSize;
     ofSoundStream ss;
     void audioIn(float * input, int bufferSize, int nChannels);
     void audioOut(float * output, int bufferSize, int nChannels);
@@ -62,7 +63,7 @@ public:
     vector < audioNote > notes;
     
     // recording
-    vector<float> samples;
+    vector<float> tapSamples;
     bool bAmRecording;
     float audioVol, sinVol;
     int samplerOctavesUp, sinOctavesUp;

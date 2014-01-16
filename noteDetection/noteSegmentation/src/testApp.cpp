@@ -2,19 +2,19 @@
 #include "aubio.h"
 
 
-uint_t samplerate = 44100;
-uint_t win_s = 2048; // window size
-uint_t hop_s = 1024;  // hop size
+
 
 // create some vectors
-fvec_t * in       = new_fvec (hop_s); // input buffer
+//fvec_t * in       = new_fvec (hop_s); // input buffer
 
 
 
 
 //--------------------------------------------------------------
 void testApp::setup(){
-
+    samplerate = 44100;
+    windowSize = 2048;
+    hopSize = 1024;
     
     numPDs = 6;
     
@@ -31,7 +31,7 @@ void testApp::setup(){
     methods.push_back("fcomb");
     
     for (int i = 0; i < numPDs; i++) {
-        pitchDetectors[i].setup("midi", methods[i]);
+        pitchDetectors[i].setup("midi", methods[i], windowSize, hopSize);
     }
     
     smoother tempSmoother;
@@ -97,8 +97,8 @@ void testApp::setup(){
     output.start();
     player.loop();
     
-    samples.assign(hop_s, 0.0);
-    ss.setup(this, 1, 1, samplerate, hop_s, 4);
+    tapSamples.assign(hopSize, 0.0);
+    ss.setup(this, 1, 1, samplerate, hopSize, 4);
 }
 
 
@@ -248,26 +248,24 @@ void testApp::exit(){
 
 //--------------------------------------------------------------
 void testApp::audioIn(float * input, int bufferSize, int nChannels){
+    //get samples
+    tap.getSamples(tapSamples);
+    float samples[bufferSize];
     
-    tap.getSamples(samples);
-    
-   // cout << samples.size() << endl;
-    
-    if (samples.size() > 0) {
+    //pitch detection
+    if (tapSamples.size() > 0) {
         for (int i = 0; i < bufferSize; i++){
-            //        in->data[i] = input[i*nChannels];
-            in->data[i] = samples[i];
-            
+            samples[i] = tapSamples[i];
         }
-
+        
         for (int i = 0; i < numPDs; i++) {
-            pitchDetectors[i].process_pitch(in);
+            pitchDetectors[i].calculatePitch(samples, bufferSize, player.getCurrentTimestamp().mSampleTime);
         }
     }
     
-    
+    //recording
     if (bAmRecording){
-        for (int i = 0; i < samples.size(); i++){
+        for (int i = 0; i < bufferSize; i++){
             currentNote.samples.push_back(samples[i]);
         }
         currentNote.analysisFrames.push_back(pitchDetectors[PDMethod].getPitch());
