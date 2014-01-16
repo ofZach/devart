@@ -2,25 +2,25 @@
 #include "aubio.h"
 
 
-uint_t samplerate = 44100;
-uint_t win_s = 2048; // window size
-uint_t hop_s = 1024;  // hop size
+
 
 // create some vectors
-fvec_t * in       = new_fvec (hop_s); // input buffer
+//fvec_t * in       = new_fvec (hop_s); // input buffer
 
 
 
 
 //--------------------------------------------------------------
 void testApp::setup(){
-
+    samplerate = 44100;
+    windowSize = 2048;
+    hopSize = 1024;
     
-    numPDs = 6;
+    numAPDs = 6;
     
-    aubioPitchDetector tempPD;
-    for (int i = 0; i < numPDs; i++) {
-        pitchDetectors.push_back(tempPD);
+//    aubioPitchDetector tempPD;
+    for (int i = 0; i < numAPDs; i++) {
+        pitchDetectors.push_back(new aubioPitchDetector);
     }
     
     methods.push_back("yin");
@@ -30,13 +30,14 @@ void testApp::setup(){
     methods.push_back("mcomb");
     methods.push_back("fcomb");
     
-    for (int i = 0; i < numPDs; i++) {
-        pitchDetectors[i].setup("midi", methods[i]);
+    for (int i = 0; i < numAPDs; i++) {
+        aubioPitchDetector * APD = static_cast<aubioPitchDetector*>(pitchDetectors[i]);
+        APD->setup("midi", methods[i], windowSize, hopSize);
     }
     
     smoother tempSmoother;
     tempSmoother.setNumPValues(11);
-    for (int i = 0; i < numPDs; i++) {
+    for (int i = 0; i < pitchDetectors.size(); i++) {
         smoothers.push_back(tempSmoother);
     }
     
@@ -47,14 +48,14 @@ void testApp::setup(){
     
     scrollingGraph tempGraph;
     tempGraph.setup(graphWidth, 0, 0, graphMax);
-    for (int i = 0; i < numPDs; i++) {
+    for (int i = 0; i < pitchDetectors.size(); i++) {
         pitchGraphs.push_back(tempGraph);
         medianGraphs.push_back(tempGraph);
         velGraphs.push_back(tempGraph);
     }
     
     
-    for (int i = 0; i < numPDs; i++) {
+    for (int i = 0; i < pitchDetectors.size(); i++) {
         ofColor tempColor;
         tempColor.setHsb(i*40, 255, 180, 200);
         graphColors.push_back(tempColor);
@@ -97,8 +98,8 @@ void testApp::setup(){
     output.start();
     player.loop();
     
-    samples.assign(hop_s, 0.0);
-    ss.setup(this, 1, 1, samplerate, hop_s, 4);
+    tapSamples.assign(hopSize, 0.0);
+    ss.setup(this, 1, 1, samplerate, hopSize, 4);
 }
 
 
@@ -108,9 +109,9 @@ void testApp::update(){
     
     
     
-    for (int i = 0; i < numPDs; i++) {
-        pitchGraphs[i].addValue(pitchDetectors[i].getPitch());
-        smoothers[i].addValue(pitchDetectors[i].getPitch());
+    for (int i = 0; i < pitchDetectors.size(); i++) {
+        pitchGraphs[i].addValue(pitchDetectors[i]->getPitch());
+        smoothers[i].addValue(pitchDetectors[i]->getPitch());
         medianGraphs[i].addValue(smoothers[i].getMedian());
         
         
@@ -236,8 +237,9 @@ void testApp::exit(){
     ss.stop();
 
     
-    for (int i = 0; i < numPDs; i++) {
-        pitchDetectors[i].cleanup();
+    for (int i = 0; i < numAPDs; i++) {
+        aubioPitchDetector * APD = static_cast<aubioPitchDetector*>(pitchDetectors[i]);
+        APD->cleanup();
     }
     
     aubio_cleanup();
@@ -248,29 +250,27 @@ void testApp::exit(){
 
 //--------------------------------------------------------------
 void testApp::audioIn(float * input, int bufferSize, int nChannels){
+    //get samples
+    tap.getSamples(tapSamples);
+    float samples[bufferSize];
     
-    tap.getSamples(samples);
-    
-   // cout << samples.size() << endl;
-    
-    if (samples.size() > 0) {
+    //pitch detection
+    if (tapSamples.size() > 0) {
         for (int i = 0; i < bufferSize; i++){
-            //        in->data[i] = input[i*nChannels];
-            in->data[i] = samples[i];
-            
+            samples[i] = tapSamples[i];
         }
-
-        for (int i = 0; i < numPDs; i++) {
-            pitchDetectors[i].process_pitch(in);
+        
+        for (int i = 0; i < pitchDetectors.size(); i++) {
+            pitchDetectors[i]->calculatePitch(samples, bufferSize, player.getCurrentTimestamp().mSampleTime);
         }
     }
     
-    
+    //recording
     if (bAmRecording){
-        for (int i = 0; i < samples.size(); i++){
+        for (int i = 0; i < bufferSize; i++){
             currentNote.samples.push_back(samples[i]);
         }
-        currentNote.analysisFrames.push_back(pitchDetectors[PDMethod].getPitch());
+        currentNote.analysisFrames.push_back(pitchDetectors[PDMethod]->getPitch());
     } else  {
         currentNote.samples.clear();
         currentNote.analysisFrames.clear();
@@ -286,10 +286,10 @@ void testApp::audioOut(float * output, int bufferSize, int nChannels){
         
         //play sampler
         if ( !notes[i].bWasPlaying && notes[i].bPlaying ) {
-            sampler.midiNoteOn(notes[i].mostCommonPitch, 127);
+            sampler.midiNoteOn(notes[i].mostCommonPitch + samplerOctavesUp * 12, 127);
         }
         else if ( notes[i].bWasPlaying && !notes[i].bPlaying ) {
-            sampler.midiNoteOff(notes[i].mostCommonPitch, 127);
+            sampler.midiNoteOff(notes[i].mostCommonPitch + samplerOctavesUp * 12, 127);
         }
 
         notes[i].bWasPlaying = notes[i].bPlaying;
@@ -313,7 +313,7 @@ void testApp::audioOut(float * output, int bufferSize, int nChannels){
             int midiNote = notes[i].analysisFrames[frame];
             
             float freq = pow(2, float(midiNote-69)/12.0)*440;
-            
+            freq *= pow(2.0, sinOctavesUp);
 //            cout << frame << " / " << notes[i].analysisFrames.size() << " midi " << midiNote << " freq " << freq << endl;
             //fm  =  2(m−69)/12(440 Hz)
             float sinAngleAdder = freq * TWO_PI / 44100.0;
@@ -364,7 +364,9 @@ float testApp::findMostCommonPitch(audioNote note){
 void testApp::setupGUI(){
     //init params
     audioVol = 1.0;
-    sinVol = 1.0;
+    sinVol = 0.0;
+    samplerOctavesUp = sinOctavesUp = 0;
+    
     bVelFine = false;
     
     //init gui dims
@@ -390,6 +392,8 @@ void testApp::setupGUI(){
     gui->addSlider("Audio Volume", 0.0, 1.0, &audioVol, length-xInit, dim);
     gui->addSlider("Sampler volume", 0.0, 1.0, 1.0, length-xInit, dim);
     gui->addSlider("Sine wave volume", 0.0, 1.0, &sinVol, length-xInit, dim);
+    gui->addIntSlider("Sampler octvs up", 0, 4, &samplerOctavesUp, length-xInit, dim);
+    gui->addIntSlider("Sine wave octvs up", 0, 4, &sinOctavesUp, length-xInit, dim);
     ofAddListener(gui->newGUIEvent,this,&testApp::guiEvent);
 }
 
@@ -408,7 +412,7 @@ void testApp::guiEvent(ofxUIEventArgs &e){
     }
     else if (name == "MF numPValues") {
         ofxUIIntSlider *slider = (ofxUIIntSlider *) e.widget;
-        for (int i = 0; i < numPDs; i++) {
+        for (int i = 0; i < pitchDetectors.size(); i++) {
             smoothers[i].setNumPValues(slider->getValue());
         }
     }
@@ -458,7 +462,7 @@ void testApp::mouseDragged(int x, int y, int button){
 
 //--------------------------------------------------------------
 void testApp::mousePressed(int x, int y, int button){
-    sampler.midiNoteOn(medianGraphs[PDMethod].valHistory[0], 127);
+
 }
 
 //--------------------------------------------------------------

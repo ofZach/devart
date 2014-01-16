@@ -12,7 +12,7 @@
 
 //---------------------------------------------------------------------------------
 class basePitchDetector {
-    
+public:
     virtual void calculatePitch(float * buffer, int bufferSize, int bufferSamplePos){}
     virtual float getPitch(){};
     
@@ -24,7 +24,7 @@ class aubioPitchDetector : public basePitchDetector {
 
 public:
     
-    void setup(char_t * unit, char_t * method);
+    void setup(char_t * unit, char_t * method, uint_t _win_s, uint_t _hop_s);
     
     fvec_t * inputBuffer;
     //= new_fvec (hop_s); // input buffer
@@ -33,9 +33,9 @@ public:
     virtual void calculatePitch(float * buffer, int bufferSize, int bufferSamplePos){
         
         // TODO: put this into a fvec_t;;;
-        if (inputBuffer == NULL){
-            inputBuffer = new_fvec (bufferSize);
-        }
+//        if (inputBuffer == NULL){
+//            inputBuffer = new_fvec (bufferSize);
+//        }
         
         for (int i = 0; i < bufferSize; i++){
             inputBuffer->data[i] = buffer[i];

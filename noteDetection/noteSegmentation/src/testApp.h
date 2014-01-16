@@ -53,6 +53,7 @@ public:
 
     
     //soundStream
+    int samplerate, windowSize, hopSize;
     ofSoundStream ss;
     void audioIn(float * input, int bufferSize, int nChannels);
     void audioOut(float * output, int bufferSize, int nChannels);
@@ -62,17 +63,18 @@ public:
     vector < audioNote > notes;
     
     // recording
-    vector<float> samples;
+    vector<float> tapSamples;
     bool bAmRecording;
     float audioVol, sinVol;
+    int samplerOctavesUp, sinOctavesUp;
     float sinAngle;
     
     
     //pitch detector
-    int numPDs;
+    int numAPDs;
     int PDMethod;
     vector<char_t *> methods;
-    vector<aubioPitchDetector> pitchDetectors;
+    vector<basePitchDetector*> pitchDetectors;
     
     //graphs
     vector<smoother> smoothers;

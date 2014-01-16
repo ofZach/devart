@@ -9,14 +9,14 @@
 #include "pitchDetector.h"
 #include "ofMain.h"
 
-void aubioPitchDetector::setup(char_t * unit, char_t * method) {
+void aubioPitchDetector::setup(char_t * unit, char_t * method, uint_t _win_s, uint_t _hop_s) {
     
     
     samplerate = 44100;
-    uint_t win_s = 2048; // window size
-    uint_t hop_s = 512;  // hop size
+    uint_t win_s = _win_s; // window size
+    uint_t hop_s = _hop_s;  // hop size
     
-    
+    inputBuffer = new_fvec (_hop_s);
     
     pitch_tolerance = 0;
     silence_threshold = -90.;
