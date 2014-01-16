@@ -15,6 +15,9 @@ class basePitchDetector {
 public:
     virtual void calculatePitch(float * buffer, int bufferSize, int bufferSamplePos){}
     virtual float getPitch(){};
+    basePitchDetector(){};
+    
+    string name;
     
 };
 
@@ -68,7 +71,68 @@ public:
 class filePitchDetector : public basePitchDetector {
 public:
     
-    void loadAssociatedFile( string fileName );
-    float getPitch();
+  
+    
+    typedef struct {
+        float pos;
+        float val;
+    } timeVal;
+    
+    vector < timeVal > vals;
+    float pitch;
+    
+    void  loadAssociatedFile( string fileName, string deliminator = ":" ){
+        ofBuffer buf;
+        buf = ofBufferFromFile(fileName);
+        
+        string s;
+        while ( (s= buf.getNextLine()) != ""){
+            vector < string > str = ofSplitString(s, deliminator);
+            timeVal val;
+            val.pos = ofToFloat(str[0]);
+            val.val = ofToFloat(str[1]);
+            
+            cout << val.pos << " " << val.val << endl;
+            vals.push_back(val);
+        }
+        
+        name = "vamp";
+        
+    }
+    
+    float freq2MIDI(float freq) {
+        return (int)( 69. + 12.*log(freq/440.)/log((float)2.) );
+    }
+
+    
+    void calculatePitch(float * buffer, int bufferSize, int bufferSamplePos){
+        
+        
+        //cout << bufferSamplePos << " " << vals[vals.size()-1].pos <<  endl;
+        
+        
+        
+        pitch = -1;
+        for (int i = 0; i < vals.size()-1; i++){
+            if (bufferSamplePos >= (int)vals[i].pos && bufferSamplePos <= (int)vals[i+1].pos){
+                pitch = vals[i].val;
+            }
+        }
+        
+        if (pitch < 0) pitch = 0;
+        //cout << pitch << endl;
+        //float time = bufferSamplePos / 44100.0;
+    }
+    
+    
+    float   getPitch(){
+        
+        
+        return freq2MIDI(pitch);
+        
+        //return 0;
+    }
+    
+    
     
 };

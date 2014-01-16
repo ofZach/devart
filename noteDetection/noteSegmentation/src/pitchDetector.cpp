@@ -33,6 +33,9 @@ void aubioPitchDetector::setup(char_t * unit, char_t * method, uint_t _win_s, ui
         aubio_pitch_set_unit (o, pitch_unit);
     
     pitch = new_fvec (1);
+    
+    
+    name = string(method);
 
 
 }

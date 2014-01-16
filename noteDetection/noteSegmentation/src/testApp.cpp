@@ -35,6 +35,11 @@ void testApp::setup(){
         APD->setup("midi", methods[i], windowSize, hopSize);
     }
     
+    basePitchDetector * fpd = new filePitchDetector();
+    ((filePitchDetector*)fpd)->loadAssociatedFile("lankra.vals.txt");
+    pitchDetectors.push_back(fpd);
+    
+    
     smoother tempSmoother;
     tempSmoother.setNumPValues(11);
     for (int i = 0; i < pitchDetectors.size(); i++) {
@@ -74,33 +79,12 @@ void testApp::setup(){
     
     
     sinAngle = 0;
-    //AU
-    au.setup("Marc Terenzi - Love To Be Loved By You [692].mp3", hopSize);
+
+    
+    au.setup("lankra.wav", hopSize);
     au.playFile();
     
-//    lpf = ofxAudioUnit(kAudioUnitType_Effect, kAudioUnitSubType_LowPassFilter);
-//    lpf.setParameter(kLowPassParam_CutoffFrequency, kAudioUnitScope_Global, 20000);
-//
-//    player.setFile(ofToDataPath("Marc Terenzi - Love To Be Loved By You [692].mp3")); //Marc Terenzi - Love To Be Loved By You [692].mp3
-//    
-//    tap.setBufferLength(1024);
-//    
-//    sampler = ofxAudioUnitSampler('aumu', 'dls ', 'appl');
-//    sampler.setBank(0, 0);
-//    sampler.setProgram(0);
-//    
-//    mixer.setInputBusCount(2);
-//    mixer.setInputVolume(0.0, 0);
-//    mixer.setInputVolume(0.2, 1);
-//    
-//    player.connectTo(lpf).connectTo(tap).connectTo(mixer, 0);
-//    sampler.connectTo(mixer, 1);
-//    mixer.connectTo(output);
-//    
-//    output.start();
-//    player.loop();
     
-//    tapSamples.assign(hopSize, 0.0);
     ss.setup(this, 1, 1, samplerate, hopSize, 4);
 }
 
@@ -177,7 +161,7 @@ void testApp::draw(){
 
 
     ofSetColor(255, 10, 10);
-    ofDrawBitmapString(methods[PDMethod], ofGetWidth() - 100, 50);
+    ofDrawBitmapString(pitchDetectors[PDMethod]->name, ofGetWidth() - 100, 50);
 
     ofSetColor(25);
     ofLine(ofGetWidth() - minDuration * 2, 90, ofGetWidth(), 90);
@@ -438,6 +422,7 @@ void testApp::keyPressed(int key){
         case '4':
         case '5':
         case '6':
+        case '7':    
         {
             PDMethod = key - 49;
             break;
