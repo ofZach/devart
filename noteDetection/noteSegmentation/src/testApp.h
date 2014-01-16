@@ -64,7 +64,7 @@ public:
     // recording
     vector<float> samples;
     bool bAmRecording;
-    float audioVol;
+    float audioVol, sinVol;
     float sinAngle;
     
     
