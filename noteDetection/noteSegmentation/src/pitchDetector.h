@@ -68,7 +68,40 @@ public:
 class filePitchDetector : public basePitchDetector {
 public:
     
-    void loadAssociatedFile( string fileName );
-    float getPitch();
+    typedef struct {
+        float pos;
+        float val;
+    } timeVal;
+    
+    vector < timeVal > vals;
+    float pitch;
+    
+    void  loadAssociatedFile( string fileName, string deliminator = "," ){
+        ofBuffer buf;
+        buf = ofBufferFromFile(fileName);
+        
+        string s;
+        while ( (s= buf.getNextLine()) != ""){
+            vector < string > str = ofSplitString(s, deliminator);
+            timeVal val;
+            val.pos = ofToFloat(str[0]);
+            val.val = ofToFloat(str[1]);
+            vals.push_back(val);
+        }
+        
+    }
+    
+    
+    void calculatePitch(float * buffer, int bufferSize, int bufferSamplePos){
+    
+        float time = bufferSamplePos / 44100.0;
+        
+        
+    }
+    
+    
+    float   getPitch();
+    
+    
     
 };
