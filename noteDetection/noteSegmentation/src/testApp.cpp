@@ -317,7 +317,7 @@ void testApp::audioOut(float * output, int bufferSize, int nChannels){
             
             for (int j = 0; j < bufferSize; j++){
                 
-                output[j] += sin(sinAngle) * 0.2;
+                output[j] += sin(sinAngle) * 0.2 * sinVol;
                 
                 sinAngle+= sinAngleAdder;
                 
@@ -361,6 +361,7 @@ float testApp::findMostCommonPitch(audioNote note){
 void testApp::setupGUI(){
     //init params
     audioVol = 1.0;
+    sinVol = 1.0;
     bVelFine = false;
     
     //init gui dims
@@ -385,6 +386,7 @@ void testApp::setupGUI(){
     gui->addSpacer(length-xInit, 1);
     gui->addSlider("Audio Volume", 0.0, 1.0, &audioVol, length-xInit, dim);
     gui->addSlider("Sampler volume", 0.0, 1.0, 1.0, length-xInit, dim);
+    gui->addSlider("Sine wave volume", 0.0, 1.0, &sinVol, length-xInit, dim);
     ofAddListener(gui->newGUIEvent,this,&testApp::guiEvent);
 }
 
