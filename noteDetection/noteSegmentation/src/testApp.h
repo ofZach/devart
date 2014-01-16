@@ -107,14 +107,7 @@ public:
     
     //---------------audioUnit manager
     audioUnitManager au;
-    
-    //AUs
-//    ofxAudioUnitFilePlayer player;
-//    ofxAudioUnit lpf;
-//    ofxAudioUnitTap tap;
-//    ofxAudioUnitSampler sampler;
-//    ofxAudioUnitMixer mixer;
-//    ofxAudioUnitOutput output;
+
 
     
     //UI

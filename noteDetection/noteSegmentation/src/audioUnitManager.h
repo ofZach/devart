@@ -13,6 +13,7 @@ public:
     void setup(string filename, int _bufferSize);
     void playFile();
     void getTapSamples(float * samples);
+    int getSampleTime() { return (int)player.getCurrentTimestamp().mSampleTime % player.getLength(); }
     void startNote(int midiNote);
     void stopNote(int midiNote);
     

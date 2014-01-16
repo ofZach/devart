@@ -266,7 +266,7 @@ void testApp::audioIn(float * input, int bufferSize, int nChannels){
     
     
         for (int i = 0; i < pitchDetectors.size(); i++) {
-            pitchDetectors[i]->calculatePitch(samples, bufferSize, au.player.getCurrentTimestamp().mSampleTime);
+            pitchDetectors[i]->calculatePitch(samples, bufferSize, au.getSampleTime());
         }
 //    }
     

@@ -52,6 +52,7 @@ void audioUnitManager::getTapSamples(float * samples){
     }
 }
 
+
 void audioUnitManager::startNote(int midiNote){
     sampler.midiNoteOn(midiNote, 127);
 }
