@@ -283,10 +283,10 @@ void testApp::audioOut(float * output, int bufferSize, int nChannels){
         
         //play sampler
         if ( !notes[i].bWasPlaying && notes[i].bPlaying ) {
-            sampler.midiNoteOn(notes[i].mostCommonPitch, 127);
+            sampler.midiNoteOn(notes[i].mostCommonPitch + samplerOctavesUp * 12, 127);
         }
         else if ( notes[i].bWasPlaying && !notes[i].bPlaying ) {
-            sampler.midiNoteOff(notes[i].mostCommonPitch, 127);
+            sampler.midiNoteOff(notes[i].mostCommonPitch + samplerOctavesUp * 12, 127);
         }
 
         notes[i].bWasPlaying = notes[i].bPlaying;
@@ -310,7 +310,7 @@ void testApp::audioOut(float * output, int bufferSize, int nChannels){
             int midiNote = notes[i].analysisFrames[frame];
             
             float freq = pow(2, float(midiNote-69)/12.0)*440;
-            
+            freq *= pow(2.0, sinOctavesUp);
 //            cout << frame << " / " << notes[i].analysisFrames.size() << " midi " << midiNote << " freq " << freq << endl;
             //fm  =  2(m−69)/12(440 Hz)
             float sinAngleAdder = freq * TWO_PI / 44100.0;
@@ -361,7 +361,9 @@ float testApp::findMostCommonPitch(audioNote note){
 void testApp::setupGUI(){
     //init params
     audioVol = 1.0;
-    sinVol = 1.0;
+    sinVol = 0.0;
+    samplerOctavesUp = sinOctavesUp = 0;
+    
     bVelFine = false;
     
     //init gui dims
@@ -387,6 +389,8 @@ void testApp::setupGUI(){
     gui->addSlider("Audio Volume", 0.0, 1.0, &audioVol, length-xInit, dim);
     gui->addSlider("Sampler volume", 0.0, 1.0, 1.0, length-xInit, dim);
     gui->addSlider("Sine wave volume", 0.0, 1.0, &sinVol, length-xInit, dim);
+    gui->addIntSlider("Sampler octvs up", 0, 4, &samplerOctavesUp, length-xInit, dim);
+    gui->addIntSlider("Sine wave octvs up", 0, 4, &sinOctavesUp, length-xInit, dim);
     ofAddListener(gui->newGUIEvent,this,&testApp::guiEvent);
 }
 
@@ -455,7 +459,7 @@ void testApp::mouseDragged(int x, int y, int button){
 
 //--------------------------------------------------------------
 void testApp::mousePressed(int x, int y, int button){
-    sampler.midiNoteOn(medianGraphs[PDMethod].valHistory[0], 127);
+
 }
 
 //--------------------------------------------------------------

@@ -65,6 +65,7 @@ public:
     vector<float> samples;
     bool bAmRecording;
     float audioVol, sinVol;
+    int samplerOctavesUp, sinOctavesUp;
     float sinAngle;
     
     
