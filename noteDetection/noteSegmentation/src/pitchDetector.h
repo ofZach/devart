@@ -12,7 +12,7 @@
 
 //---------------------------------------------------------------------------------
 class basePitchDetector {
-    
+public:
     virtual void calculatePitch(float * buffer, int bufferSize, int bufferSamplePos){}
     virtual float getPitch(){};
     

@@ -16,11 +16,11 @@ void testApp::setup(){
     windowSize = 2048;
     hopSize = 1024;
     
-    numPDs = 6;
+    numAPDs = 6;
     
-    aubioPitchDetector tempPD;
-    for (int i = 0; i < numPDs; i++) {
-        pitchDetectors.push_back(tempPD);
+//    aubioPitchDetector tempPD;
+    for (int i = 0; i < numAPDs; i++) {
+        pitchDetectors.push_back(new aubioPitchDetector);
     }
     
     methods.push_back("yin");
@@ -30,13 +30,14 @@ void testApp::setup(){
     methods.push_back("mcomb");
     methods.push_back("fcomb");
     
-    for (int i = 0; i < numPDs; i++) {
-        pitchDetectors[i].setup("midi", methods[i], windowSize, hopSize);
+    for (int i = 0; i < numAPDs; i++) {
+        aubioPitchDetector * APD = static_cast<aubioPitchDetector*>(pitchDetectors[i]);
+        APD->setup("midi", methods[i], windowSize, hopSize);
     }
     
     smoother tempSmoother;
     tempSmoother.setNumPValues(11);
-    for (int i = 0; i < numPDs; i++) {
+    for (int i = 0; i < pitchDetectors.size(); i++) {
         smoothers.push_back(tempSmoother);
     }
     
@@ -47,14 +48,14 @@ void testApp::setup(){
     
     scrollingGraph tempGraph;
     tempGraph.setup(graphWidth, 0, 0, graphMax);
-    for (int i = 0; i < numPDs; i++) {
+    for (int i = 0; i < pitchDetectors.size(); i++) {
         pitchGraphs.push_back(tempGraph);
         medianGraphs.push_back(tempGraph);
         velGraphs.push_back(tempGraph);
     }
     
     
-    for (int i = 0; i < numPDs; i++) {
+    for (int i = 0; i < pitchDetectors.size(); i++) {
         ofColor tempColor;
         tempColor.setHsb(i*40, 255, 180, 200);
         graphColors.push_back(tempColor);
@@ -108,9 +109,9 @@ void testApp::update(){
     
     
     
-    for (int i = 0; i < numPDs; i++) {
-        pitchGraphs[i].addValue(pitchDetectors[i].getPitch());
-        smoothers[i].addValue(pitchDetectors[i].getPitch());
+    for (int i = 0; i < pitchDetectors.size(); i++) {
+        pitchGraphs[i].addValue(pitchDetectors[i]->getPitch());
+        smoothers[i].addValue(pitchDetectors[i]->getPitch());
         medianGraphs[i].addValue(smoothers[i].getMedian());
         
         
@@ -236,8 +237,9 @@ void testApp::exit(){
     ss.stop();
 
     
-    for (int i = 0; i < numPDs; i++) {
-        pitchDetectors[i].cleanup();
+    for (int i = 0; i < numAPDs; i++) {
+        aubioPitchDetector * APD = static_cast<aubioPitchDetector*>(pitchDetectors[i]);
+        APD->cleanup();
     }
     
     aubio_cleanup();
@@ -258,8 +260,8 @@ void testApp::audioIn(float * input, int bufferSize, int nChannels){
             samples[i] = tapSamples[i];
         }
         
-        for (int i = 0; i < numPDs; i++) {
-            pitchDetectors[i].calculatePitch(samples, bufferSize, player.getCurrentTimestamp().mSampleTime);
+        for (int i = 0; i < pitchDetectors.size(); i++) {
+            pitchDetectors[i]->calculatePitch(samples, bufferSize, player.getCurrentTimestamp().mSampleTime);
         }
     }
     
@@ -268,7 +270,7 @@ void testApp::audioIn(float * input, int bufferSize, int nChannels){
         for (int i = 0; i < bufferSize; i++){
             currentNote.samples.push_back(samples[i]);
         }
-        currentNote.analysisFrames.push_back(pitchDetectors[PDMethod].getPitch());
+        currentNote.analysisFrames.push_back(pitchDetectors[PDMethod]->getPitch());
     } else  {
         currentNote.samples.clear();
         currentNote.analysisFrames.clear();
@@ -410,7 +412,7 @@ void testApp::guiEvent(ofxUIEventArgs &e){
     }
     else if (name == "MF numPValues") {
         ofxUIIntSlider *slider = (ofxUIIntSlider *) e.widget;
-        for (int i = 0; i < numPDs; i++) {
+        for (int i = 0; i < pitchDetectors.size(); i++) {
             smoothers[i].setNumPValues(slider->getValue());
         }
     }

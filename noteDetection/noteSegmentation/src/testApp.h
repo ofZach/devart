@@ -71,10 +71,10 @@ public:
     
     
     //pitch detector
-    int numPDs;
+    int numAPDs;
     int PDMethod;
     vector<char_t *> methods;
-    vector<aubioPitchDetector> pitchDetectors;
+    vector<basePitchDetector*> pitchDetectors;
     
     //graphs
     vector<smoother> smoothers;
