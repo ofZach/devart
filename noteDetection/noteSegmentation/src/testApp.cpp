@@ -75,30 +75,32 @@ void testApp::setup(){
     
     sinAngle = 0;
     //AU
+    au.setup("Marc Terenzi - Love To Be Loved By You [692].mp3", hopSize);
+    au.playFile();
     
-    lpf = ofxAudioUnit(kAudioUnitType_Effect, kAudioUnitSubType_LowPassFilter);
-    lpf.setParameter(kLowPassParam_CutoffFrequency, kAudioUnitScope_Global, 20000);
-
-    player.setFile(ofToDataPath("Marc Terenzi - Love To Be Loved By You [692].mp3")); //Marc Terenzi - Love To Be Loved By You [692].mp3
+//    lpf = ofxAudioUnit(kAudioUnitType_Effect, kAudioUnitSubType_LowPassFilter);
+//    lpf.setParameter(kLowPassParam_CutoffFrequency, kAudioUnitScope_Global, 20000);
+//
+//    player.setFile(ofToDataPath("Marc Terenzi - Love To Be Loved By You [692].mp3")); //Marc Terenzi - Love To Be Loved By You [692].mp3
+//    
+//    tap.setBufferLength(1024);
+//    
+//    sampler = ofxAudioUnitSampler('aumu', 'dls ', 'appl');
+//    sampler.setBank(0, 0);
+//    sampler.setProgram(0);
+//    
+//    mixer.setInputBusCount(2);
+//    mixer.setInputVolume(0.0, 0);
+//    mixer.setInputVolume(0.2, 1);
+//    
+//    player.connectTo(lpf).connectTo(tap).connectTo(mixer, 0);
+//    sampler.connectTo(mixer, 1);
+//    mixer.connectTo(output);
+//    
+//    output.start();
+//    player.loop();
     
-    tap.setBufferLength(1024);
-    
-    sampler = ofxAudioUnitSampler('aumu', 'dls ', 'appl');
-    sampler.setBank(0, 0);
-    sampler.setProgram(0);
-    
-    mixer.setInputBusCount(2);
-    mixer.setInputVolume(0.0, 0);
-    mixer.setInputVolume(0.2, 1);
-    
-    player.connectTo(lpf).connectTo(tap).connectTo(mixer, 0);
-    sampler.connectTo(mixer, 1);
-    mixer.connectTo(output);
-    
-    output.start();
-    player.loop();
-    
-    tapSamples.assign(hopSize, 0.0);
+//    tapSamples.assign(hopSize, 0.0);
     ss.setup(this, 1, 1, samplerate, hopSize, 4);
 }
 
@@ -251,19 +253,22 @@ void testApp::exit(){
 //--------------------------------------------------------------
 void testApp::audioIn(float * input, int bufferSize, int nChannels){
     //get samples
-    tap.getSamples(tapSamples);
+//    tap.getSamples(tapSamples);
     float samples[bufferSize];
+    au.getTapSamples(samples);
+//
+//    //pitch detection
+//    if (tapSamples.size() > 0) {
+//        for (int i = 0; i < bufferSize; i++){
+//            samples[i] = tapSamples[i];
+//        }
     
-    //pitch detection
-    if (tapSamples.size() > 0) {
-        for (int i = 0; i < bufferSize; i++){
-            samples[i] = tapSamples[i];
-        }
-        
+    
+    
         for (int i = 0; i < pitchDetectors.size(); i++) {
-            pitchDetectors[i]->calculatePitch(samples, bufferSize, player.getCurrentTimestamp().mSampleTime);
+            pitchDetectors[i]->calculatePitch(samples, bufferSize, au.player.getCurrentTimestamp().mSampleTime);
         }
-    }
+//    }
     
     //recording
     if (bAmRecording){
@@ -286,10 +291,10 @@ void testApp::audioOut(float * output, int bufferSize, int nChannels){
         
         //play sampler
         if ( !notes[i].bWasPlaying && notes[i].bPlaying ) {
-            sampler.midiNoteOn(notes[i].mostCommonPitch + samplerOctavesUp * 12, 127);
+            au.startNote(notes[i].mostCommonPitch + samplerOctavesUp * 12);
         }
         else if ( notes[i].bWasPlaying && !notes[i].bPlaying ) {
-            sampler.midiNoteOff(notes[i].mostCommonPitch + samplerOctavesUp * 12, 127);
+            au.stopNote(notes[i].mostCommonPitch + samplerOctavesUp * 12);
         }
 
         notes[i].bWasPlaying = notes[i].bPlaying;
@@ -403,12 +408,12 @@ void testApp::guiEvent(ofxUIEventArgs &e){
     
     if(name == "LPF cutoff") {
         ofxUISlider *slider = (ofxUISlider *) e.widget;
-        lpf.setParameter(kLowPassParam_CutoffFrequency, kAudioUnitScope_Global, slider->getScaledValue());
+        au.lpf.setParameter(kLowPassParam_CutoffFrequency, kAudioUnitScope_Global, slider->getScaledValue());
     }
     else if (name == "LPF resonance") {
      // Global, dB, -20->40, 0
         ofxUISlider *slider = (ofxUISlider *) e.widget;
-        lpf.setParameter(kLowPassParam_Resonance, kAudioUnitScope_Global, slider->getScaledValue());
+        au.lpf.setParameter(kLowPassParam_Resonance, kAudioUnitScope_Global, slider->getScaledValue());
     }
     else if (name == "MF numPValues") {
         ofxUIIntSlider *slider = (ofxUIIntSlider *) e.widget;
@@ -418,7 +423,7 @@ void testApp::guiEvent(ofxUIEventArgs &e){
     }
     else if (name == "Sampler volume") {
         ofxUISlider *slider = (ofxUISlider *) e.widget;
-        mixer.setInputVolume(slider->getScaledValue() * 0.2, 1);
+        au.mixer.setInputVolume(slider->getScaledValue() * 0.2, 1);
     }
 
 }

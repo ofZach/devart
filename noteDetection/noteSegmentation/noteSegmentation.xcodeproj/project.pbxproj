@@ -42,6 +42,7 @@
 		90184663188466300071B3F7 /* tinyxmlerror.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9018465D188466300071B3F7 /* tinyxmlerror.cpp */; };
 		90184664188466300071B3F7 /* tinyxmlparser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9018465E188466300071B3F7 /* tinyxmlparser.cpp */; };
 		90184665188466300071B3F7 /* ofxXmlSettings.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 90184660188466300071B3F7 /* ofxXmlSettings.cpp */; };
+		904AE8DE18886C30005AD271 /* audioUnitManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 904AE8DC18886C30005AD271 /* audioUnitManager.cpp */; };
 		BBAB23CB13894F3D00AA2426 /* GLUT.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = BBAB23BE13894E4700AA2426 /* GLUT.framework */; };
 		E4328149138ABC9F0047C5CB /* openFrameworksDebug.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E4328148138ABC890047C5CB /* openFrameworksDebug.a */; };
 		E45BE97B0E8CC7DD009D7055 /* AGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E45BE9710E8CC7DD009D7055 /* AGL.framework */; };
@@ -203,6 +204,8 @@
 		9018465E188466300071B3F7 /* tinyxmlparser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = tinyxmlparser.cpp; sourceTree = "<group>"; };
 		90184660188466300071B3F7 /* ofxXmlSettings.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ofxXmlSettings.cpp; sourceTree = "<group>"; };
 		90184661188466300071B3F7 /* ofxXmlSettings.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ofxXmlSettings.h; sourceTree = "<group>"; };
+		904AE8DC18886C30005AD271 /* audioUnitManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = audioUnitManager.cpp; sourceTree = "<group>"; };
+		904AE8DD18886C30005AD271 /* audioUnitManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = audioUnitManager.h; sourceTree = "<group>"; };
 		90BEC18218884449007420B2 /* ofxUI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ofxUI.h; sourceTree = "<group>"; };
 		90BEC18318884449007420B2 /* ofxUI2DGraph.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ofxUI2DGraph.h; sourceTree = "<group>"; };
 		90BEC18418884449007420B2 /* ofxUI2DPad.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ofxUI2DPad.h; sourceTree = "<group>"; };
@@ -540,6 +543,17 @@
 			path = src;
 			sourceTree = "<group>";
 		};
+		904AE8DB188857BB005AD271 /* utilities */ = {
+			isa = PBXGroup;
+			children = (
+				901845C4188097100071B3F7 /* scrollingGraph.cpp */,
+				901845C5188097100071B3F7 /* scrollingGraph.h */,
+				901845C6188097100071B3F7 /* smoother.cpp */,
+				901845C7188097100071B3F7 /* smoother.h */,
+			);
+			name = utilities;
+			sourceTree = "<group>";
+		};
 		90BEC18118884449007420B2 /* ofxUI */ = {
 			isa = PBXGroup;
 			children = (
@@ -672,16 +686,15 @@
 		E4B69E1C0A3A1BDC003C02F2 /* src */ = {
 			isa = PBXGroup;
 			children = (
-				901845C4188097100071B3F7 /* scrollingGraph.cpp */,
-				901845C5188097100071B3F7 /* scrollingGraph.h */,
-				901845C6188097100071B3F7 /* smoother.cpp */,
-				901845C7188097100071B3F7 /* smoother.h */,
 				90184581188081C70071B3F7 /* main.cpp */,
 				901845BC188081C70071B3F7 /* testApp.cpp */,
 				901845BD188081C70071B3F7 /* testApp.h */,
-				90184582188081C70071B3F7 /* newAubio */,
 				901846201884430B0071B3F7 /* pitchDetector.cpp */,
 				901846211884430B0071B3F7 /* pitchDetector.h */,
+				90184582188081C70071B3F7 /* newAubio */,
+				904AE8DB188857BB005AD271 /* utilities */,
+				904AE8DC18886C30005AD271 /* audioUnitManager.cpp */,
+				904AE8DD18886C30005AD271 /* audioUnitManager.h */,
 			);
 			path = src;
 			sourceTree = SOURCE_ROOT;
@@ -803,6 +816,7 @@
 				90184665188466300071B3F7 /* ofxXmlSettings.cpp in Sources */,
 				9018460B18809B880071B3F7 /* ofxAudioUnitNetSend.cpp in Sources */,
 				901845C1188081C70071B3F7 /* testApp.cpp in Sources */,
+				904AE8DE18886C30005AD271 /* audioUnitManager.cpp in Sources */,
 				901845C9188097100071B3F7 /* smoother.cpp in Sources */,
 				90184662188466300071B3F7 /* tinyxml.cpp in Sources */,
 				9018460D18809B880071B3F7 /* ofxAudioUnitRecorder.cpp in Sources */,
