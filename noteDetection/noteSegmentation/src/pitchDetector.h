@@ -110,7 +110,7 @@ public:
         
         //cout << bufferSamplePos << " " << vals[vals.size()-1].pos <<  endl;
         
-        
+        //cout << vals.size() << endl;
         
         pitch = -1;
         for (int i = 0; i < vals.size()-1; i++){
@@ -119,18 +119,19 @@ public:
             }
         }
         
-        if (pitch < 0) pitch = 0;
-        //cout << pitch << endl;
-        //float time = bufferSamplePos / 44100.0;
+       
     }
     
     
     float   getPitch(){
         
+        float ret = -1;
+        if (pitch > 50){
+            ret =  freq2MIDI(pitch);
+        }
         
-        return freq2MIDI(pitch);
-        
-        //return 0;
+        cout << ret << endl;
+        return ret;
     }
     
     

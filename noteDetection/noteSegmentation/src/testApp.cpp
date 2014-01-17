@@ -1,6 +1,6 @@
 #include "testApp.h"
 #include "aubio.h"
-
+#include "utils.h"
 
 
 
@@ -12,6 +12,9 @@
 
 //--------------------------------------------------------------
 void testApp::setup(){
+    
+    
+    
     samplerate = 44100;
     windowSize = 2048;
     hopSize = 1024;
@@ -333,17 +336,10 @@ float testApp::findMostCommonPitch(audioNote note){
             if (note > 0 && note < 150) notes.push_back(note);
         }
     }
-    std::vector<int> histogram(150,0);
-    for( int i=0; i<notes.size(); ++i )
-        ++histogram[ notes[i] ];
-    float maxElement =std::max_element( histogram.begin(), histogram.end() )  - histogram.begin();
-    int maxCount =histogram[maxElement];
-    float pct = (float)maxCount/ (float)notes.size();
     
-    return maxElement;
-//    mostCommonNote = maxElement;
-//    mostCommonNotePct = pct;
-    //cout << maxElement << " " << pct << endl;
+    // see utils.h
+    
+    return findMostCommon(notes);
     
 }
 
