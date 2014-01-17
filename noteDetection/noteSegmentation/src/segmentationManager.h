@@ -15,7 +15,7 @@
 
 #pragma once
 
-static int bufferSize;
+
 
 struct marker {
     float start;
@@ -50,7 +50,7 @@ public:
     
     float findMostCommonPitch(audioNote note);
     
-
+    int bufferSize;
     
     
     pitchDetectorManager * PDM;

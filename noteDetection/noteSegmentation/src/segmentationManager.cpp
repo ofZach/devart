@@ -9,7 +9,9 @@
 #include "segmentationManager.h"
 
 
-void segmentationManager::setup( int numPitchDetectors, int bufferSize ){
+void segmentationManager::setup( int numPitchDetectors, int _bufferSize ){
+    
+    bufferSize = _bufferSize;
     
     int nPds = numPitchDetectors;
     smoother tempSmoother;
@@ -126,7 +128,7 @@ void segmentationManager::update(float * samples){
     
     //    cout << noteRun << " " << bAmRecording << " vel = " << velGraphs[PDMethod].getLast() << " thresh = " << threshold << endl;
     
-    runs.addValue(bAmRecording);
+//    runs.addValue(bAmRecording);
     
     //    scroll markers
     if (markers.size() > 0) {
@@ -195,8 +197,6 @@ void segmentationManager::draw(){
 
 
 void segmentationManager::playSegments(vector<float> &output){
-//    vector<float> output;
-//    output.assign(bufferSize, 0.0);
     
     for (int i = 0; i < notes.size(); i++){
         
@@ -208,17 +208,8 @@ void segmentationManager::playSegments(vector<float> &output){
             AU->stopNote(notes[i].mostCommonPitch + samplerOctavesUp * 12);
         }
         
-        notes[i].bWasPlaying = notes[i].bPlaying;
-        
-
-        
-        //clear buffer
-//        for (int j = 0; j < bufferSize; j++){
-//            output[j] = 0;
-//        }
-        
         //while audio clips are not finshed playing
-        if (notes[i].bPlaying == true && (notes[i].playhead + bufferSize) < notes[i].samples.size()){
+        if (notes[i].bPlaying == true && (notes[i].playhead + bufferSize) < notes[i].samples.size() ){ //
             //play audio
             int playhead = notes[i].playhead;
             for (int j = 0; j < bufferSize; j++){
@@ -246,9 +237,12 @@ void segmentationManager::playSegments(vector<float> &output){
             
             while (sinAngle > PI) sinAngle -= TWO_PI;
             
-        } else {
+        }
+        else {
             notes[i].bPlaying = false;
         }
+        
+        notes[i].bWasPlaying = notes[i].bPlaying;
         
     }
 

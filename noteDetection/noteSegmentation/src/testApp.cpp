@@ -115,11 +115,13 @@ void testApp::audioOut(float * output, int bufferSize, int nChannels){
     vector<float> outputSamples;
     outputSamples.assign(bufferSize, 0.0);
     SM.playSegments(outputSamples);
-    cout << "-------------------------" << endl;
+//    cout << "-------------------------" << endl;
     for (int i = 0; i < bufferSize; i++) {
         output[i] = outputSamples[i];
-        cout << i << "  " << output[i] << endl;
+//        cout << i << "  " << output[i] << endl;
     }
+    
+    
     
     
 //    cout << "AFTER" << endl;
