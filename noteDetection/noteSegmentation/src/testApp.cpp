@@ -29,11 +29,10 @@ void testApp::loadAudio( string fileName ){
     string command = dataPathToVamp + "vampTestDebug -s mtg-melodia:melodia:melody " + fileName + " -o " + analysisFile;
     
     //cout << command << endl;
-    system(command.c_str());
+    popen(command.c_str(), "r");
     
-    
+    //ofSleepMillis(3000);
     //std::exit(0);
-    
 }
 
 
@@ -330,6 +329,6 @@ void testApp::gotMessage(ofMessage msg){
 //--------------------------------------------------------------
 void testApp::dragEvent(ofDragInfo dragInfo){ 
 
-    //loadAudio(dragInfo.files[0]);
+    loadAudio(dragInfo.files[0]);
     
 }
