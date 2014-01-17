@@ -257,18 +257,14 @@ void segmentationManager::playSegments(vector<float> &output){
 
 float segmentationManager::findMostCommonPitch(audioNote note){
     
-    vector < int > notes;
-    for (int i = 0; i < note.analysisFrames.size(); i++){
-        float freq = note.analysisFrames[i];
-        
-        if (freq > 0){
-            int note = freq;
-            if (note > 0 && note < 150) notes.push_back(note);
-        }
-    }
+    vector < int > properPitches;
     
+    for (int i = 0; i < note.analysisFrames.size(); i++){
+        float detectedPitch = note.analysisFrames[i];
+        if (detectedPitch > 0 && detectedPitch < 150) properPitches.push_back(detectedPitch);
+    }
     // see utils.h
     
-    return findMostCommon(notes);
+    return findMostCommon(properPitches);
     
 }
