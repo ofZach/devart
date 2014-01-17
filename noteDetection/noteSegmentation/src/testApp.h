@@ -87,7 +87,6 @@ public:
     vector<char_t *> methods;
     vector<basePitchDetector*> pitchDetectors;
     int minPitch;
-    bool bBelowMinPitch;
     
     //graphs
     vector<smoother> smoothers;

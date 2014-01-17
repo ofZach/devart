@@ -109,40 +109,57 @@ void testApp::update(){
         velGraphs[i].addValue(vel);
     }
     
-        
-
-    
+//    cout << medianGraphs[PDMethod].getLast()  << endl;
+//    if (medianGraphs[PDMethod].getLast() < minPitch){
+//        cout << "below pitch bailing" << endl;
+//        cout << medianGraphs[PDMethod].getLast()  << " ------- " << endl;
+//        bBelowMinPitch = true;
+//    }
     // count how many frames in a row the vel is below the threshold
-    if ( velGraphs[PDMethod].getLast() < (bVelFine ? fineThreshold : coarseThreshold) && !bBelowMinPitch ) {
+    if ( velGraphs[PDMethod].getLast() < (bVelFine ? fineThreshold : coarseThreshold) ) {
         noteRun++;
         bAmRecording = true;
     }
     else  {
+//        cout << "got here why " << velGraphs[PDMethod].getLast() << " " <<
+//        (bVelFine ? fineThreshold : coarseThreshold) << " " << bBelowMinPitch << endl;
+        
         // if the vel is above the thresh then check if the current run is longer than the min duration. If so save the note.  Regardless, set the run count to zero.
         
         
         bAmRecording = false;
         
-        if ( noteRun > minDuration && !bBelowMinPitch) {
-
-            marker segment;
-            segment.start = graphWidth - 1 - noteRun;
-            segment.end = graphWidth - 1;
-            markers.push_back(segment);
+        if ( noteRun > minDuration ) {
             
-            currentNote.playhead = 0;
-            currentNote.bPlaying = true;
-            currentNote.bWasPlaying = false;
-            currentNote.mostCommonPitch = findMostCommonPitch(currentNote);
-            notes.push_back(currentNote);
+            float avgPitch = 0;
+            for (int i = 0; i < currentNote.analysisFrames.size(); i++ ) {
+                avgPitch += currentNote.analysisFrames[i];
+            }
+            avgPitch /= currentNote.analysisFrames.size();
+            
+            
+            if ( avgPitch > minPitch ) {
+                
+                marker segment;
+                segment.start = graphWidth - 1 - noteRun;
+                segment.end = graphWidth - 1;
+                markers.push_back(segment);
+                
+                currentNote.playhead = 0;
+                currentNote.bPlaying = true;
+                currentNote.bWasPlaying = false;
+                currentNote.mostCommonPitch = findMostCommonPitch(currentNote);
+                notes.push_back(currentNote);
+                
+                
+                cout << "avgPitch = " << avgPitch << " most common note " << currentNote.mostCommonPitch << endl;
+            }
             
 //            cout << "note recorded - min duration = " << minDuration << endl << endl;
-            
         }
         
         noteRun = 0;
-        bBelowMinPitch = false;
-    }
+           }
 
 //    cout << noteRun << " " << bAmRecording << " vel = " << velGraphs[PDMethod].getLast() << " thresh = " << threshold << endl;
     
@@ -254,8 +271,7 @@ void testApp::audioIn(float * input, int bufferSize, int nChannels){
         }
         
         float pitch = pitchDetectors[PDMethod]->getPitch();
-        if (pitch < minPitch) bBelowMinPitch = true;
-        else currentNote.analysisFrames.push_back(pitch);
+        currentNote.analysisFrames.push_back(pitch);
         
     } else  {
         currentNote.samples.clear();
@@ -329,7 +345,7 @@ float testApp::findMostCommonPitch(audioNote note){
         float freq = note.analysisFrames[i];
         
         if (freq > 0){
-            int note = freq; //freq2midi(freq);
+            int note = freq;
             if (note > 0 && note < 150) notes.push_back(note);
         }
     }
@@ -372,7 +388,7 @@ void testApp::setupGUI(){
     gui->addIntSlider("MF numPValues", 3, 33, 11, length-xInit, dim);
     gui->addSpacer(length-xInit, 1);
     gui->addLabel("SEGMENTATION");
-    gui->addSlider("Coarse Threshold", 0.0, graphMax, &coarseThreshold, length-xInit, dim);
+    gui->addSlider("Coarse Threshold", 0.0, 10.0, &coarseThreshold, length-xInit, dim);
     gui->addSlider("Fine Threshold", 0.0, 2.0, &fineThreshold, length-xInit, dim);
     gui->addLabelToggle("Coarse/Fine", &bVelFine);
     gui->addSlider("Min duration", 1, 60, &minDuration, length-xInit, dim);
