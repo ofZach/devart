@@ -58,6 +58,8 @@ void testApp::setup(){
     setupGUI();
 
     ss.setup(this, 1, 1, samplerate, hopSize, 4);
+    
+    ofSetVerticalSync(false);
 }
 
 
