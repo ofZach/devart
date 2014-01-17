@@ -190,7 +190,7 @@ void testApp::setupGUI(){
     samplerOctavesUp = sinOctavesUp = 0;
     
     SM.bVelFine = false;
-     s
+
     //init gui dims
     float dim = 16;
 	float xInit = OFX_UI_GLOBAL_WIDGET_SPACING;

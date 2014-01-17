@@ -69,6 +69,7 @@ void segmentationManager::update(){
     if ( velGraphs[PDM->PDMethod].getLast() < (bVelFine ? fineThreshold : coarseThreshold) && !bBelowMinPitch ) {
         noteRun++;
         bAmRecording = true;
+        pitchesForRecording.push_back(medianGraphs[PDM->PDMethod].getLast());
     }
     else  {
         // if the vel is above the thresh then check if the current run is longer than the min duration. If so save the note.  Regardless, set the run count to zero.
@@ -81,8 +82,19 @@ void segmentationManager::update(){
             marker segment;
             segment.start = graphWidth - 1 - noteRun;
             segment.end = graphWidth - 1;
-            markers.push_back(segment);
             
+            float avg = 0;
+            for (int i = 0; i < pitchesForRecording.size(); i++){
+                cout << pitchesForRecording[i] << " ------ " << endl;
+                avg += pitchesForRecording[i];
+            }
+            avg /= (MAX(1.0, pitchesForRecording.size()));
+            
+            pitchesForRecording.clear();
+            // zero periods look like 9, 10... etc
+            if (avg > 20){
+                markers.push_back(segment);
+            }
 //            currentNote.playhead = 0;
 //            currentNote.bPlaying = true;
 //            currentNote.bWasPlaying = false;

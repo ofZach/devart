@@ -54,6 +54,8 @@ public:
     float noteRun;
     
     bool bAmRecording;
+    vector < float > pitchesForRecording;
+    
     
     
 };
