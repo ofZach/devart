@@ -6,7 +6,7 @@
 #include "ofxUI.h"
 #include "ofxXmlSettings.h"
 #include "pitchDetectorManager.h"
-#include "audioUnitManager.h"
+//#include "audioUnitManager.h"
 #include "segmentationManager.h"
 
 
@@ -46,18 +46,13 @@ public:
     ofSoundStream ss;
     void audioIn(float * input, int bufferSize, int nChannels);
     void audioOut(float * output, int bufferSize, int nChannels);
-    
 
-    
-    float audioVol, sinVol;
-    int samplerOctavesUp, sinOctavesUp;
-    float sinAngle;
 
     pitchDetectorManager PDM;
 
     segmentationManager SM;
    
-    audioUnitManager au;
+    audioUnitManager AU;
 
     ofxUICanvas * gui;
     

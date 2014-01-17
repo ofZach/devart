@@ -47,13 +47,14 @@ void testApp::setup(){
     
     PDM.setup(windowSize, hopSize);
 
-    sinAngle = 0;
-
-    au.setup("lankra.wav", hopSize);
-    au.playFile();
     
-    SM.setup( PDM.size() );
+
+    AU.setup("lankra.wav", hopSize);
+    AU.playFile();
+    
+    SM.setup( PDM.size(), hopSize );
     SM.PDM = &PDM;
+    SM.AU = &AU;
     
     setupGUI();
 
@@ -96,81 +97,43 @@ void testApp::exit(){
 void testApp::audioIn(float * input, int bufferSize, int nChannels){
     //get samples
     float samples[bufferSize];
-    au.getTapSamples(samples);
+    AU.getTapSamples(samples);
 
     // process:
-    PDM.processPitchDetectors(samples, bufferSize, au.getSampleTime());
+    PDM.processPitchDetectors(samples, bufferSize, AU.getSampleTime());
     
     // this was in update before...  not sure about that....
-    SM.update(samples, bufferSize);
+    SM.update(samples);
     
 }
 
 void testApp::audioOut(float * output, int bufferSize, int nChannels){
-    
-
-    
-    for (int i = 0; i < SM.notes.size(); i++){
-        
-        //play sampler
-        if ( !SM.notes[i].bWasPlaying && SM.notes[i].bPlaying ) {
-            au.startNote(SM.notes[i].mostCommonPitch + samplerOctavesUp * 12);
-        }
-        else if ( SM.notes[i].bWasPlaying && !SM.notes[i].bPlaying ) {
-            au.stopNote(SM.notes[i].mostCommonPitch + samplerOctavesUp * 12);
-        }
-
-        SM.notes[i].bWasPlaying = SM.notes[i].bPlaying;
-        
-        //clear buffer
-        for (int j = 0; j < bufferSize; j++){
-            output[j] = 0;
-        }
-        
-        //while audio clips are not finshed playing
-        if (SM.notes[i].bPlaying == true && (SM.notes[i].playhead + bufferSize) < SM.notes[i].samples.size()){
-            //play audio
-            int playhead = SM.notes[i].playhead;
-            for (int j = 0; j < bufferSize; j++){
-                output[j] += SM.notes[i].samples[playhead + j] * 0.2 * audioVol;
-            }
-            SM.notes[i].playhead += bufferSize ;
-            
-            //play sine wave
-            int frame = playhead / bufferSize;
-            int midiNote = SM.notes[i].analysisFrames[frame];
-            
-            float freq = pow(2, float(midiNote-69)/12.0)*440;
-            freq *= pow(2.0, sinOctavesUp);
-//            cout << frame << " / " << notes[i].analysisFrames.size() << " midi " << midiNote << " freq " << freq << endl;
-            //fm  =  2(m−69)/12(440 Hz)
-            float sinAngleAdder = freq * TWO_PI / 44100.0;
-            
-            for (int j = 0; j < bufferSize; j++){
-                
-                output[j] += sin(sinAngle) * 0.2 * sinVol;
-                
-                sinAngle+= sinAngleAdder;
-                
-            }
-            
-            while (sinAngle > PI) sinAngle -= TWO_PI;
-            
-        } else {
-            SM.notes[i].bPlaying = false;
-        }
-        
+//    cout << "BEFORE" << endl;
+//    for (int i = 0; i < bufferSize; i++) {
+//        cout << i << " " << output[i] << endl;
+//    }
+    vector<float> outputSamples;
+    outputSamples.assign(bufferSize, 0.0);
+    SM.playSegments(outputSamples);
+    cout << "-------------------------" << endl;
+    for (int i = 0; i < bufferSize; i++) {
+        output[i] = outputSamples[i];
+        cout << i << "  " << output[i] << endl;
     }
+    
+    
+//    cout << "AFTER" << endl;
+//    for (int i = 0; i < bufferSize; i++) {
+//        cout << i << " " << output[i] << endl;
+//    }
+//    
     
 }
 
 
 void testApp::setupGUI(){
     
-    
-    audioVol = 1.0;
-    sinVol = 0.0;
-    samplerOctavesUp = sinOctavesUp = 0;
+
     
     SM.bVelFine = false;
 
@@ -198,11 +161,11 @@ void testApp::setupGUI(){
     gui->addIntSlider("Min pitch", 0, 30, &SM.minPitch, length-xInit, dim);
     gui->addSpacer(length-xInit, 1);
     gui->addLabel("AUDIO OUTPUT");
-    gui->addSlider("Audio Volume", 0.0, 1.0, &audioVol, length-xInit, dim);
+    gui->addSlider("Audio Volume", 0.0, 1.0, &SM.audioVol, length-xInit, dim);
     gui->addSlider("Sampler volume", 0.0, 1.0, 1.0, length-xInit, dim);
-    gui->addSlider("Sine wave volume", 0.0, 1.0, &sinVol, length-xInit, dim);
-    gui->addIntSlider("Sampler octvs up", 0, 4, &samplerOctavesUp, length-xInit, dim);
-    gui->addIntSlider("Sine wave octvs up", 0, 4, &sinOctavesUp, length-xInit, dim);
+    gui->addSlider("Sine wave volume", 0.0, 1.0, &SM.sinVol, length-xInit, dim);
+    gui->addIntSlider("Sampler octvs up", 0, 4, &SM.samplerOctavesUp, length-xInit, dim);
+    gui->addIntSlider("Sine wave octvs up", 0, 4, &SM.sinOctavesUp, length-xInit, dim);
     ofAddListener(gui->newGUIEvent,this,&testApp::guiEvent);
 }
 
@@ -212,12 +175,12 @@ void testApp::guiEvent(ofxUIEventArgs &e){
     
     if(name == "LPF cutoff") {
         ofxUISlider *slider = (ofxUISlider *) e.widget;
-        au.lpf.setParameter(kLowPassParam_CutoffFrequency, kAudioUnitScope_Global, slider->getScaledValue());
+        AU.lpf.setParameter(kLowPassParam_CutoffFrequency, kAudioUnitScope_Global, slider->getScaledValue());
     }
     else if (name == "LPF resonance") {
      // Global, dB, -20->40, 0
         ofxUISlider *slider = (ofxUISlider *) e.widget;
-        au.lpf.setParameter(kLowPassParam_Resonance, kAudioUnitScope_Global, slider->getScaledValue());
+        AU.lpf.setParameter(kLowPassParam_Resonance, kAudioUnitScope_Global, slider->getScaledValue());
     }
     else if (name == "MF numPValues") {
         ofxUIIntSlider *slider = (ofxUIIntSlider *) e.widget;
@@ -227,7 +190,7 @@ void testApp::guiEvent(ofxUIEventArgs &e){
     }
     else if (name == "Sampler volume") {
         ofxUISlider *slider = (ofxUISlider *) e.widget;
-        au.mixer.setInputVolume(slider->getScaledValue() * 0.2, 1);
+        AU.mixer.setInputVolume(slider->getScaledValue() * 0.2, 1);
     }
 
 }

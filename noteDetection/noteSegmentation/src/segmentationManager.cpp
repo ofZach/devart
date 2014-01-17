@@ -9,7 +9,7 @@
 #include "segmentationManager.h"
 
 
-void segmentationManager::setup( int numPitchDetectors ){
+void segmentationManager::setup( int numPitchDetectors, int bufferSize ){
     
     int nPds = numPitchDetectors;
     smoother tempSmoother;
@@ -46,9 +46,16 @@ void segmentationManager::setup( int numPitchDetectors ){
     drawMarkers = true;
     bAmRecording = false;
     minPitch = 20;
+    
+    
+    //segment playback
+    sinAngle = 0;
+    audioVol = 1.0;
+    sinVol = 0.0;
+    samplerOctavesUp = sinOctavesUp = 0;
 }
 
-void segmentationManager::update(float * samples, int bufferSize){
+void segmentationManager::update(float * samples){
     
     for (int i = 0; i < PDM->size(); i++) {
         pitchGraphs[i].addValue(PDM->getPitch(i));
@@ -184,6 +191,67 @@ void segmentationManager::draw(){
     ofPopMatrix();
 
     
+}
+
+
+void segmentationManager::playSegments(vector<float> &output){
+//    vector<float> output;
+//    output.assign(bufferSize, 0.0);
+    
+    for (int i = 0; i < notes.size(); i++){
+        
+        //play sampler
+        if ( !notes[i].bWasPlaying && notes[i].bPlaying ) {
+            AU->startNote(notes[i].mostCommonPitch + samplerOctavesUp * 12);
+        }
+        else if ( notes[i].bWasPlaying && !notes[i].bPlaying ) {
+            AU->stopNote(notes[i].mostCommonPitch + samplerOctavesUp * 12);
+        }
+        
+        notes[i].bWasPlaying = notes[i].bPlaying;
+        
+
+        
+        //clear buffer
+//        for (int j = 0; j < bufferSize; j++){
+//            output[j] = 0;
+//        }
+        
+        //while audio clips are not finshed playing
+        if (notes[i].bPlaying == true && (notes[i].playhead + bufferSize) < notes[i].samples.size()){
+            //play audio
+            int playhead = notes[i].playhead;
+            for (int j = 0; j < bufferSize; j++){
+                output[j] += notes[i].samples[playhead + j] * 0.2 * audioVol;
+            }
+            notes[i].playhead += bufferSize ;
+            
+            //play sine wave
+            int frame = playhead / bufferSize;
+            int midiNote = notes[i].analysisFrames[frame];
+            
+            float freq = pow(2, float(midiNote-69)/12.0)*440;
+            freq *= pow(2.0, sinOctavesUp);
+            //            cout << frame << " / " << notes[i].analysisFrames.size() << " midi " << midiNote << " freq " << freq << endl;
+            //fm  =  2(m−69)/12(440 Hz)
+            float sinAngleAdder = freq * TWO_PI / 44100.0;
+            
+            for (int j = 0; j < bufferSize; j++){
+                
+                output[j] += sin(sinAngle) * 0.2 * sinVol;
+                
+                sinAngle+= sinAngleAdder;
+                
+            }
+            
+            while (sinAngle > PI) sinAngle -= TWO_PI;
+            
+        } else {
+            notes[i].bPlaying = false;
+        }
+        
+    }
+
 }
 
 

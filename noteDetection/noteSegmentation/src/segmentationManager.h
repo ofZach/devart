@@ -10,10 +10,12 @@
 #include "scrollingGraph.h"
 #include "smoother.h"
 #include "pitchDetectorManager.h"
+#include "audioUnitManager.h"
 #include "utils.h"
 
 #pragma once
 
+static int bufferSize;
 
 struct marker {
     float start;
@@ -36,13 +38,25 @@ class segmentationManager {
     
 public: 
     
-    void setup( int numPitchDetectors );
-    void update(float * samples, int bufferSize);
+    void setup( int numPitchDetectors, int _bufferSize );
+    void update(float * samples);
     void draw();
+    
+    void playSegments(vector<float> &output);
+    float audioVol, sinVol;
+    int samplerOctavesUp, sinOctavesUp;
+    float sinAngle;
+    
+    
     float findMostCommonPitch(audioNote note);
+    
+
+    
     
     pitchDetectorManager * PDM;
     int nPds;
+    
+    audioUnitManager * AU;
     
     
     int minPitch;

@@ -132,7 +132,7 @@ public:
             ret =  freq2MIDI(pitch);
         }
         
-        cout << ret << endl;
+//        cout << ret << endl;
         return ret;
     }
     
