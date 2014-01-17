@@ -102,7 +102,7 @@ void testApp::audioIn(float * input, int bufferSize, int nChannels){
     PDM.processPitchDetectors(samples, bufferSize, au.getSampleTime());
     
     // this was in update before...  not sure about that....
-    SM.update();
+    SM.update(samples, bufferSize);
     
 }
 
@@ -110,77 +110,60 @@ void testApp::audioOut(float * output, int bufferSize, int nChannels){
     
 
     
-//    for (int i = 0; i < notes.size(); i++){
-//        
-//        //play sampler
-//        if ( !notes[i].bWasPlaying && notes[i].bPlaying ) {
-//            au.startNote(notes[i].mostCommonPitch + samplerOctavesUp * 12);
-//        }
-//        else if ( notes[i].bWasPlaying && !notes[i].bPlaying ) {
-//            au.stopNote(notes[i].mostCommonPitch + samplerOctavesUp * 12);
-//        }
-//
-//        notes[i].bWasPlaying = notes[i].bPlaying;
-//        
-//        //clear buffer
-//        for (int j = 0; j < bufferSize; j++){
-//            output[j] = 0;
-//        }
-//        
-//        //while audio clips are not finshed playing
-//        if (notes[i].bPlaying == true && (notes[i].playhead + bufferSize) < notes[i].samples.size()){
-//            //play audio
-//            int playhead = notes[i].playhead;
-//            for (int j = 0; j < bufferSize; j++){
-//                output[j] += notes[i].samples[playhead + j] * 0.2 * audioVol;
-//            }
-//            notes[i].playhead += bufferSize ;
-//            
-//            //play sine wave
-//            int frame = playhead / bufferSize;
-//            int midiNote = notes[i].analysisFrames[frame];
-//            
-//            float freq = pow(2, float(midiNote-69)/12.0)*440;
-//            freq *= pow(2.0, sinOctavesUp);
-////            cout << frame << " / " << notes[i].analysisFrames.size() << " midi " << midiNote << " freq " << freq << endl;
-//            //fm  =  2(m−69)/12(440 Hz)
-//            float sinAngleAdder = freq * TWO_PI / 44100.0;
-//            
-//            for (int j = 0; j < bufferSize; j++){
-//                
-//                output[j] += sin(sinAngle) * 0.2 * sinVol;
-//                
-//                sinAngle+= sinAngleAdder;
-//                
-//            }
-//            
-//            while (sinAngle > PI) sinAngle -= TWO_PI;
-//            
-//        } else {
-//            notes[i].bPlaying = false;
-//        }
-//        
-//    }
+    for (int i = 0; i < SM.notes.size(); i++){
+        
+        //play sampler
+        if ( !SM.notes[i].bWasPlaying && SM.notes[i].bPlaying ) {
+            au.startNote(SM.notes[i].mostCommonPitch + samplerOctavesUp * 12);
+        }
+        else if ( SM.notes[i].bWasPlaying && !SM.notes[i].bPlaying ) {
+            au.stopNote(SM.notes[i].mostCommonPitch + samplerOctavesUp * 12);
+        }
+
+        SM.notes[i].bWasPlaying = SM.notes[i].bPlaying;
+        
+        //clear buffer
+        for (int j = 0; j < bufferSize; j++){
+            output[j] = 0;
+        }
+        
+        //while audio clips are not finshed playing
+        if (SM.notes[i].bPlaying == true && (SM.notes[i].playhead + bufferSize) < SM.notes[i].samples.size()){
+            //play audio
+            int playhead = SM.notes[i].playhead;
+            for (int j = 0; j < bufferSize; j++){
+                output[j] += SM.notes[i].samples[playhead + j] * 0.2 * audioVol;
+            }
+            SM.notes[i].playhead += bufferSize ;
+            
+            //play sine wave
+            int frame = playhead / bufferSize;
+            int midiNote = SM.notes[i].analysisFrames[frame];
+            
+            float freq = pow(2, float(midiNote-69)/12.0)*440;
+            freq *= pow(2.0, sinOctavesUp);
+//            cout << frame << " / " << notes[i].analysisFrames.size() << " midi " << midiNote << " freq " << freq << endl;
+            //fm  =  2(m−69)/12(440 Hz)
+            float sinAngleAdder = freq * TWO_PI / 44100.0;
+            
+            for (int j = 0; j < bufferSize; j++){
+                
+                output[j] += sin(sinAngle) * 0.2 * sinVol;
+                
+                sinAngle+= sinAngleAdder;
+                
+            }
+            
+            while (sinAngle > PI) sinAngle -= TWO_PI;
+            
+        } else {
+            SM.notes[i].bPlaying = false;
+        }
+        
+    }
     
 }
 
-float testApp::findMostCommonPitch(audioNote note){
-    
-    vector < int > notes;
-    for (int i = 0; i < note.analysisFrames.size(); i++){
-        float freq = note.analysisFrames[i];
-        
-        if (freq > 0){
-            int note = freq;
-            if (note > 0 && note < 150) notes.push_back(note);
-        }
-    }
-    
-    // see utils.h
-    
-    return findMostCommon(notes);
-    
-}
 
 void testApp::setupGUI(){
     
