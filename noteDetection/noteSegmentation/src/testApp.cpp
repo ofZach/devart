@@ -19,33 +19,12 @@ void testApp::setup(){
     windowSize = 2048;
     hopSize = 1024;
     
-    numAPDs = 6;
-    
-//    aubioPitchDetector tempPD;
-    for (int i = 0; i < numAPDs; i++) {
-        pitchDetectors.push_back(new aubioPitchDetector);
-    }
-    
-    methods.push_back("yin");
-    methods.push_back("yinfft");
-    methods.push_back("specacf");
-    methods.push_back("schmitt");
-    methods.push_back("mcomb");
-    methods.push_back("fcomb");
-    
-    for (int i = 0; i < numAPDs; i++) {
-        aubioPitchDetector * APD = static_cast<aubioPitchDetector*>(pitchDetectors[i]);
-        APD->setup("midi", methods[i], windowSize, hopSize);
-    }
-    
-    basePitchDetector * fpd = new filePitchDetector();
-    ((filePitchDetector*)fpd)->loadAssociatedFile("lankra.vals.txt");
-    pitchDetectors.push_back(fpd);
+    PDM.setup(windowSize, hopSize);
     
     
     smoother tempSmoother;
     tempSmoother.setNumPValues(11);
-    for (int i = 0; i < pitchDetectors.size(); i++) {
+    for (int i = 0; i < PDM.size(); i++) {
         smoothers.push_back(tempSmoother);
     }
     
@@ -56,14 +35,14 @@ void testApp::setup(){
     
     scrollingGraph tempGraph;
     tempGraph.setup(graphWidth, 0, 0, graphMax);
-    for (int i = 0; i < pitchDetectors.size(); i++) {
+    for (int i = 0; i < PDM.size(); i++) {
         pitchGraphs.push_back(tempGraph);
         medianGraphs.push_back(tempGraph);
         velGraphs.push_back(tempGraph);
     }
     
     
-    for (int i = 0; i < pitchDetectors.size(); i++) {
+    for (int i = 0; i < PDM.size(); i++) {
         ofColor tempColor;
         tempColor.setHsb(i*40, 255, 180, 200);
         graphColors.push_back(tempColor);
@@ -100,9 +79,9 @@ void testApp::update(){
     
     
     
-    for (int i = 0; i < pitchDetectors.size(); i++) {
-        pitchGraphs[i].addValue(pitchDetectors[i]->getPitch());
-        smoothers[i].addValue(pitchDetectors[i]->getPitch());
+    for (int i = 0; i < PDM.size(); i++) {
+        pitchGraphs[i].addValue(PDM.getPitch());
+        smoothers[i].addValue(PDM.getPitch());
         medianGraphs[i].addValue(smoothers[i].getMedian());
         
         
@@ -116,7 +95,7 @@ void testApp::update(){
 
     
     // count how many frames in a row the vel is below the threshold
-    if ( velGraphs[PDMethod].getLast() < (bVelFine ? fineThreshold : coarseThreshold) && !bBelowMinPitch ) {
+    if ( velGraphs[PDM.PDMethod].getLast() < (bVelFine ? fineThreshold : coarseThreshold) && !bBelowMinPitch ) {
         noteRun++;
         bAmRecording = true;
     }
@@ -164,9 +143,9 @@ void testApp::update(){
 //--------------------------------------------------------------
 void testApp::draw(){
 
-
-    ofSetColor(255, 10, 10);
-    ofDrawBitmapString(pitchDetectors[PDMethod]->name, ofGetWidth() - 100, 50);
+    // TODO: name
+    //ofSetColor(255, 10, 10);
+    //ofDrawBitmapString(PDM.pitchDetectors[PDMethod]->name, ofGetWidth() - 100, 50);
 
     ofSetColor(25);
     ofLine(ofGetWidth() - minDuration * 2, 90, ofGetWidth(), 90);
@@ -178,7 +157,7 @@ void testApp::draw(){
     ofPushMatrix();
     ofTranslate(0, 100);
     ofSetColor(255, 10, 10);
-    medianGraphs[PDMethod].draw(graphHeight);
+    medianGraphs[ PDM.getMethod() ].draw(graphHeight);
 //        ofSetColor(25);
 //        runs.draw(graphHeight);
 
@@ -196,10 +175,10 @@ void testApp::draw(){
     ofSetColor(255,0,0);
     
     if (bVelFine) {
-        velGraphs[PDMethod].draw(graphHeight, 0.0, 2.0);
+        velGraphs[ PDM.getMethod() ].draw(graphHeight, 0.0, 2.0);
     }
     else {
-        velGraphs[PDMethod].draw(graphHeight);
+        velGraphs[ PDM.getMethod() ].draw(graphHeight);
     }
     
     if (drawMarkers) {
@@ -209,8 +188,8 @@ void testApp::draw(){
         ofLine(0, threshLineHeight, ofGetWidth(), threshLineHeight);
         
         ofSetColor(0,0,0,127);
-        for (int j = 0; j < velGraphs[PDMethod].valHistory.size(); j++) {
-            if ( velGraphs[PDMethod].valHistory[j] > (bVelFine ? fineThreshold : coarseThreshold ) ) {
+        for (int j = 0; j < velGraphs[ PDM.getMethod() ].valHistory.size(); j++) {
+            if ( velGraphs[ PDM.getMethod() ].valHistory[j] > (bVelFine ? fineThreshold : coarseThreshold ) ) {
                 ofLine(j * 2, -graphHeight, j * 2, graphHeight);
             }
         }
@@ -224,14 +203,13 @@ void testApp::draw(){
 
 void testApp::exit(){
     
-    // stop the audio thread first:
+    // stop the audio thread first, this was causing the crashes:
     ss.stop();
 
-    
-    for (int i = 0; i < numAPDs; i++) {
-        aubioPitchDetector * APD = static_cast<aubioPitchDetector*>(pitchDetectors[i]);
-        APD->cleanup();
-    }
+//    for (int i = 0; i < numAPDs; i++) {
+//        aubioPitchDetector * APD = static_cast<aubioPitchDetector*>(pitchDetectors[i]);
+//        APD->cleanup();
+//    }
     
     aubio_cleanup();
 
@@ -245,10 +223,8 @@ void testApp::audioIn(float * input, int bufferSize, int nChannels){
     float samples[bufferSize];
     au.getTapSamples(samples);
 
-    //pitch detection
-    for (int i = 0; i < pitchDetectors.size(); i++) {
-        pitchDetectors[i]->calculatePitch(samples, bufferSize, au.getSampleTime());
-    }
+    // process:
+    PDM.processPitchDetectors(samples, bufferSize, au.getSampleTime());
     
     //recording
     if (bAmRecording){
@@ -256,7 +232,7 @@ void testApp::audioIn(float * input, int bufferSize, int nChannels){
             currentNote.samples.push_back(samples[i]);
         }
         
-        float pitch = pitchDetectors[PDMethod]->getPitch();
+        float pitch = PDM.getPitch();
         if (pitch < minPitch) bBelowMinPitch = true;
         else currentNote.analysisFrames.push_back(pitch);
         
@@ -398,7 +374,7 @@ void testApp::guiEvent(ofxUIEventArgs &e){
     }
     else if (name == "MF numPValues") {
         ofxUIIntSlider *slider = (ofxUIIntSlider *) e.widget;
-        for (int i = 0; i < pitchDetectors.size(); i++) {
+        for (int i = 0; i < PDM.size(); i++) {
             smoothers[i].setNumPValues(slider->getValue());
         }
     }
@@ -421,7 +397,7 @@ void testApp::keyPressed(int key){
         case '6':
         case '7':    
         {
-            PDMethod = key - 49;
+            PDM.setPitchMethod( key - 49 );
             break;
         }
             

@@ -5,12 +5,9 @@
 //#include "ofxAudioUnit.h"
 #include "ofxUI.h"
 #include "ofxXmlSettings.h"
-
 #include "scrollingGraph.h"
 #include "smoother.h"
-
-#include "pitchDetector.h"
-
+#include "pitchDetectorsManager.h"
 #include "audioUnitManager.h"
 
 struct marker {
@@ -82,10 +79,10 @@ public:
     //===========pitch detecotr manager
     
     //pitch detector
-    int numAPDs;
-    int PDMethod;
-    vector<char_t *> methods;
-    vector<basePitchDetector*> pitchDetectors;
+    
+    pitchDetectorManager PDM;
+    
+    
     int minPitch;
     bool bBelowMinPitch;
     
