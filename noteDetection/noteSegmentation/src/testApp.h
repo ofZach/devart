@@ -70,40 +70,6 @@ public:
     float audioVol, sinVol;
     int samplerOctavesUp, sinOctavesUp;
     float sinAngle;
-    
-<<<<<<< HEAD
-    //===========pitch detecotr manager
-    
-    //pitch detector
-    int numAPDs;
-    int PDMethod;
-    vector<char_t *> methods;
-    vector<basePitchDetector*> pitchDetectors;
-    int minPitch;
-    
-    //graphs
-    vector<smoother> smoothers;
-    vector<scrollingGraph> pitchGraphs, medianGraphs, velGraphs;
-    //vector<bool> drawPitch, drawMedian;
-    vector<ofColor> graphColors;
-    float graphWidth;
-    float graphMax;
-    float graphHeight;
-    bool bVelFine;
-    
-    //markers
-    vector<marker> markers;
-    bool drawMarkers;
-    scrollingGraph runs;
-    float coarseThreshold, fineThreshold;
-    float minDuration, maxDuration;
-    float noteRun;
-    
-    
-    //---------------audioUnit manager
-    audioUnitManager au;
-=======
->>>>>>> 6cb7cd90ab54ecaf8764acdee14320aef8ada9b4
 
     pitchDetectorManager PDM;
 

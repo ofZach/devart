@@ -125,16 +125,8 @@ public:
     }
     
     
-    float   getPitch(){
-        
-<<<<<<< HEAD:noteDetection/noteSegmentation/src/pitchDetector.h
-        if ( pitch < 50)
-            return -1;
-        else
-            return freq2MIDI(pitch);
-        
-        //return 0;
-=======
+    float  getPitch(){
+
         float ret = -1;
         if (pitch > 50){
             ret =  freq2MIDI(pitch);
@@ -142,7 +134,6 @@ public:
         
         cout << ret << endl;
         return ret;
->>>>>>> 6cb7cd90ab54ecaf8764acdee14320aef8ada9b4:noteDetection/noteSegmentation/src/pitch/pitchDetector.h
     }
     
     
