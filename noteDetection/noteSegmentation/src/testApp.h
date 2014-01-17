@@ -7,7 +7,7 @@
 #include "ofxXmlSettings.h"
 #include "scrollingGraph.h"
 #include "smoother.h"
-#include "pitchDetectorsManager.h"
+#include "pitchDetectorManager.h"
 #include "audioUnitManager.h"
 
 struct marker {

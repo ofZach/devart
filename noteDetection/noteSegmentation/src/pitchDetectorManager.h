@@ -12,6 +12,7 @@
 
 #include "pitchDetector.h"
 
+// I hold the pitch detectors.  I process buffers and split out pitch
 
 class pitchDetectorManager {
 

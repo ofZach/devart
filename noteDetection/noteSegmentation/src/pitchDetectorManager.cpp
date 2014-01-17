@@ -8,7 +8,7 @@
 
 
 
-#include "pitchDetectorsManager.h"
+#include "pitchDetectorManager.h"
 
 
 
