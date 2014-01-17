@@ -18,7 +18,6 @@ void testApp::setup(){
 
     sinAngle = 0;
 
-    
     au.setup("lankra.wav", hopSize);
     au.playFile();
     
@@ -26,8 +25,7 @@ void testApp::setup(){
     SM.PDM = &PDM;
     
     setupGUI();
-    
-    
+
     ss.setup(this, 1, 1, samplerate, hopSize, 4);
 }
 
@@ -173,7 +171,8 @@ float testApp::findMostCommonPitch(audioNote note){
 }
 
 void testApp::setupGUI(){
-    //init params
+    
+    
     audioVol = 1.0;
     sinVol = 0.0;
     samplerOctavesUp = sinOctavesUp = 0;
