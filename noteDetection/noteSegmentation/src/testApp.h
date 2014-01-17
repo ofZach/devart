@@ -76,12 +76,15 @@ public:
     int samplerOctavesUp, sinOctavesUp;
     float sinAngle;
     
-    //===========pitch detecotr manager
-    
-    //pitch detector
+   
     
     pitchDetectorManager PDM;
     
+    
+    
+    // -------------------------------
+    
+    // all of this should go in segmentation manager
     
     int minPitch;
     bool bBelowMinPitch;
@@ -103,7 +106,6 @@ public:
     float coarseThreshold, fineThreshold;
     float minDuration, maxDuration;
     float noteRun;
-    
     
     //---------------audioUnit manager
     audioUnitManager au;

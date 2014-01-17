@@ -91,6 +91,7 @@
 		92CCE23518887F980001217C /* ofxUIWidgetWithLabel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 92CCE20518887F980001217C /* ofxUIWidgetWithLabel.cpp */; };
 		92CCE238188953340001217C /* utils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 92CCE236188953340001217C /* utils.cpp */; };
 		92CCE23B18895DCF0001217C /* pitchDetectorManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 92CCE23918895DCF0001217C /* pitchDetectorManager.cpp */; };
+		92CCE23E188965000001217C /* segmentationManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 92CCE23C188965000001217C /* segmentationManager.cpp */; };
 		BBAB23CB13894F3D00AA2426 /* GLUT.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = BBAB23BE13894E4700AA2426 /* GLUT.framework */; };
 		E4328149138ABC9F0047C5CB /* openFrameworksDebug.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E4328148138ABC890047C5CB /* openFrameworksDebug.a */; };
 		E45BE97B0E8CC7DD009D7055 /* AGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E45BE9710E8CC7DD009D7055 /* AGL.framework */; };
@@ -355,6 +356,8 @@
 		92CCE237188953340001217C /* utils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = utils.h; sourceTree = "<group>"; };
 		92CCE23918895DCF0001217C /* pitchDetectorManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = pitchDetectorManager.cpp; sourceTree = "<group>"; };
 		92CCE23A18895DCF0001217C /* pitchDetectorManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = pitchDetectorManager.h; sourceTree = "<group>"; };
+		92CCE23C188965000001217C /* segmentationManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = segmentationManager.cpp; sourceTree = "<group>"; };
+		92CCE23D188965000001217C /* segmentationManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = segmentationManager.h; sourceTree = "<group>"; };
 		BBAB23BE13894E4700AA2426 /* GLUT.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLUT.framework; path = ../../../libs/glut/lib/osx/GLUT.framework; sourceTree = "<group>"; };
 		E4328143138ABC890047C5CB /* openFrameworksLib.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = openFrameworksLib.xcodeproj; path = ../../../libs/openFrameworksCompiled/project/osx/openFrameworksLib.xcodeproj; sourceTree = SOURCE_ROOT; };
 		E45BE9710E8CC7DD009D7055 /* AGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AGL.framework; path = /System/Library/Frameworks/AGL.framework; sourceTree = "<absolute>"; };
@@ -847,6 +850,8 @@
 				90184581188081C70071B3F7 /* main.cpp */,
 				901845BC188081C70071B3F7 /* testApp.cpp */,
 				901845BD188081C70071B3F7 /* testApp.h */,
+				92CCE23C188965000001217C /* segmentationManager.cpp */,
+				92CCE23D188965000001217C /* segmentationManager.h */,
 				92CCE23918895DCF0001217C /* pitchDetectorManager.cpp */,
 				92CCE23A18895DCF0001217C /* pitchDetectorManager.h */,
 				92CCE236188953340001217C /* utils.cpp */,
@@ -1006,6 +1011,7 @@
 				901845BE188081C70071B3F7 /* main.cpp in Sources */,
 				92CCE21F18887F980001217C /* ofxUIMovingGraph.cpp in Sources */,
 				9018460718809B880071B3F7 /* ofxAudioUnitMatrixMixer.cpp in Sources */,
+				92CCE23E188965000001217C /* segmentationManager.cpp in Sources */,
 				90184665188466300071B3F7 /* ofxXmlSettings.cpp in Sources */,
 				92CCE22B18887F980001217C /* ofxUISpectrum.cpp in Sources */,
 				9018460B18809B880071B3F7 /* ofxAudioUnitNetSend.cpp in Sources */,
