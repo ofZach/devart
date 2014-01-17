@@ -66,7 +66,7 @@ void segmentationManager::update(){
     
     
     // count how many frames in a row the vel is below the threshold
-    if ( velGraphs[PDM->PDMethod].getLast() < (bVelFine ? fineThreshold : coarseThreshold) && !bBelowMinPitch ) {
+    if ( velGraphs[PDM->PDMethod].getLast() < (bVelFine ? fineThreshold : coarseThreshold)) {
         noteRun++;
         bAmRecording = true;
         pitchesForRecording.push_back(medianGraphs[PDM->PDMethod].getLast());
@@ -77,7 +77,7 @@ void segmentationManager::update(){
         
         bAmRecording = false;
         
-        if ( noteRun > minDuration && !bBelowMinPitch) {
+        if ( noteRun > minDuration) {
             
             marker segment;
             segment.start = graphWidth - 1 - noteRun;
@@ -85,14 +85,13 @@ void segmentationManager::update(){
             
             float avg = 0;
             for (int i = 0; i < pitchesForRecording.size(); i++){
-                cout << pitchesForRecording[i] << " ------ " << endl;
                 avg += pitchesForRecording[i];
             }
             avg /= (MAX(1.0, pitchesForRecording.size()));
             
             pitchesForRecording.clear();
-            // zero periods look like 9, 10... etc
-            if (avg > 20){
+            // zero periods look like 9, 10... etc...
+            if (avg > minPitch){
                 markers.push_back(segment);
             }
 //            currentNote.playhead = 0;
@@ -106,7 +105,6 @@ void segmentationManager::update(){
         }
         
         noteRun = 0;
-        bBelowMinPitch = false;
     }
     
     //    cout << noteRun << " " << bAmRecording << " vel = " << velGraphs[PDMethod].getLast() << " thresh = " << threshold << endl;
