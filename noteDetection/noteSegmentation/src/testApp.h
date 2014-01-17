@@ -10,16 +10,7 @@
 #include "segmentationManager.h"
 
 
-struct audioNote {
-    
-    bool bPlaying;
-    bool bWasPlaying;
-    
-    vector < float > samples;
-    vector < float > analysisFrames;
-    int mostCommonPitch;
-    int playhead;
-};
+
 
 
 class testApp : public ofBaseApp{
@@ -30,14 +21,7 @@ public:
     void draw();
     void exit();
     
-    
     void loadAudio( string fileName );
-    
-    
-    void updateGraphs();
-    void updateSegmentation();
-    void scrollMarkers();
-    
     
     float findMostCommonPitch(audioNote note);
     
@@ -63,9 +47,7 @@ public:
     void audioIn(float * input, int bufferSize, int nChannels);
     void audioOut(float * output, int bufferSize, int nChannels);
     
-    // zach notes:
-    audioNote currentNote;
-    vector < audioNote > notes;
+
     
     float audioVol, sinVol;
     int samplerOctavesUp, sinOctavesUp;

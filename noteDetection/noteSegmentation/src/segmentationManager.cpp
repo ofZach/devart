@@ -48,7 +48,7 @@ void segmentationManager::setup( int numPitchDetectors ){
     minPitch = 20;
 }
 
-void segmentationManager::update(){
+void segmentationManager::update(float * samples, int bufferSize){
     
     for (int i = 0; i < PDM->size(); i++) {
         pitchGraphs[i].addValue(PDM->getPitch(i));
@@ -67,15 +67,23 @@ void segmentationManager::update(){
     
     // count how many frames in a row the vel is below the threshold
     if ( velGraphs[PDM->PDMethod].getLast() < (bVelFine ? fineThreshold : coarseThreshold)) {
+        //count buffers
         noteRun++;
-        bAmRecording = true;
-        pitchesForRecording.push_back(medianGraphs[PDM->PDMethod].getLast());
+//        bAmRecording = true;
+        // record samples
+        for (int i = 0; i < bufferSize; i++ ) {
+            currentNote.samples.push_back(samples[i]);
+        }
+        //record pitches
+//        pitchesForRecording.push_back(medianGraphs[PDM->PDMethod].getLast());
+        currentNote.analysisFrames.push_back(medianGraphs[PDM->PDMethod].getLast());
+
     }
     else  {
         // if the vel is above the thresh then check if the current run is longer than the min duration. If so save the note.  Regardless, set the run count to zero.
         
         
-        bAmRecording = false;
+//        bAmRecording = false;
         
         if ( noteRun > minDuration) {
             
@@ -84,27 +92,29 @@ void segmentationManager::update(){
             segment.end = graphWidth - 1;
             
             float avg = 0;
-            for (int i = 0; i < pitchesForRecording.size(); i++){
-                avg += pitchesForRecording[i];
+            for (int i = 0; i < currentNote.analysisFrames.size(); i++){
+                avg += currentNote.analysisFrames[i];
             }
-            avg /= (MAX(1.0, pitchesForRecording.size()));
+            avg /= (MAX(1.0, currentNote.analysisFrames.size()));
             
-            pitchesForRecording.clear();
+//            pitchesForRecording.clear();
             // zero periods look like 9, 10... etc...
             if (avg > minPitch){
+                //add markers
                 markers.push_back(segment);
+                //add correspnding note
+                currentNote.playhead = 0;
+                currentNote.bPlaying = true;
+                currentNote.bWasPlaying = false;
+                currentNote.mostCommonPitch = findMostCommonPitch(currentNote);
+                notes.push_back(currentNote);
             }
-//            currentNote.playhead = 0;
-//            currentNote.bPlaying = true;
-//            currentNote.bWasPlaying = false;
-//            currentNote.mostCommonPitch = findMostCommonPitch(currentNote);
-//            notes.push_back(currentNote);
-            
             //            cout << "note recorded - min duration = " << minDuration << endl << endl;
-            
         }
-        
+        //reset
         noteRun = 0;
+        currentNote.samples.clear();
+        currentNote.analysisFrames.clear();
     }
     
     //    cout << noteRun << " " << bAmRecording << " vel = " << velGraphs[PDMethod].getLast() << " thresh = " << threshold << endl;
@@ -173,5 +183,24 @@ void segmentationManager::draw(){
     
     ofPopMatrix();
 
+    
+}
+
+
+float segmentationManager::findMostCommonPitch(audioNote note){
+    
+    vector < int > notes;
+    for (int i = 0; i < note.analysisFrames.size(); i++){
+        float freq = note.analysisFrames[i];
+        
+        if (freq > 0){
+            int note = freq;
+            if (note > 0 && note < 150) notes.push_back(note);
+        }
+    }
+    
+    // see utils.h
+    
+    return findMostCommon(notes);
     
 }
