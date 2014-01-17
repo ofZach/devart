@@ -64,11 +64,7 @@ void testApp::setup(){
 
 //--------------------------------------------------------------
 void testApp::update(){
-    
-    
-    
-    
-    
+
 }
 
 //--------------------------------------------------------------
@@ -107,21 +103,6 @@ void testApp::audioIn(float * input, int bufferSize, int nChannels){
     
     // this was in update before...  not sure about that....
     SM.update();
-    
-//    //recording
-//    if (bAmRecording){
-//        for (int i = 0; i < bufferSize; i++){
-//            currentNote.samples.push_back(samples[i]);
-//        }
-//        
-//        float pitch = PDM.getPitch();
-//        if (pitch < minPitch) bBelowMinPitch = true;
-//        else currentNote.analysisFrames.push_back(pitch);
-//        
-//    } else  {
-//        currentNote.samples.clear();
-//        currentNote.analysisFrames.clear();
-//    }
     
 }
 
@@ -190,7 +171,7 @@ float testApp::findMostCommonPitch(audioNote note){
         float freq = note.analysisFrames[i];
         
         if (freq > 0){
-            int note = freq; //freq2midi(freq);
+            int note = freq;
             if (note > 0 && note < 150) notes.push_back(note);
         }
     }
@@ -209,7 +190,7 @@ void testApp::setupGUI(){
     samplerOctavesUp = sinOctavesUp = 0;
     
     SM.bVelFine = false;
-    
+     s
     //init gui dims
     float dim = 16;
 	float xInit = OFX_UI_GLOBAL_WIDGET_SPACING;

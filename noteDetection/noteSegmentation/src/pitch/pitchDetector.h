@@ -92,7 +92,7 @@ public:
             val.pos = ofToFloat(str[0]);
             val.val = ofToFloat(str[1]);
             
-            cout << val.pos << " " << val.val << endl;
+            //cout << val.pos << " " << val.val << endl;
             vals.push_back(val);
         }
         
@@ -125,8 +125,8 @@ public:
     }
     
     
-    float   getPitch(){
-        
+    float  getPitch(){
+
         float ret = -1;
         if (pitch > 50){
             ret =  freq2MIDI(pitch);

@@ -70,7 +70,6 @@ public:
     float audioVol, sinVol;
     int samplerOctavesUp, sinOctavesUp;
     float sinAngle;
-    
 
     pitchDetectorManager PDM;
 
