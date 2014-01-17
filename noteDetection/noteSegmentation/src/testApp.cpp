@@ -3,6 +3,38 @@
 #include "utils.h"
 
 
+void testApp::loadAudio( string fileName ){
+    
+    // this assumes either blah.mp3 or blah.wav
+    // if mp3, convert to wav
+    
+    string extension = fileName.substr(fileName.find_last_of(".") + 1);
+    string preExtension = fileName.substr(0, fileName.find_last_of(".") - 1);
+    
+    if (extension == "mp3"){
+        
+        string wavFile = preExtension + ".wav";
+        string command = "afconvert -f \'WAVE\' -d I16@44100 -o ";
+        command += wavFile;
+        command += " ";
+        command += fileName;
+        system(command.c_str());
+        
+        // now we process the wavefile...
+        fileName = wavFile;
+    }
+    
+    string analysisFile = preExtension + ".vals.txt";
+    string dataPathToVamp = ofToDataPath("") + "../../../../utils/vampCommandLine/";
+    string command = dataPathToVamp + "vampTestDebug -s mtg-melodia:melodia:melody " + fileName + " -o " + analysisFile;
+    
+    //cout << command << endl;
+    system(command.c_str());
+    
+    
+    //std::exit(0);
+    
+}
 
 
 //--------------------------------------------------------------
@@ -298,4 +330,6 @@ void testApp::gotMessage(ofMessage msg){
 //--------------------------------------------------------------
 void testApp::dragEvent(ofDragInfo dragInfo){ 
 
+    //loadAudio(dragInfo.files[0]);
+    
 }

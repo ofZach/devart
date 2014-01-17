@@ -30,6 +30,10 @@ public:
     void draw();
     void exit();
     
+    
+    void loadAudio( string fileName );
+    
+    
     void updateGraphs();
     void updateSegmentation();
     void scrollMarkers();
