@@ -5,18 +5,9 @@
 //#include "ofxAudioUnit.h"
 #include "ofxUI.h"
 #include "ofxXmlSettings.h"
-
-#include "scrollingGraph.h"
-#include "smoother.h"
-
-#include "pitchDetector.h"
-
+#include "pitchDetectorManager.h"
 #include "audioUnitManager.h"
-
-struct marker {
-    float start;
-    float end;
-};
+#include "segmentationManager.h"
 
 
 struct audioNote {
@@ -38,6 +29,10 @@ public:
     void update();
     void draw();
     void exit();
+    
+    
+    void loadAudio( string fileName );
+    
     
     void updateGraphs();
     void updateSegmentation();
@@ -72,13 +67,11 @@ public:
     audioNote currentNote;
     vector < audioNote > notes;
     
-    // recording
-//    vector<float> tapSamples;
-    bool bAmRecording;
     float audioVol, sinVol;
     int samplerOctavesUp, sinOctavesUp;
     float sinAngle;
     
+<<<<<<< HEAD
     //===========pitch detecotr manager
     
     //pitch detector
@@ -109,10 +102,15 @@ public:
     
     //---------------audioUnit manager
     audioUnitManager au;
+=======
+>>>>>>> 6cb7cd90ab54ecaf8764acdee14320aef8ada9b4
 
+    pitchDetectorManager PDM;
 
-    
-    //UI
+    segmentationManager SM;
+   
+    audioUnitManager au;
+
     ofxUICanvas * gui;
     
 };

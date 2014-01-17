@@ -1,92 +1,63 @@
 #include "testApp.h"
 #include "aubio.h"
+#include "utils.h"
 
 
-
-
-// create some vectors
-//fvec_t * in       = new_fvec (hop_s); // input buffer
-
-
+void testApp::loadAudio( string fileName ){
+    
+    // this assumes either blah.mp3 or blah.wav
+    // if mp3, convert to wav
+    
+    string extension = fileName.substr(fileName.find_last_of(".") + 1);
+    string preExtension = fileName.substr(0, fileName.find_last_of(".") - 1);
+    
+    if (extension == "mp3"){
+        
+        string wavFile = preExtension + ".wav";
+        string command = "afconvert -f \'WAVE\' -d I16@44100 -o ";
+        command += wavFile;
+        command += " ";
+        command += fileName;
+        system(command.c_str());
+        
+        // now we process the wavefile...
+        fileName = wavFile;
+    }
+    
+    string analysisFile = preExtension + ".vals.txt";
+    string dataPathToVamp = ofToDataPath("") + "../../../../utils/vampCommandLine/";
+    string command = dataPathToVamp + "vampTestDebug -s mtg-melodia:melodia:melody " + fileName + " -o " + analysisFile;
+    
+    //cout << command << endl;
+    system(command.c_str());
+    
+    
+    //std::exit(0);
+    
+}
 
 
 //--------------------------------------------------------------
 void testApp::setup(){
+    
+    
+    
     samplerate = 44100;
     windowSize = 2048;
     hopSize = 1024;
     
-    numAPDs = 6;
-    
-//    aubioPitchDetector tempPD;
-    for (int i = 0; i < numAPDs; i++) {
-        pitchDetectors.push_back(new aubioPitchDetector);
-    }
-    
-    methods.push_back("yin");
-    methods.push_back("yinfft");
-    methods.push_back("specacf");
-    methods.push_back("schmitt");
-    methods.push_back("mcomb");
-    methods.push_back("fcomb");
-    
-    for (int i = 0; i < numAPDs; i++) {
-        aubioPitchDetector * APD = static_cast<aubioPitchDetector*>(pitchDetectors[i]);
-        APD->setup("midi", methods[i], windowSize, hopSize);
-    }
-    
-    basePitchDetector * fpd = new filePitchDetector();
-    ((filePitchDetector*)fpd)->loadAssociatedFile("lankra.vals.txt");
-    pitchDetectors.push_back(fpd);
-    
-    
-    smoother tempSmoother;
-    tempSmoother.setNumPValues(11);
-    for (int i = 0; i < pitchDetectors.size(); i++) {
-        smoothers.push_back(tempSmoother);
-    }
-    
-    
-    graphWidth = ofGetWidth()/2;
-    graphHeight = ofGetHeight()/3;
-    graphMax = 120;
-    
-    scrollingGraph tempGraph;
-    tempGraph.setup(graphWidth, 0, 0, graphMax);
-    for (int i = 0; i < pitchDetectors.size(); i++) {
-        pitchGraphs.push_back(tempGraph);
-        medianGraphs.push_back(tempGraph);
-        velGraphs.push_back(tempGraph);
-    }
-    
-    
-    for (int i = 0; i < pitchDetectors.size(); i++) {
-        ofColor tempColor;
-        tempColor.setHsb(i*40, 255, 180, 200);
-        graphColors.push_back(tempColor);
-    }
-    
-    runs.setup(graphWidth, 0, 0, 1);
-    
-    coarseThreshold = fineThreshold = 1.0;
-    minDuration = 25;
-    maxDuration = 50;
-    drawMarkers = true;
-    
-    bAmRecording = false;
-    
-    setupGUI();
-    
-    
+    PDM.setup(windowSize, hopSize);
+
     sinAngle = 0;
 
-    
-    minPitch = 20;
-    
     au.setup("lankra.wav", hopSize);
     au.playFile();
     
+    SM.setup( PDM.size() );
+    SM.PDM = &PDM;
     
+    setupGUI();
+
     ss.setup(this, 1, 1, samplerate, hopSize, 4);
 }
 
@@ -94,158 +65,27 @@ void testApp::setup(){
 
 //--------------------------------------------------------------
 void testApp::update(){
-    
-    
-    
-    for (int i = 0; i < pitchDetectors.size(); i++) {
-        pitchGraphs[i].addValue(pitchDetectors[i]->getPitch());
-        smoothers[i].addValue(pitchDetectors[i]->getPitch());
-        medianGraphs[i].addValue(smoothers[i].getMedian());
-        
-        
-        float lastVal = medianGraphs[i].valHistory[medianGraphs[i].valHistory.size() - 1];
-        float secondLastVal = medianGraphs[i].valHistory[medianGraphs[i].valHistory.size() - 2];
-        float vel = abs(lastVal - secondLastVal);
-        velGraphs[i].addValue(vel);
-    }
-    
-//    cout << medianGraphs[PDMethod].getLast()  << endl;
-//    if (medianGraphs[PDMethod].getLast() < minPitch){
-//        cout << "below pitch bailing" << endl;
-//        cout << medianGraphs[PDMethod].getLast()  << " ------- " << endl;
-//        bBelowMinPitch = true;
-//    }
-    // count how many frames in a row the vel is below the threshold
-    if ( velGraphs[PDMethod].getLast() < (bVelFine ? fineThreshold : coarseThreshold) ) {
-        noteRun++;
-        bAmRecording = true;
-    }
-    else  {
-//        cout << "got here why " << velGraphs[PDMethod].getLast() << " " <<
-//        (bVelFine ? fineThreshold : coarseThreshold) << " " << bBelowMinPitch << endl;
-        
-        // if the vel is above the thresh then check if the current run is longer than the min duration. If so save the note.  Regardless, set the run count to zero.
-        
-        
-        bAmRecording = false;
-        
-        if ( noteRun > minDuration ) {
-            
-            float avgPitch = 0;
-            for (int i = 0; i < currentNote.analysisFrames.size(); i++ ) {
-                avgPitch += currentNote.analysisFrames[i];
-            }
-            avgPitch /= currentNote.analysisFrames.size();
-            
-            
-            if ( avgPitch > minPitch ) {
-                
-                marker segment;
-                segment.start = graphWidth - 1 - noteRun;
-                segment.end = graphWidth - 1;
-                markers.push_back(segment);
-                
-                currentNote.playhead = 0;
-                currentNote.bPlaying = true;
-                currentNote.bWasPlaying = false;
-                currentNote.mostCommonPitch = findMostCommonPitch(currentNote);
-                notes.push_back(currentNote);
-                
-                
-                cout << "avgPitch = " << avgPitch << " most common note " << currentNote.mostCommonPitch << endl;
-            }
-            
-//            cout << "note recorded - min duration = " << minDuration << endl << endl;
-        }
-        
-        noteRun = 0;
-           }
 
-//    cout << noteRun << " " << bAmRecording << " vel = " << velGraphs[PDMethod].getLast() << " thresh = " << threshold << endl;
-    
-    runs.addValue(bAmRecording);
-    
-//    scroll markers
-    if (markers.size() > 0) {
-        for (int i = 0; i < markers.size(); i++) {
-            markers[i].start--;
-            markers[i].end--;
-        }
-    }
-    
 }
 
 //--------------------------------------------------------------
 void testApp::draw(){
 
-
-    ofSetColor(255, 10, 10);
-    ofDrawBitmapString(pitchDetectors[PDMethod]->name, ofGetWidth() - 100, 50);
-
-    ofSetColor(25);
-    ofLine(ofGetWidth() - minDuration * 2, 90, ofGetWidth(), 90);
-    ofLine(ofGetWidth() - minDuration * 2, 92, ofGetWidth() - minDuration * 2, 88);
-    
-    (noteRun < minDuration) ? ofSetColor(255,0,0) : ofSetColor(0,255,0);
-    ofLine(ofGetWidth() - noteRun * 2, 95, ofGetWidth(), 95);
-
-    ofPushMatrix();
-    ofTranslate(0, 100);
-    ofSetColor(255, 10, 10);
-    medianGraphs[PDMethod].draw(graphHeight);
-//        ofSetColor(25);
-//        runs.draw(graphHeight);
-
-    if (drawMarkers) {
-        
-        for (int i = 0; i < markers.size(); i++) {
-            ofSetColor(255,255,255,127);
-            ofRect(markers[i].start * 2, 0, markers[i].end * 2 - markers[i].start * 2, graphHeight);
-        }
-    }
-    ofPopMatrix();
-    
-    ofPushMatrix();
-    ofTranslate(0, graphHeight + 100);
-    ofSetColor(255,0,0);
-    
-    if (bVelFine) {
-        velGraphs[PDMethod].draw(graphHeight, 0.0, 2.0);
-    }
-    else {
-        velGraphs[PDMethod].draw(graphHeight);
-    }
-    
-    if (drawMarkers) {
-        
-        ofSetColor(0);
-        float threshLineHeight = graphHeight - ((bVelFine ? fineThreshold/2*graphMax : coarseThreshold ) / graphMax * graphHeight);
-        ofLine(0, threshLineHeight, ofGetWidth(), threshLineHeight);
-        
-        ofSetColor(0,0,0,127);
-        for (int j = 0; j < velGraphs[PDMethod].valHistory.size(); j++) {
-            if ( velGraphs[PDMethod].valHistory[j] > (bVelFine ? fineThreshold : coarseThreshold ) ) {
-                ofLine(j * 2, -graphHeight, j * 2, graphHeight);
-            }
-        }
-        
-    }
-
-    ofPopMatrix();
-
+    PDM.draw();
+    SM.draw();
+  
 
 }
 
 void testApp::exit(){
     
-    // stop the audio thread first:
+    // stop the audio thread first, this was causing the crashes:
     ss.stop();
 
-    
-    for (int i = 0; i < numAPDs; i++) {
-        aubioPitchDetector * APD = static_cast<aubioPitchDetector*>(pitchDetectors[i]);
-        APD->cleanup();
-    }
+//    for (int i = 0; i < numAPDs; i++) {
+//        aubioPitchDetector * APD = static_cast<aubioPitchDetector*>(pitchDetectors[i]);
+//        APD->cleanup();
+//    }
     
     aubio_cleanup();
 
@@ -259,24 +99,11 @@ void testApp::audioIn(float * input, int bufferSize, int nChannels){
     float samples[bufferSize];
     au.getTapSamples(samples);
 
-    //pitch detection
-    for (int i = 0; i < pitchDetectors.size(); i++) {
-        pitchDetectors[i]->calculatePitch(samples, bufferSize, au.getSampleTime());
-    }
+    // process:
+    PDM.processPitchDetectors(samples, bufferSize, au.getSampleTime());
     
-    //recording
-    if (bAmRecording){
-        for (int i = 0; i < bufferSize; i++){
-            currentNote.samples.push_back(samples[i]);
-        }
-        
-        float pitch = pitchDetectors[PDMethod]->getPitch();
-        currentNote.analysisFrames.push_back(pitch);
-        
-    } else  {
-        currentNote.samples.clear();
-        currentNote.analysisFrames.clear();
-    }
+    // this was in update before...  not sure about that....
+    SM.update();
     
 }
 
@@ -284,57 +111,57 @@ void testApp::audioOut(float * output, int bufferSize, int nChannels){
     
 
     
-    for (int i = 0; i < notes.size(); i++){
-        
-        //play sampler
-        if ( !notes[i].bWasPlaying && notes[i].bPlaying ) {
-            au.startNote(notes[i].mostCommonPitch + samplerOctavesUp * 12);
-        }
-        else if ( notes[i].bWasPlaying && !notes[i].bPlaying ) {
-            au.stopNote(notes[i].mostCommonPitch + samplerOctavesUp * 12);
-        }
-
-        notes[i].bWasPlaying = notes[i].bPlaying;
-        
-        //clear buffer
-        for (int j = 0; j < bufferSize; j++){
-            output[j] = 0;
-        }
-        
-        //while audio clips are not finshed playing
-        if (notes[i].bPlaying == true && (notes[i].playhead + bufferSize) < notes[i].samples.size()){
-            //play audio
-            int playhead = notes[i].playhead;
-            for (int j = 0; j < bufferSize; j++){
-                output[j] += notes[i].samples[playhead + j] * 0.2 * audioVol;
-            }
-            notes[i].playhead += bufferSize ;
-            
-            //play sine wave
-            int frame = playhead / bufferSize;
-            int midiNote = notes[i].analysisFrames[frame];
-            
-            float freq = pow(2, float(midiNote-69)/12.0)*440;
-            freq *= pow(2.0, sinOctavesUp);
-//            cout << frame << " / " << notes[i].analysisFrames.size() << " midi " << midiNote << " freq " << freq << endl;
-            //fm  =  2(m−69)/12(440 Hz)
-            float sinAngleAdder = freq * TWO_PI / 44100.0;
-            
-            for (int j = 0; j < bufferSize; j++){
-                
-                output[j] += sin(sinAngle) * 0.2 * sinVol;
-                
-                sinAngle+= sinAngleAdder;
-                
-            }
-            
-            while (sinAngle > PI) sinAngle -= TWO_PI;
-            
-        } else {
-            notes[i].bPlaying = false;
-        }
-        
-    }
+//    for (int i = 0; i < notes.size(); i++){
+//        
+//        //play sampler
+//        if ( !notes[i].bWasPlaying && notes[i].bPlaying ) {
+//            au.startNote(notes[i].mostCommonPitch + samplerOctavesUp * 12);
+//        }
+//        else if ( notes[i].bWasPlaying && !notes[i].bPlaying ) {
+//            au.stopNote(notes[i].mostCommonPitch + samplerOctavesUp * 12);
+//        }
+//
+//        notes[i].bWasPlaying = notes[i].bPlaying;
+//        
+//        //clear buffer
+//        for (int j = 0; j < bufferSize; j++){
+//            output[j] = 0;
+//        }
+//        
+//        //while audio clips are not finshed playing
+//        if (notes[i].bPlaying == true && (notes[i].playhead + bufferSize) < notes[i].samples.size()){
+//            //play audio
+//            int playhead = notes[i].playhead;
+//            for (int j = 0; j < bufferSize; j++){
+//                output[j] += notes[i].samples[playhead + j] * 0.2 * audioVol;
+//            }
+//            notes[i].playhead += bufferSize ;
+//            
+//            //play sine wave
+//            int frame = playhead / bufferSize;
+//            int midiNote = notes[i].analysisFrames[frame];
+//            
+//            float freq = pow(2, float(midiNote-69)/12.0)*440;
+//            freq *= pow(2.0, sinOctavesUp);
+////            cout << frame << " / " << notes[i].analysisFrames.size() << " midi " << midiNote << " freq " << freq << endl;
+//            //fm  =  2(m−69)/12(440 Hz)
+//            float sinAngleAdder = freq * TWO_PI / 44100.0;
+//            
+//            for (int j = 0; j < bufferSize; j++){
+//                
+//                output[j] += sin(sinAngle) * 0.2 * sinVol;
+//                
+//                sinAngle+= sinAngleAdder;
+//                
+//            }
+//            
+//            while (sinAngle > PI) sinAngle -= TWO_PI;
+//            
+//        } else {
+//            notes[i].bPlaying = false;
+//        }
+//        
+//    }
     
 }
 
@@ -349,28 +176,22 @@ float testApp::findMostCommonPitch(audioNote note){
             if (note > 0 && note < 150) notes.push_back(note);
         }
     }
-    std::vector<int> histogram(150,0);
-    for( int i=0; i<notes.size(); ++i )
-        ++histogram[ notes[i] ];
-    float maxElement =std::max_element( histogram.begin(), histogram.end() )  - histogram.begin();
-    int maxCount =histogram[maxElement];
-    float pct = (float)maxCount/ (float)notes.size();
     
-    return maxElement;
-//    mostCommonNote = maxElement;
-//    mostCommonNotePct = pct;
-    //cout << maxElement << " " << pct << endl;
+    // see utils.h
+    
+    return findMostCommon(notes);
     
 }
 
 void testApp::setupGUI(){
-    //init params
+    
+    
     audioVol = 1.0;
     sinVol = 0.0;
     samplerOctavesUp = sinOctavesUp = 0;
     
-    bVelFine = false;
-    
+    SM.bVelFine = false;
+     s
     //init gui dims
     float dim = 16;
 	float xInit = OFX_UI_GLOBAL_WIDGET_SPACING;
@@ -388,11 +209,11 @@ void testApp::setupGUI(){
     gui->addIntSlider("MF numPValues", 3, 33, 11, length-xInit, dim);
     gui->addSpacer(length-xInit, 1);
     gui->addLabel("SEGMENTATION");
-    gui->addSlider("Coarse Threshold", 0.0, 10.0, &coarseThreshold, length-xInit, dim);
-    gui->addSlider("Fine Threshold", 0.0, 2.0, &fineThreshold, length-xInit, dim);
-    gui->addLabelToggle("Coarse/Fine", &bVelFine);
-    gui->addSlider("Min duration", 1, 60, &minDuration, length-xInit, dim);
-    gui->addIntSlider("Min pitch", 0, 30, &minPitch, length-xInit, dim);
+    gui->addSlider("Coarse Threshold", 0.0, SM.graphMax, &SM.coarseThreshold, length-xInit, dim);
+    gui->addSlider("Fine Threshold", 0.0, 2.0, &SM.fineThreshold, length-xInit, dim);
+    gui->addLabelToggle("Coarse/Fine", &SM.bVelFine);
+    gui->addSlider("Min duration", 1, 60, &SM.minDuration, length-xInit, dim);
+    gui->addIntSlider("Min pitch", 0, 30, &SM.minPitch, length-xInit, dim);
     gui->addSpacer(length-xInit, 1);
     gui->addLabel("AUDIO OUTPUT");
     gui->addSlider("Audio Volume", 0.0, 1.0, &audioVol, length-xInit, dim);
@@ -418,8 +239,8 @@ void testApp::guiEvent(ofxUIEventArgs &e){
     }
     else if (name == "MF numPValues") {
         ofxUIIntSlider *slider = (ofxUIIntSlider *) e.widget;
-        for (int i = 0; i < pitchDetectors.size(); i++) {
-            smoothers[i].setNumPValues(slider->getValue());
+        for (int i = 0; i < PDM.size(); i++) {
+            SM.smoothers[i].setNumPValues(slider->getValue());
         }
     }
     else if (name == "Sampler volume") {
@@ -441,12 +262,12 @@ void testApp::keyPressed(int key){
         case '6':
         case '7':    
         {
-            PDMethod = key - 49;
+            PDM.setPitchMethod( key - 49 );
             break;
         }
             
         case 'm':
-            drawMarkers = !drawMarkers;
+            SM.drawMarkers = !SM.drawMarkers;
             break;
     }
 
@@ -490,4 +311,6 @@ void testApp::gotMessage(ofMessage msg){
 //--------------------------------------------------------------
 void testApp::dragEvent(ofDragInfo dragInfo){ 
 
+    //loadAudio(dragInfo.files[0]);
+    
 }
