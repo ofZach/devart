@@ -6,9 +6,54 @@
 //
 //
 
-#ifndef __noteSegmentation__segmentationManager__
-#define __noteSegmentation__segmentationManager__
+#include "ofMain.h"
+#include "scrollingGraph.h"
+#include "smoother.h"
+#include "pitchDetectorManager.h"
 
-#include <iostream>
+#pragma once
 
-#endif /* defined(__noteSegmentation__segmentationManager__) */
+
+struct marker {
+    float start;
+    float end;
+};
+
+
+class segmentationManager {
+    
+public: 
+    
+    void setup( int numPitchDetectors );
+    void update();
+    void draw();
+    
+    pitchDetectorManager * PDM;
+    int nPds;
+    
+    
+    int minPitch;
+    bool bBelowMinPitch;
+    
+    //graphs
+    vector<smoother> smoothers;
+    vector<scrollingGraph> pitchGraphs, medianGraphs, velGraphs;
+    //vector<bool> drawPitch, drawMedian;
+    vector<ofColor> graphColors;
+    float graphWidth;
+    float graphMax;
+    float graphHeight;
+    bool bVelFine;
+    
+    //markers
+    vector<marker> markers;
+    bool drawMarkers;
+    scrollingGraph runs;
+    float coarseThreshold, fineThreshold;
+    float minDuration, maxDuration;
+    float noteRun;
+    
+    bool bAmRecording;
+    
+    
+};

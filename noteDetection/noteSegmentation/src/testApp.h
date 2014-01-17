@@ -5,15 +5,9 @@
 //#include "ofxAudioUnit.h"
 #include "ofxUI.h"
 #include "ofxXmlSettings.h"
-#include "scrollingGraph.h"
-#include "smoother.h"
 #include "pitchDetectorManager.h"
 #include "audioUnitManager.h"
-
-struct marker {
-    float start;
-    float end;
-};
+#include "segmentationManager.h"
 
 
 struct audioNote {
@@ -69,50 +63,17 @@ public:
     audioNote currentNote;
     vector < audioNote > notes;
     
-    // recording
-//    vector<float> tapSamples;
-    bool bAmRecording;
     float audioVol, sinVol;
     int samplerOctavesUp, sinOctavesUp;
     float sinAngle;
     
-   
-    
+
     pitchDetectorManager PDM;
-    
-    
-    
-    // -------------------------------
-    
-    // all of this should go in segmentation manager
-    
-    int minPitch;
-    bool bBelowMinPitch;
-    
-    //graphs
-    vector<smoother> smoothers;
-    vector<scrollingGraph> pitchGraphs, medianGraphs, velGraphs;
-    //vector<bool> drawPitch, drawMedian;
-    vector<ofColor> graphColors;
-    float graphWidth;
-    float graphMax;
-    float graphHeight;
-    bool bVelFine;
-    
-    //markers
-    vector<marker> markers;
-    bool drawMarkers;
-    scrollingGraph runs;
-    float coarseThreshold, fineThreshold;
-    float minDuration, maxDuration;
-    float noteRun;
-    
-    //---------------audioUnit manager
+
+    segmentationManager SM;
+   
     audioUnitManager au;
 
-
-    
-    //UI
     ofxUICanvas * gui;
     
 };

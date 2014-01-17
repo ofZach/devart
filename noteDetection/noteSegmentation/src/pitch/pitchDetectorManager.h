@@ -28,6 +28,11 @@ public:
     void setup(int winSize, int hopSize);
     void processPitchDetectors(float * buffer, int bufferSize, int sampleTime);   //samples, bufferSize, au.getSampleTime()
     float getPitch();
+    float getPitch(int whichOne);
+    
+    void draw(){
+        ofDrawBitmapStringHighlight(pitchDetectors[PDMethod]->name, ofPoint(300,50));
+    }
     
     void setPitchMethod(int whichMethod){
         PDMethod = whichMethod;

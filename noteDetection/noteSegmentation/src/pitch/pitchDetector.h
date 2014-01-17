@@ -101,7 +101,9 @@ public:
     }
     
     float freq2MIDI(float freq) {
-        return (int)( 69. + 12.*log(freq/440.)/log((float)2.) );
+        // was int before
+        //return (int)( 69. + 12.*log(freq/440.)/log((float)2.) );
+        return ( 69. + 12.*log(freq/440.)/log((float)2.) );
     }
 
     

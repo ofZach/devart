@@ -54,3 +54,8 @@ void pitchDetectorManager::processPitchDetectors(float * buffer, int bufferSize,
 float pitchDetectorManager::getPitch(){
     return pitchDetectors[PDMethod]->getPitch();
 }
+
+float pitchDetectorManager::getPitch(int whichOne){
+     return pitchDetectors[whichOne]->getPitch();
+    
+}
