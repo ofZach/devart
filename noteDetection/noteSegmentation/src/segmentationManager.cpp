@@ -55,9 +55,11 @@ void segmentationManager::setup( int numPitchDetectors, int _bufferSize ){
     audioVol = 1.0;
     sinVol = 0.0;
     samplerOctavesUp = sinOctavesUp = 0;
+    
+    currentNote.nFramesRecording = 0;
 }
 
-void segmentationManager::update(float * samples){
+void segmentationManager::update(float * samples, int sampleTime){
     
     for (int i = 0; i < PDM->size(); i++) {
         pitchGraphs[i].addValue(PDM->getPitch(i));
@@ -78,22 +80,27 @@ void segmentationManager::update(float * samples){
     if ( velGraphs[PDM->PDMethod].getLast() < (bVelFine ? fineThreshold : coarseThreshold)) {
         //count buffers
         noteRun++;
-//        bAmRecording = true;
         // record samples
         for (int i = 0; i < bufferSize; i++ ) {
             currentNote.samples.push_back(samples[i]);
         }
+        
+        
+        if (currentNote.nFramesRecording == 0){
+            currentNote.startTime = sampleTime;
+        }
+        
+        currentNote.endTime = sampleTime + bufferSize;
+        currentNote.nFramesRecording++;
+        
         //record pitches
-//        pitchesForRecording.push_back(medianGraphs[PDM->PDMethod].getLast());
+        //pitchesForRecording.push_back(medianGraphs[PDM->PDMethod].getLast());
         currentNote.analysisFrames.push_back(medianGraphs[PDM->PDMethod].getLast());
 
     }
     else  {
+        
         // if the vel is above the thresh then check if the current run is longer than the min duration. If so save the note.  Regardless, set the run count to zero.
-        
-        
-//        bAmRecording = false;
-        
         if ( noteRun > minDuration) {
             
             marker segment;
@@ -116,7 +123,13 @@ void segmentationManager::update(float * samples){
                 currentNote.bPlaying = true;
                 currentNote.bWasPlaying = false;
                 currentNote.mostCommonPitch = findMostCommonPitch(currentNote);
-                notes.push_back(currentNote);
+                
+                float duration = (currentNote.endTime - currentNote.startTime ) / 44100. ;
+                // sometimes, when we wrap over a loop, bad stuff happens, let's be careful:
+                if (duration > 0){
+                    notes.push_back(currentNote);
+                }
+                
             }
             //            cout << "note recorded - min duration = " << minDuration << endl << endl;
         }
@@ -124,11 +137,11 @@ void segmentationManager::update(float * samples){
         noteRun = 0;
         currentNote.samples.clear();
         currentNote.analysisFrames.clear();
+        currentNote.nFramesRecording = 0;
+        currentNote.startTime = 0;
+        currentNote.endTime = 0;
     }
-    
-    //    cout << noteRun << " " << bAmRecording << " vel = " << velGraphs[PDMethod].getLast() << " thresh = " << threshold << endl;
-    
-//    runs.addValue(bAmRecording);
+   
     
     //    scroll markers
     if (markers.size() > 0) {

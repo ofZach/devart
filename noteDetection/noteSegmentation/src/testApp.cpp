@@ -124,11 +124,10 @@ void testApp::audioIn(float * input, int bufferSize, int nChannels){
     float samples[bufferSize];
     AU.getTapSamples(samples);
 
-    // process:
-    PDM.processPitchDetectors(samples, bufferSize, AU.getSampleTime());
+    int sampleTime = AU.getSampleTime();
     
-    // this was in update before...  not sure about that....
-    SM.update(samples);
+    PDM.processPitchDetectors(samples, bufferSize, sampleTime);
+    SM.update(samples, sampleTime);
     
 }
 
