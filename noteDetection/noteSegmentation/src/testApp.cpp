@@ -11,32 +11,42 @@ void testApp::loadAudio( string fileName ){
     string extension = fileName.substr(fileName.find_last_of(".") + 1);
     string preExtension = fileName.substr(0, fileName.find_last_of("."));
     
+    // if MP3, make wave with 1 channel and 44100:
+    // TODO: better compression options for afconvert?
+    
     if (extension == "mp3"){
-        
+
         string wavFile = preExtension + ".wav";
-        string command = "afconvert -f \'WAVE\' -d I16@44100 -o ";
-        command += "\'" + wavFile + "\'" ;
-        command += " ";
-        command += "\'" + fileName + "\'" ;
-        system(command.c_str());
         
+        // check if the wav file exists
+        ofFile file(wavFile);
+        
+        // if not, make it!
+        if (!file.exists()){
+            string command = "afconvert -f \'WAVE\' -c 1 -d I16@44100 -o ";
+            command += "\'" + wavFile + "\'" ;
+            command += " ";
+            command += "\'" + fileName + "\'" ;
+            system(command.c_str());
+        }
         // now we process the wavefile...
         fileName = wavFile;
     }
     
+    // get ready to do analysis
     string analysisFile = preExtension + ".vals.txt";
     string dataPathToVamp = ofToDataPath("") + "../../../../utils/vampCommandLine/";
     string command = dataPathToVamp + "vampTestDebug -s mtg-melodia:melodia:melody " + fileName + " -o " + analysisFile;
-    
-    
     string soundFileGood = "\'" + fileName + "\'";
     string analysisFileGood = "\'" + analysisFile + "\'";
-
     string commandStr = "python ../../../data/vampRunner.py " + soundFileGood + " " + analysisFileGood;
     
-    //cout << commandStr << endl;
+    // if analysis doesn't exist, do it:
+    ofFile file(analysisFile);
+    if (!file.exists()){
+        system(commandStr.c_str());
+    }
     
-    system(commandStr.c_str());
     
     
     AU.player.setFile(fileName);
