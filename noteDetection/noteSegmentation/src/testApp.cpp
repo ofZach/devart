@@ -9,15 +9,15 @@ void testApp::loadAudio( string fileName ){
     // if mp3, convert to wav
     
     string extension = fileName.substr(fileName.find_last_of(".") + 1);
-    string preExtension = fileName.substr(0, fileName.find_last_of(".") - 1);
+    string preExtension = fileName.substr(0, fileName.find_last_of("."));
     
     if (extension == "mp3"){
         
         string wavFile = preExtension + ".wav";
         string command = "afconvert -f \'WAVE\' -d I16@44100 -o ";
-        command += wavFile;
+        command += "\'" + wavFile + "\'" ;
         command += " ";
-        command += fileName;
+        command += "\'" + fileName + "\'" ;
         system(command.c_str());
         
         // now we process the wavefile...
@@ -28,11 +28,24 @@ void testApp::loadAudio( string fileName ){
     string dataPathToVamp = ofToDataPath("") + "../../../../utils/vampCommandLine/";
     string command = dataPathToVamp + "vampTestDebug -s mtg-melodia:melodia:melody " + fileName + " -o " + analysisFile;
     
-    //cout << command << endl;
-    popen(command.c_str(), "r");
     
-    //ofSleepMillis(3000);
-    //std::exit(0);
+    string soundFileGood = "\'" + fileName + "\'";
+    string analysisFileGood = "\'" + analysisFile + "\'";
+
+    string commandStr = "python ../../../data/vampRunner.py " + soundFileGood + " " + analysisFileGood;
+    
+    //cout << commandStr << endl;
+    
+    system(commandStr.c_str());
+    
+    
+    AU.player.setFile(fileName);
+    PDM.fpd->loadAssociatedFile(analysisFile);
+    AU.player.play();
+    
+    //setFile(ofToDataPath(filename)); //Marc Terenzi - Love To Be Loved By You [692].mp3
+    
+    
 }
 
 
@@ -49,7 +62,7 @@ void testApp::setup(){
 
     
 
-    AU.setup("lankra.wav", hopSize);
+    AU.setup(getAudioDirectory() + "lankra.wav", hopSize);
     AU.playFile();
     
     SM.setup( PDM.size(), hopSize );

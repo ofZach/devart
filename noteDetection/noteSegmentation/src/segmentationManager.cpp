@@ -259,6 +259,20 @@ float segmentationManager::findMostCommonPitch(audioNote note){
     }
     // see utils.h
     
-    return findMostCommon(properPitches);
+    int mostCommon =findMostCommon(properPitches);
+    
+//    cout << "-----------" << endl;
+//    float avg = 0;
+//    for (int i = 0; i < properPitches.size(); i++){
+//        cout << properPitches[i] << endl;
+//        avg +=properPitches[i];
+//    }
+//    avg /= (float)properPitches.size();
+//    
+//    cout << avg << " " << mostCommon << endl;
+    
+    
+    
+    return (int)mostCommon;
     
 }
