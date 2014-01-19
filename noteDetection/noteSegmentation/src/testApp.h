@@ -45,10 +45,11 @@ public:
         int startTime;
         int endTime;
         int playbackTime;
+        int mostCommonPitch;
         bool bPlaying;
     };
     vector < note > notes;
-    void addNote( int startTime, int endTime);
+    void addNote( int startTime, int endTime, int avgTone);
     
     
     
@@ -63,7 +64,10 @@ public:
     segmentationManager SM;
     audioUnitManager AU;
     ofxUICanvas * gui;
+    bool bSaveGui;
     
+    
+    string outputFolder;
     
     vector < float > audioSamples;      // raw audio of what's playing.
     

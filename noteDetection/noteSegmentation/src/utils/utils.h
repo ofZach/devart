@@ -10,3 +10,5 @@ string getAudioDirectory();
 
 void loadAudioToData(string fileName, vector < float > & audioSamples);
 void saveDataToAudio(string fileName, vector < float > & audioSamples);
+
+string zeroPadNumber(int num, int sizeToBePaddedTo);

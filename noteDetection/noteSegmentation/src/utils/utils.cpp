@@ -65,9 +65,24 @@ int findMostCommon (vector < int > & vals){
     
     // find the value which is here the most.  also, if we want, the count (which isn't returned yet):
     
+    
     int valMax =  std::distance(histogram.begin(), result) + minElement;
     int valMaxCount = *result;
     
+
+// this is checking the second biggest element, sometimes they are really close in count, and far or close in range
+// so maybe we should bail if it's hard to find "most common?"
+// or return a struct and calc pct and stats outside of this function?
+    
+
+//    histogram[valMax-minElement] = 0;
+//    
+//    result = (std::max_element( histogram.begin(), histogram.end() ));
+//    int valMax2 =  std::distance(histogram.begin(), result) + minElement;
+//    int valMaxCount2 = *result;
+//    
+//    cout << valMax << " " << valMaxCount << " " << valMax2 << " " << valMaxCount2 << endl;
+//    
     return valMax;
     
 }
@@ -115,4 +130,20 @@ void saveDataToAudio(string fileName, vector < float > & audioSamples){
  
 }
 
+
+string zeroPadNumber(int num, int sizeToBePaddedTo)
+{
+	stringstream ss;
+	
+	// the number is converted to string with the help of stringstream
+	ss << num;
+	string ret;
+	ss >> ret;
+	
+	// Append zero chars
+	int str_length = ret.length();
+	for (int i = 0; i < sizeToBePaddedTo - str_length; i++)
+		ret = "0" + ret;
+	return ret;
+}
 

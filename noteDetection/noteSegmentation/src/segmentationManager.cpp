@@ -124,13 +124,15 @@ void segmentationManager::update(float * samples, int sampleTime){
                 currentNote.bWasPlaying = false;
                 currentNote.mostCommonPitch = findMostCommonPitch(currentNote);
                 
+                
+                
                 float duration = (currentNote.endTime - currentNote.startTime ) / 44100. ;
                 // sometimes, when we wrap over a loop, bad stuff happens, let's be careful:
-                if (duration > 0){
+                if (duration > 0 && currentNote.mostCommonPitch > 0){
                     
                     notes.push_back(currentNote);
                     
-                    ((testApp *) ofGetAppPtr()) -> addNote(currentNote.startTime, currentNote.endTime);
+                    ((testApp *) ofGetAppPtr()) -> addNote(currentNote.startTime, currentNote.endTime, currentNote.mostCommonPitch);
                 }
                 
             }
@@ -272,23 +274,35 @@ float segmentationManager::findMostCommonPitch(audioNote note){
     
     for (int i = 0; i < note.analysisFrames.size(); i++){
         float detectedPitch = note.analysisFrames[i];
-        if (detectedPitch > 0 && detectedPitch < 150) properPitches.push_back(detectedPitch);
+        if (detectedPitch > minPitch && detectedPitch < 150) properPitches.push_back(detectedPitch);
     }
     // see utils.h
     
     int mostCommon =findMostCommon(properPitches);
     
-//    cout << "-----------" << endl;
-//    float avg = 0;
-//    for (int i = 0; i < properPitches.size(); i++){
-//        cout << properPitches[i] << endl;
-//        avg +=properPitches[i];
-//    }
-//    avg /= (float)properPitches.size();
-//    
-//    cout << avg << " " << mostCommon << endl;
+    //cout << "-----------" << endl;
+    float avg = 0;
+    for (int i = 0; i < properPitches.size(); i++){
+      //  cout << properPitches[i] << endl;
+        avg +=properPitches[i];
+    }
+    avg /= (float)properPitches.size();
+    
+    //cout << avg << " " << mostCommon << endl;
+    int count = 0;
+    for (int i = 0; i < properPitches.size(); i++){
+        if (properPitches[i] == mostCommon){
+            count ++;
+        }
+    }
+    
+    float pct = (float)count / (float)(MAX(1, properPitches.size()));
+    cout << " pct " << pct << endl;
     
     
+    if (pct < 0.35){
+        return -1;
+    } else
     
     return (int)mostCommon;
     
