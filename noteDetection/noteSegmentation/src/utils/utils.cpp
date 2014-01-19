@@ -7,6 +7,7 @@
 //
 
 #include "utils.h"
+#include <sndfile.hh>
 
 
 //---------------------------------------------------------------------------------------
@@ -70,4 +71,48 @@ int findMostCommon (vector < int > & vals){
     return valMax;
     
 }
+
+
+void loadAudioToData(string fileName, vector < float > & audioSamples){
+    
+    SndfileHandle myf = SndfileHandle( ofToDataPath(fileName).c_str());
+    
+//    printf ("Opened file '%s'\n", ofToDataPath(fileName).c_str()) ;
+//    printf ("  Sample rate : %d\n", myf.samplerate ()) ;
+//    printf ("  Channels  : %d\n", myf.channels ()) ;
+//    printf ("  Error   : %s\n", myf.strError());
+//    printf ("  Frames   : %d\n", int(myf.frames())); // frames is essentially samples
+//    puts("");
+    
+    int nChannels = myf.channels();
+    int nFrames = (int) myf.frames();
+    
+    if (nChannels != 1){
+        vector < float > audioSamplesMultiChannel;
+        audioSamples.resize(myf.frames());
+        audioSamplesMultiChannel.resize(myf.frames() * myf.channels());
+        myf.read(&audioSamplesMultiChannel[0], myf.frames() * myf.channels());
+        for (int i = 0; i < myf.frames(); i++){
+            audioSamples[i] = audioSamplesMultiChannel[i * nChannels];
+        }
+    } else {
+        audioSamples.resize(myf.frames());
+        myf.read(&audioSamples[0], myf.frames());
+    }
+    
+    
+}
+void saveDataToAudio(string fileName, vector < float > & audioSamples){
+    
+    const int format=SF_FORMAT_WAV | SF_FORMAT_PCM_16;
+    const int channels=1;
+    const int sampleRate=44100;
+    
+    SndfileHandle outfile( ofToDataPath(fileName), SFM_WRITE, format, channels, sampleRate);
+    if (not outfile) return;
+    
+    outfile.write(&audioSamples[0], audioSamples.size());
+ 
+}
+
 

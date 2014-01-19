@@ -73,6 +73,10 @@ void testApp::setup(){
     
 
     AU.setup(getAudioDirectory() + "lankra.wav", hopSize);
+    
+    loadAudioToData( getAudioDirectory() + "lankra.wav", audioSamples);
+    t
+    
     AU.playFile();
     
     SM.setup( PDM.size(), hopSize );

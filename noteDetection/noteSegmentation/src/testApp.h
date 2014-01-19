@@ -49,11 +49,13 @@ public:
 
 
     pitchDetectorManager PDM;
-
     segmentationManager SM;
-   
     audioUnitManager AU;
-
     ofxUICanvas * gui;
+    
+    
+    vector < float > audioSamples;      // raw audio of what's playing.
+    
+    
     
 };
