@@ -56,7 +56,6 @@ public:
     
     int bufferSize;
     
-    
     pitchDetectorManager * PDM;
     int nPds;
     

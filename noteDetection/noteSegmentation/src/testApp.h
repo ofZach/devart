@@ -13,6 +13,7 @@
 
 
 
+
 class testApp : public ofBaseApp{
 
 public:
@@ -39,9 +40,19 @@ public:
     void gotMessage(ofMessage msg);
 
     
-    //------soundStreamManager
+    // for notes
+    struct note {
+        int startTime;
+        int endTime;
+        int playbackTime;
+        bool bPlaying;
+    };
+    vector < note > notes;
+    void addNote( int startTime, int endTime);
     
-    //soundStream
+    
+    
+    
     int samplerate, windowSize, hopSize;
     ofSoundStream ss;
     void audioIn(float * input, int bufferSize, int nChannels);

@@ -53,9 +53,29 @@ void testApp::loadAudio( string fileName ){
     PDM.fpd->loadAssociatedFile(analysisFile);
     AU.player.play();
     
+    audioSamples.clear();
+    
+    loadAudioToData( fileName, audioSamples);
+
+    
     //setFile(ofToDataPath(filename)); //Marc Terenzi - Love To Be Loved By You [692].mp3
     
     
+}
+
+
+void testApp::addNote( int startTime, int endTime){
+    note myNote;
+    myNote.startTime = startTime - 44100 * 0.5;
+    myNote.endTime = endTime + 44100 * 0.5;
+    
+    if (myNote.startTime < 0) myNote.startTime = 0;
+    if (myNote.endTime > audioSamples.size()-1) myNote.endTime = audioSamples.size()-1;
+    
+    
+    myNote.bPlaying = true;
+    myNote.playbackTime = startTime;
+    notes.push_back(myNote);
 }
 
 
@@ -69,8 +89,6 @@ void testApp::setup(){
     hopSize = 1024;
     
     PDM.setup(windowSize, hopSize);
-
-    
 
     AU.setup(getAudioDirectory() + "lankra.wav", hopSize);
     
@@ -136,27 +154,41 @@ void testApp::audioIn(float * input, int bufferSize, int nChannels){
 }
 
 void testApp::audioOut(float * output, int bufferSize, int nChannels){
-//    cout << "BEFORE" << endl;
-//    for (int i = 0; i < bufferSize; i++) {
-//        cout << i << " " << output[i] << endl;
-//    }
-    vector<float> outputSamples;
-    outputSamples.assign(bufferSize, 0.0);
-    SM.playSegments(outputSamples);
-//    cout << "-------------------------" << endl;
+
+
+    //SM.playSegments(outputSamples);
     for (int i = 0; i < bufferSize; i++) {
-        output[i] = outputSamples[i];
-//        cout << i << "  " << output[i] << endl;
+        output[i] = 0;
     }
     
     
+    for (int i = 0; i < notes.size(); i++) {
+        if (notes[i].bPlaying == true){
+
+            for (int j = 0; j < bufferSize; j++) {
+                output[j] += audioSamples[notes[i].playbackTime + j] * 0.3 * SM.audioVol;
+            }
+            
+            notes[i].playbackTime +=bufferSize;
+                                    
+            if (notes[i].playbackTime >= notes[i].endTime){
+                notes[i].bPlaying = false;
+            }
+            
+            
+        }
     
+    }
     
-//    cout << "AFTER" << endl;
-//    for (int i = 0; i < bufferSize; i++) {
-//        cout << i << " " << output[i] << endl;
-//    }
-//    
+    /*
+     myNote.startTime = startTime;
+     myNote.endTime = endTime;
+     myNote.bPlaying = false;
+     myNote.playbackTime = startTime;
+     notes.push_back(myNote);
+     */
+    
+
     
 }
 
