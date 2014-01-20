@@ -157,16 +157,52 @@ void piano::draw() {
         }
     }
     
+    
+    ofPushMatrix();
+    ofTranslate(9 * whiteKeyWidth + 15, 0);
+    //octave up/down
+    ofSetColor((octvDownPressed ? 0 : 255));
+    ofFill();
+    ofTriangle(0,0, -whiteKeyWidth, whiteKeyWidth, whiteKeyWidth, whiteKeyWidth);
+    
+    
+    ofSetColor((octvDownPressed ? 255 : 0));
+    ofNoFill();
+    ofTriangle(0,0, -whiteKeyWidth, whiteKeyWidth, whiteKeyWidth, whiteKeyWidth);
+    ofDrawBitmapString("x", 0, whiteKeyWidth / 2);
+    
+    
+    ofSetColor((octvUpPressed ? 0 : 255));
+    ofFill();
+    ofTriangle(0,whiteKeyHeight, -whiteKeyWidth, whiteKeyHeight - whiteKeyWidth, whiteKeyWidth, whiteKeyHeight - whiteKeyWidth);
+    
+    ofSetColor((octvUpPressed ? 255 : 0));
+    ofNoFill();
+    ofTriangle(0,whiteKeyHeight, -whiteKeyWidth, whiteKeyHeight - whiteKeyWidth, whiteKeyWidth, whiteKeyHeight - whiteKeyWidth);
+    ofDrawBitmapString("z", 0, whiteKeyHeight - whiteKeyWidth / 2);
+    
+    ofSetColor(0);
+    ofDrawBitmapString("octv " + ofToString(octave), 0, whiteKeyHeight /2);
+    ofPopMatrix();
+    
 }
 
 //--------------------------------------------------------------
 void piano::keyPressed( int key ) {
-    pianoKeys[keyBindings[key]].keyPressed = true;
+    if (keyBindings[key] != 0 || key == 'a')
+        pianoKeys[keyBindings[key]].keyPressed = true;
+    
+    if (key == 'z') octvUpPressed = true;
+    if (key == 'x') octvDownPressed = true;
 }
 
 //--------------------------------------------------------------
 void piano::keyReleased( int key ) {
-    pianoKeys[keyBindings[key]].keyPressed = false;
+    if (keyBindings[key] != 0 || key == 'a')
+        pianoKeys[keyBindings[key]].keyPressed = false;
+    
+    if (key == 'z') octvUpPressed = false;
+    if (key == 'x') octvDownPressed = false;
 }
 
 //--------------------------------------------------------------

@@ -24,6 +24,7 @@ public:
     void octaveDown();
     void octaveUp();
     
+    bool octvUpPressed, octvDownPressed;
     
     int getNote( int key ) { return keyBindings[key] + (octave+1) * 12; }
     
