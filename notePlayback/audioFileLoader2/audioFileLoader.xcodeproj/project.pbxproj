@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		905DA81B188DC0D6005132A8 /* piano.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 905DA819188DC0D6005132A8 /* piano.cpp */; };
 		92250426187F0091004EC82E /* note.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 92250424187F0091004EC82E /* note.cpp */; };
 		92880852184CA0A4006138BF /* scUBlibsndfile.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9288084F184CA0A3006138BF /* scUBlibsndfile.a */; };
 		BBAB23CB13894F3D00AA2426 /* GLUT.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = BBAB23BE13894E4700AA2426 /* GLUT.framework */; };
@@ -62,6 +63,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		905DA819188DC0D6005132A8 /* piano.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = piano.cpp; sourceTree = "<group>"; };
+		905DA81A188DC0D6005132A8 /* piano.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = piano.h; sourceTree = "<group>"; };
 		92250424187F0091004EC82E /* note.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = note.cpp; sourceTree = "<group>"; };
 		92250425187F0091004EC82E /* note.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = note.h; sourceTree = "<group>"; };
 		9288084F184CA0A3006138BF /* scUBlibsndfile.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = scUBlibsndfile.a; sourceTree = "<group>"; };
@@ -208,6 +211,8 @@
 				E4B69E1F0A3A1BDC003C02F2 /* testApp.h */,
 				92250424187F0091004EC82E /* note.cpp */,
 				92250425187F0091004EC82E /* note.h */,
+				905DA819188DC0D6005132A8 /* piano.cpp */,
+				905DA81A188DC0D6005132A8 /* piano.h */,
 			);
 			path = src;
 			sourceTree = SOURCE_ROOT;
@@ -309,6 +314,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				E4B69E200A3A1BDC003C02F2 /* main.cpp in Sources */,
+				905DA81B188DC0D6005132A8 /* piano.cpp in Sources */,
 				E4B69E210A3A1BDC003C02F2 /* testApp.cpp in Sources */,
 				92250426187F0091004EC82E /* note.cpp in Sources */,
 			);

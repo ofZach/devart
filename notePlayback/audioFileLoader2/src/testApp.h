@@ -2,13 +2,7 @@
 
 #include "ofMain.h"
 #include "note.h"
-
-struct pianoKey {
-    bool blackKey;
-    float pos;
-    char keyBinding;
-    bool keyPressed;
-};
+#include "piano.h"
 
 class testApp : public ofBaseApp {
 
@@ -16,9 +10,6 @@ public:
     void setup();
     void update();
     void draw();
-
-    void setupKeyBindings();
-    void setupKeyboard();
 
     void keyPressed(int key);
     void keyReleased(int key);
@@ -36,10 +27,7 @@ public:
     void audioOut(float * output, int bufferSize, int nChannels);
 
     vector < note * > notes;
-    map<int, int> keyboard;
-    vector<pianoKey> pianoKeys;
-    
-    int octave;
+    piano myPiano;
 
     bool bPlayingTone;
     float sinAngle;
