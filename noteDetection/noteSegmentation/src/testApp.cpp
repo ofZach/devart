@@ -9,30 +9,102 @@ void testApp::loadAudio( string fileName ){
     // if mp3, convert to wav
     
     string extension = fileName.substr(fileName.find_last_of(".") + 1);
-    string preExtension = fileName.substr(0, fileName.find_last_of(".") - 1);
+    string preExtension = fileName.substr(0, fileName.find_last_of("."));
+    
+    
+    
+    
+    // if MP3, make wave with 1 channel and 44100:
+    // TODO: better compression options for afconvert?
     
     if (extension == "mp3"){
-        
+
         string wavFile = preExtension + ".wav";
-        string command = "afconvert -f \'WAVE\' -d I16@44100 -o ";
-        command += wavFile;
-        command += " ";
-        command += fileName;
-        system(command.c_str());
         
+        // check if the wav file exists
+        ofFile file(wavFile);
+        
+        // if not, make it!
+        if (!file.exists()){
+            string command = "afconvert -f \'WAVE\' -c 1 -d I16@44100 -o ";
+            command += "\'" + wavFile + "\'" ;
+            command += " ";
+            command += "\'" + fileName + "\'" ;
+            system(command.c_str());
+        }
         // now we process the wavefile...
         fileName = wavFile;
     }
     
+    // get ready to do analysis
     string analysisFile = preExtension + ".vals.txt";
     string dataPathToVamp = ofToDataPath("") + "../../../../utils/vampCommandLine/";
     string command = dataPathToVamp + "vampTestDebug -s mtg-melodia:melodia:melody " + fileName + " -o " + analysisFile;
+    string soundFileGood = "\'" + fileName + "\'";
+    string analysisFileGood = "\'" + analysisFile + "\'";
+    string commandStr = "python ../../../data/vampRunner.py " + soundFileGood + " " + analysisFileGood;
     
-    //cout << command << endl;
-    popen(command.c_str(), "r");
+    // if analysis doesn't exist, do it:
+    ofFile file(analysisFile);
+    if (!file.exists()){
+        system(commandStr.c_str());
+    }
     
-    //ofSleepMillis(3000);
-    //std::exit(0);
+    
+    
+    AU.player.setFile(fileName);
+    PDM.fpd->loadAssociatedFile(analysisFile);
+    AU.player.play();
+    
+    audioSamples.clear();
+    
+    loadAudioToData( fileName, audioSamples);
+
+    
+    vector < string > split = ofSplitString(preExtension, "/");
+    if (split.size() > 0){
+        outputFolder = getAudioDirectory() + "output/" + split[split.size()-1];
+        ofDirectory folder(outputFolder);
+        if (!folder.exists()){
+            folder.create();
+        }
+    }
+    
+    //setFile(ofToDataPath(filename)); //Marc Terenzi - Love To Be Loved By You [692].mp3
+    
+    
+}
+
+
+void testApp::addNote( int startTime, int endTime, int avgTone){
+    
+    note myNote;
+    myNote.startTime = startTime - 44100 * 0.5;
+    myNote.endTime = endTime + 44100 * 0.5;
+    
+    if (myNote.startTime < 0) myNote.startTime = 0;
+    if (myNote.endTime > audioSamples.size()-1) myNote.endTime = audioSamples.size()-1;
+    
+    myNote.bPlaying = true;
+    myNote.playbackTime = startTime;
+    notes.push_back(myNote);
+    AU.startNote(avgTone);
+    
+    float startTimeF = myNote.startTime / 44100.;
+    int mins = (int)( startTimeF / 60.0);
+    int secs = (int)((( startTimeF / 60.0) - mins) * 59);
+    
+    string fileName = outputFolder + "/time(" + zeroPadNumber(mins, 2) + "." + zeroPadNumber(secs, 2) + ")_note(" + ofToString(avgTone) + ").wav";
+    //cout << fileName << endl;
+    
+    vector < float > audioSamplesOfNote;
+    audioSamplesOfNote.assign(myNote.endTime-myNote.startTime, 0);
+    for (int i = myNote.startTime; i < myNote.endTime; i++){
+        audioSamplesOfNote[i-myNote.startTime] = audioSamples[i];
+    }
+    
+    saveDataToAudio(fileName, audioSamplesOfNote);
+    
 }
 
 
@@ -47,9 +119,11 @@ void testApp::setup(){
     
     PDM.setup(windowSize, hopSize);
 
+    AU.setup(getAudioDirectory() + "lankra.wav", hopSize);
     
+    loadAudioToData( getAudioDirectory() + "lankra.wav", audioSamples);
 
-    AU.setup("lankra.wav", hopSize);
+    
     AU.playFile();
     
     SM.setup( PDM.size(), hopSize );
@@ -59,6 +133,15 @@ void testApp::setup(){
     setupGUI();
 
     ss.setup(this, 1, 1, samplerate, hopSize, 4);
+    
+    
+    outputFolder = getAudioDirectory() + "output/lankra";
+    ofDirectory folder(outputFolder);
+    if (!folder.exists()){
+        folder.create();
+    }
+    
+    ofSetVerticalSync(false);
 }
 
 
@@ -66,6 +149,12 @@ void testApp::setup(){
 //--------------------------------------------------------------
 void testApp::update(){
 
+    
+    if (bSaveGui){
+        gui->saveSettings("settings.xml");
+        bSaveGui = false;
+    }
+    
 }
 
 //--------------------------------------------------------------
@@ -99,36 +188,50 @@ void testApp::audioIn(float * input, int bufferSize, int nChannels){
     float samples[bufferSize];
     AU.getTapSamples(samples);
 
-    // process:
-    PDM.processPitchDetectors(samples, bufferSize, AU.getSampleTime());
+    int sampleTime = AU.getSampleTime();
     
-    // this was in update before...  not sure about that....
-    SM.update(samples);
+    PDM.processPitchDetectors(samples, bufferSize, sampleTime);
+    SM.update(samples, sampleTime);
     
 }
 
 void testApp::audioOut(float * output, int bufferSize, int nChannels){
-//    cout << "BEFORE" << endl;
-//    for (int i = 0; i < bufferSize; i++) {
-//        cout << i << " " << output[i] << endl;
-//    }
-    vector<float> outputSamples;
-    outputSamples.assign(bufferSize, 0.0);
-    SM.playSegments(outputSamples);
-//    cout << "-------------------------" << endl;
+
+
+    //SM.playSegments(outputSamples);
     for (int i = 0; i < bufferSize; i++) {
-        output[i] = outputSamples[i];
-//        cout << i << "  " << output[i] << endl;
+        output[i] = 0;
     }
     
     
+    for (int i = 0; i < notes.size(); i++) {
+        if (notes[i].bPlaying == true){
+
+            for (int j = 0; j < bufferSize; j++) {
+                output[j] += audioSamples[notes[i].playbackTime + j] * 0.3 * SM.audioVol;
+            }
+            
+            notes[i].playbackTime +=bufferSize;
+                                    
+            if (notes[i].playbackTime >= notes[i].endTime){
+                notes[i].bPlaying = false;
+                AU.stopNote(notes[i].mostCommonPitch);
+            }
+            
+            
+        }
     
+    }
     
-//    cout << "AFTER" << endl;
-//    for (int i = 0; i < bufferSize; i++) {
-//        cout << i << " " << output[i] << endl;
-//    }
-//    
+    /*
+     myNote.startTime = startTime;
+     myNote.endTime = endTime;
+     myNote.bPlaying = false;
+     myNote.playbackTime = startTime;
+     notes.push_back(myNote);
+     */
+    
+
     
 }
 
@@ -136,7 +239,7 @@ void testApp::audioOut(float * output, int bufferSize, int nChannels){
 void testApp::setupGUI(){
     
 
-    
+    bSaveGui = false;
     SM.bVelFine = false;
 
     //init gui dims
@@ -150,7 +253,11 @@ void testApp::setupGUI(){
     gui->addFPSSlider("FPS SLIDER", length-xInit, dim*.25, 60);
     
     gui->addSpacer(length-xInit, 1);
+    gui->addLabelToggle("save", &bSaveGui);
+    gui->addSpacer(length-xInit, 1);
+    
     gui->addLabel("FILTERING");
+    
     gui->addSlider("LPF cutoff", 1000, 20000, 20000, length-xInit, dim);
     gui->addSlider("LPF resonance", -20.0, 40.0, 0.0, length-xInit, dim);
     gui->addIntSlider("MF numPValues", 3, 33, 11, length-xInit, dim);
@@ -169,6 +276,11 @@ void testApp::setupGUI(){
     gui->addIntSlider("Sampler octvs up", 0, 4, &SM.samplerOctavesUp, length-xInit, dim);
     gui->addIntSlider("Sine wave octvs up", 0, 4, &SM.sinOctavesUp, length-xInit, dim);
     ofAddListener(gui->newGUIEvent,this,&testApp::guiEvent);
+    
+    gui->loadSettings("settings.xml");
+    
+
+    
 }
 
 void testApp::guiEvent(ofxUIEventArgs &e){

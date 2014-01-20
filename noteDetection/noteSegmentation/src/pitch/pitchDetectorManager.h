@@ -46,5 +46,6 @@ public:
         return nPitchDetectors;
     }
     
+    filePitchDetector * fpd;
 };
 

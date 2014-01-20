@@ -9,6 +9,7 @@
 
 
 #include "pitchDetectorManager.h"
+#include "utils.h"
 
 
 
@@ -33,8 +34,8 @@ void pitchDetectorManager::setup(int winSize, int hopSize){
         APD->setup("midi", methods[i], winSize, hopSize);
     }
     
-    basePitchDetector * fpd = new filePitchDetector();
-    ((filePitchDetector*)fpd)->loadAssociatedFile("lankra.vals.txt");
+    fpd = new filePitchDetector();
+    ((filePitchDetector*)fpd)->loadAssociatedFile(getAudioDirectory() + "lankra.vals.txt");
     pitchDetectors.push_back(fpd);
 
     

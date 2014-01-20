@@ -7,7 +7,7 @@
 //
 
 #include "segmentationManager.h"
-
+#include "testApp.h"
 
 void segmentationManager::setup( int numPitchDetectors, int _bufferSize ){
     
@@ -56,14 +56,10 @@ void segmentationManager::setup( int numPitchDetectors, int _bufferSize ){
     sinVol = 0.0;
     samplerOctavesUp = sinOctavesUp = 0;
     
-    //set up urrent note
-    currentNote.playhead = 0;
-    currentNote.bPlaying = true;
-    currentNote.bWasPlaying = false;
-    
+    currentNote.nFramesRecording = 0;
 }
 
-void segmentationManager::update(float * samples){
+void segmentationManager::update(float * samples, int sampleTime){
     
     updateGraphs();
     
@@ -71,19 +67,27 @@ void segmentationManager::update(float * samples){
     if ( velGraphs[PDM->PDMethod].getLast() < (bVelFine ? fineThreshold : coarseThreshold)) {
         //count buffers
         noteRun++;
-        
+
         // record samples
         for (int i = 0; i < bufferSize; i++ ) {
             currentNote.samples.push_back(samples[i]);
         }
         
+        if (currentNote.nFramesRecording == 0){
+            currentNote.startTime = sampleTime;
+        }
+        
+        currentNote.endTime = sampleTime + bufferSize;
+        currentNote.nFramesRecording++;
+        
         //record pitches
+        //pitchesForRecording.push_back(medianGraphs[PDM->PDMethod].getLast());
         currentNote.analysisFrames.push_back(medianGraphs[PDM->PDMethod].getLast());
 
     }
     else  {
+
         // if the vel is above the thresh then check if the current run is longer than the min duration. If so save the note.  Regardless, set the run count to zero.
-        
         if ( noteRun > minDuration) {
             
             marker segment;
@@ -103,7 +107,18 @@ void segmentationManager::update(float * samples){
                 markers.push_back(segment);
                 //add correspnding note
                 currentNote.mostCommonPitch = findMostCommonPitch(currentNote);
-                notes.push_back(currentNote);
+                
+                
+                
+                float duration = (currentNote.endTime - currentNote.startTime ) / 44100. ;
+                // sometimes, when we wrap over a loop, bad stuff happens, let's be careful:
+                if (duration > 0 && currentNote.mostCommonPitch > 0){
+                    
+                    notes.push_back(currentNote);
+                    
+                    ((testApp *) ofGetAppPtr()) -> addNote(currentNote.startTime, currentNote.endTime, currentNote.mostCommonPitch);
+                }
+                
             }
             //            cout << "note recorded - min duration = " << minDuration << endl << endl;
         }
@@ -111,10 +126,21 @@ void segmentationManager::update(float * samples){
         noteRun = 0;
         currentNote.samples.clear();
         currentNote.analysisFrames.clear();
+        currentNote.nFramesRecording = 0;
+        currentNote.startTime = 0;
+        currentNote.endTime = 0;
     }
+
+   
     
-    scrollMarkers();
-    
+    //    scroll markers
+    if (markers.size() > 0) {
+        for (int i = 0; i < markers.size(); i++) {
+            markers[i].start--;
+            markers[i].end--;
+        }
+    }
+
 }
 
 void segmentationManager::draw(){
@@ -202,6 +228,7 @@ void segmentationManager::scrollMarkers(){
 
 void segmentationManager::playSegments(vector<float> &output){
     
+
     for (int i = 0; i < notes.size(); i++){
         
         //play sampler
@@ -249,6 +276,56 @@ void segmentationManager::playSegments(vector<float> &output){
         notes[i].bWasPlaying = notes[i].bPlaying;
     }
 
+    
+//    for (int i = 0; i < notes.size(); i++){
+//        
+//        //play sampler
+//        if ( !notes[i].bWasPlaying && notes[i].bPlaying ) {
+//            AU->startNote(notes[i].mostCommonPitch + samplerOctavesUp * 12);
+//        }
+//        else if ( notes[i].bWasPlaying && !notes[i].bPlaying ) {
+//            AU->stopNote(notes[i].mostCommonPitch + samplerOctavesUp * 12);
+//        }
+//        
+//        //while audio clips are not finshed playing
+//        if (notes[i].bPlaying == true && (notes[i].playhead + bufferSize) < notes[i].samples.size() ){ //
+//            //play audio
+//            int playhead = notes[i].playhead;
+//            for (int j = 0; j < bufferSize; j++){
+//                output[j] += notes[i].samples[playhead + j] * 0.2 * audioVol;
+//            }
+//            notes[i].playhead += bufferSize ;
+//            
+//            //play sine wave
+//            int frame = playhead / bufferSize;
+//            int midiNote = notes[i].analysisFrames[frame];
+//            
+//            float freq = pow(2, float(midiNote-69)/12.0)*440;
+//            freq *= pow(2.0, sinOctavesUp);
+//            //            cout << frame << " / " << notes[i].analysisFrames.size() << " midi " << midiNote << " freq " << freq << endl;
+//            //fm  =  2(m−69)/12(440 Hz)
+//            float sinAngleAdder = freq * TWO_PI / 44100.0;
+//            
+//            for (int j = 0; j < bufferSize; j++){
+//                
+//                output[j] += sin(sinAngle) * 0.2 * sinVol;
+//                
+//                sinAngle+= sinAngleAdder;
+//                
+//            }
+//            
+//            while (sinAngle > PI) sinAngle -= TWO_PI;
+//            
+//        }
+//        else {
+//            notes[i].bPlaying = false;
+//        }
+//        
+//        notes[i].bWasPlaying = notes[i].bPlaying;
+//        
+//    }
+
+
 }
 
 
@@ -258,10 +335,36 @@ float segmentationManager::findMostCommonPitch(audioNote note){
     
     for (int i = 0; i < note.analysisFrames.size(); i++){
         float detectedPitch = note.analysisFrames[i];
-        if (detectedPitch > 0 && detectedPitch < 150) properPitches.push_back(detectedPitch);
+        if (detectedPitch > minPitch && detectedPitch < 150) properPitches.push_back(detectedPitch);
     }
     // see utils.h
     
-    return findMostCommon(properPitches);
+    int mostCommon =findMostCommon(properPitches);
+    
+    //cout << "-----------" << endl;
+    float avg = 0;
+    for (int i = 0; i < properPitches.size(); i++){
+      //  cout << properPitches[i] << endl;
+        avg +=properPitches[i];
+    }
+    avg /= (float)properPitches.size();
+    
+    //cout << avg << " " << mostCommon << endl;
+    int count = 0;
+    for (int i = 0; i < properPitches.size(); i++){
+        if (properPitches[i] == mostCommon){
+            count ++;
+        }
+    }
+    
+    float pct = (float)count / (float)(MAX(1, properPitches.size()));
+    cout << " pct " << pct << endl;
+    
+    
+    if (pct < 0.35){
+        return -1;
+    } else
+    
+    return (int)mostCommon;
     
 }

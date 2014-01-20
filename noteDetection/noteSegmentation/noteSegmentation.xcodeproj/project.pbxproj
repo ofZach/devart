@@ -92,6 +92,7 @@
 		92CCE24F1889660D0001217C /* utils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 92CCE24B1889660D0001217C /* utils.cpp */; };
 		92CCE5251889662F0001217C /* libaubio.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 92CCE4451889662F0001217C /* libaubio.a */; };
 		92CCE5261889662F0001217C /* libaubio.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 92CCE4461889662F0001217C /* libaubio.dylib */; };
+		92F29850188B6BA800310387 /* scUBlibsndfile.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 92F2984D188B6BA800310387 /* scUBlibsndfile.a */; };
 		BBAB23CB13894F3D00AA2426 /* GLUT.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = BBAB23BE13894E4700AA2426 /* GLUT.framework */; };
 		E4328149138ABC9F0047C5CB /* openFrameworksDebug.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E4328148138ABC890047C5CB /* openFrameworksDebug.a */; };
 		E45BE97B0E8CC7DD009D7055 /* AGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E45BE9710E8CC7DD009D7055 /* AGL.framework */; };
@@ -358,6 +359,9 @@
 		92CCE47B1889662F0001217C /* parameter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = parameter.h; sourceTree = "<group>"; };
 		92CCE47C1889662F0001217C /* scale.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = scale.h; sourceTree = "<group>"; };
 		92CCE47D1889662F0001217C /* vecutils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vecutils.h; sourceTree = "<group>"; };
+		92F2984D188B6BA800310387 /* scUBlibsndfile.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = scUBlibsndfile.a; sourceTree = "<group>"; };
+		92F2984E188B6BA800310387 /* sndfile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sndfile.h; sourceTree = "<group>"; };
+		92F2984F188B6BA800310387 /* sndfile.hh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = sndfile.hh; sourceTree = "<group>"; };
 		BBAB23BE13894E4700AA2426 /* GLUT.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLUT.framework; path = ../../../libs/glut/lib/osx/GLUT.framework; sourceTree = "<group>"; };
 		E4328143138ABC890047C5CB /* openFrameworksLib.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = openFrameworksLib.xcodeproj; path = ../../../libs/openFrameworksCompiled/project/osx/openFrameworksLib.xcodeproj; sourceTree = SOURCE_ROOT; };
 		E45BE9710E8CC7DD009D7055 /* AGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AGL.framework; path = /System/Library/Frameworks/AGL.framework; sourceTree = "<absolute>"; };
@@ -407,6 +411,7 @@
 				E4C2424810CC5A17004149E2 /* Cocoa.framework in Frameworks */,
 				E4C2424910CC5A17004149E2 /* IOKit.framework in Frameworks */,
 				92CCE5251889662F0001217C /* libaubio.a in Frameworks */,
+				92F29850188B6BA800310387 /* scUBlibsndfile.a in Frameworks */,
 				E7E077E515D3B63C0020DFD4 /* CoreVideo.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -660,6 +665,7 @@
 		92CCE2501889662E0001217C /* libs */ = {
 			isa = PBXGroup;
 			children = (
+				92F2984C188B6BA800310387 /* libSndFile */,
 				92CCE4441889662F0001217C /* newAubio */,
 			);
 			path = libs;
@@ -790,6 +796,16 @@
 				92CCE47C1889662F0001217C /* scale.h */,
 			);
 			path = utils;
+			sourceTree = "<group>";
+		};
+		92F2984C188B6BA800310387 /* libSndFile */ = {
+			isa = PBXGroup;
+			children = (
+				92F2984D188B6BA800310387 /* scUBlibsndfile.a */,
+				92F2984E188B6BA800310387 /* sndfile.h */,
+				92F2984F188B6BA800310387 /* sndfile.hh */,
+			);
+			path = libSndFile;
 			sourceTree = "<group>";
 		};
 		BB4B014C10F69532006C3DED /* addons */ = {
@@ -1092,6 +1108,10 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = NO;
 				GCC_WARN_UNUSED_VALUE = NO;
 				GCC_WARN_UNUSED_VARIABLE = NO;
+				HEADER_SEARCH_PATHS = (
+					"$(OF_CORE_HEADERS)",
+					"src/**",
+				);
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				OTHER_CPLUSPLUSFLAGS = (
 					"-D__MACOSX_CORE__",
@@ -1123,6 +1143,14 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = NO;
 				GCC_WARN_UNUSED_VALUE = NO;
 				GCC_WARN_UNUSED_VARIABLE = NO;
+				HEADER_SEARCH_PATHS = (
+					"$(OF_CORE_HEADERS)",
+					"src/**",
+				);
+				"HEADER_SEARCH_PATHS[arch=*]" = (
+					"$(OF_CORE_HEADERS)",
+					"src/**",
+				);
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				OTHER_CPLUSPLUSFLAGS = (
 					"-D__MACOSX_CORE__",
@@ -1214,6 +1242,7 @@
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_51)",
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_52)",
 					./src/libs/newAubio,
+					/Users/zach/Documents/OF/of_v0.8.0_osx_release/devart/noteDetection/noteSegmentation/src/libs/libSndFile,
 				);
 				PRODUCT_NAME = noteSegmentationDebug;
 				WRAPPER_EXTENSION = app;
@@ -1300,6 +1329,7 @@
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_50)",
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_51)",
 					./src/libs/newAubio,
+					/Users/zach/Documents/OF/of_v0.8.0_osx_release/devart/noteDetection/noteSegmentation/src/libs/libSndFile,
 				);
 				PRODUCT_NAME = noteSegmentation;
 				WRAPPER_EXTENSION = app;

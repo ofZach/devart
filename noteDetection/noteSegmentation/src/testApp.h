@@ -13,6 +13,7 @@
 
 
 
+
 class testApp : public ofBaseApp{
 
 public:
@@ -39,9 +40,20 @@ public:
     void gotMessage(ofMessage msg);
 
     
-    //------soundStreamManager
+    // for notes
+    struct note {
+        int startTime;
+        int endTime;
+        int playbackTime;
+        int mostCommonPitch;
+        bool bPlaying;
+    };
+    vector < note > notes;
+    void addNote( int startTime, int endTime, int avgTone);
     
-    //soundStream
+    
+    
+    
     int samplerate, windowSize, hopSize;
     ofSoundStream ss;
     void audioIn(float * input, int bufferSize, int nChannels);
@@ -49,11 +61,16 @@ public:
 
 
     pitchDetectorManager PDM;
-
     segmentationManager SM;
-   
     audioUnitManager AU;
-
     ofxUICanvas * gui;
+    bool bSaveGui;
+    
+    
+    string outputFolder;
+    
+    vector < float > audioSamples;      // raw audio of what's playing.
+    
+    
     
 };

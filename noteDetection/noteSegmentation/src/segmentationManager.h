@@ -31,6 +31,11 @@ struct audioNote {
     vector < float > analysisFrames;
     int mostCommonPitch;
     int playhead;
+    
+    int nFramesRecording;
+    int startTime;
+    int endTime;
+    
 };
 
 
@@ -39,7 +44,7 @@ class segmentationManager {
 public: 
     
     void setup( int numPitchDetectors, int _bufferSize );
-    void update(float * samples);
+    void update(float * samples, int sampleTime);
     void draw();
     
     void updateGraphs();
@@ -53,7 +58,6 @@ public:
     float findMostCommonPitch(audioNote note);
     
     int bufferSize;
-    
     
     pitchDetectorManager * PDM;
     int nPds;
