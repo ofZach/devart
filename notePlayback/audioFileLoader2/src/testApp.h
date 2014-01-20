@@ -3,7 +3,13 @@
 #include "ofMain.h"
 #include "note.h"
 
-
+struct pianoKey {
+    float width;
+    float height;
+    bool blackKey;
+    float pos;
+    string keyBinding;
+};
 
 class testApp : public ofBaseApp {
 
@@ -12,6 +18,7 @@ public:
     void update();
     void draw();
 
+    void setupKeyBindings();
     void setupKeyboard();
 
     void keyPressed(int key);
@@ -31,6 +38,8 @@ public:
 
     vector < note * > notes;
     map<int, int> keyboard;
+    vector<pianoKey> pianoKeys;
+    
     int octave;
 
     bool bPlayingTone;

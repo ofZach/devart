@@ -46,6 +46,7 @@ void testApp::setup(){
     
     soundStream.setup(this, 2, 0, 44100, 256, 4);
     
+    setupKeyBindings();
     setupKeyboard();
 }
 
@@ -82,7 +83,7 @@ void testApp::audioOut(float * output, int bufferSize, int nChannels){
 }
 
 //--------------------------------------------------------------
-void testApp::setupKeyboard() {
+void testApp::setupKeyBindings() {
     keyboard['a'] = 0;
     keyboard['w'] = 1;
     keyboard['s'] = 2;
@@ -98,7 +99,119 @@ void testApp::setupKeyboard() {
     keyboard['k'] = 12;
     
     octave = 4;
+}
 
+//--------------------------------------------------------------
+void testApp::setupKeyboard() {
+    int whiteKeyHeight = 300;
+    int whiteKeyWidth = 100;
+    int blackKeyHeight = 200;
+    int blackKeyWidth = 75;
+    
+    pianoKey c;
+    c.width = whiteKeyWidth;
+    c.height = whiteKeyHeight;
+    c.blackKey = false;
+    c.pos = 0.0;
+    c.keyBinding = 'a';
+    pianoKeys.push_back(c);
+    
+    pianoKey csharp;
+    csharp.width = blackKeyWidth;
+    csharp.height = blackKeyHeight;
+    csharp.pos = 0.5;
+    csharp.keyBinding = 'w';
+    csharp.blackKey = true;
+    pianoKeys.push_back(csharp);
+    
+    pianoKey d;
+    d.width = whiteKeyWidth;
+    d.height = whiteKeyHeight;
+    d.pos = 1.0;
+    d.keyBinding = 's';
+    d.blackKey = false;
+    pianoKeys.push_back(d);
+    
+    pianoKey dsharp;
+    dsharp.width = blackKeyWidth;
+    dsharp.height = blackKeyHeight;
+    dsharp.pos = 1.5;
+    dsharp.keyBinding = 'e';
+    dsharp.blackKey = true;
+    pianoKeys.push_back(dsharp);
+    
+    pianoKey e;
+    e.width = whiteKeyWidth;
+    e.height = whiteKeyHeight;
+    e.pos = 2.0;
+    e.keyBinding = 'd';
+    e.blackKey = false;
+    pianoKeys.push_back(e);
+    
+    pianoKey f;
+    f.width = whiteKeyWidth;
+    f.height = whiteKeyHeight;
+    f.pos = 3.0;
+    f.keyBinding = 'f';
+    f.blackKey = false;
+    pianoKeys.push_back(f);
+    
+    pianoKey fsharp;
+    fsharp.width = blackKeyWidth;
+    fsharp.height = blackKeyHeight;
+    fsharp.pos = 3.5;
+    fsharp.keyBinding = 't';
+    fsharp.blackKey = true;
+    pianoKeys.push_back(fsharp);
+    
+    pianoKey g;
+    g.width = whiteKeyWidth;
+    g.height = whiteKeyHeight;
+    g.pos = 4.0;
+    g.keyBinding = 'g';
+    g.blackKey = false;
+    pianoKeys.push_back(g);
+    
+    pianoKey gsharp;
+    gsharp.width = blackKeyWidth;
+    gsharp.height = blackKeyHeight;
+    gsharp.pos = 4.5;
+    gsharp.keyBinding = 'y';
+    gsharp.blackKey = true;
+    pianoKeys.push_back(gsharp);
+    
+    pianoKey a;
+    a.width = whiteKeyWidth;
+    a.height = whiteKeyHeight;
+    a.pos = 5.0;
+    a.keyBinding = 'h';
+    a.blackKey = false;
+    pianoKeys.push_back(a);
+    
+    pianoKey asharp;
+    asharp.width = blackKeyWidth;
+    asharp.height = blackKeyHeight;
+    asharp.pos = 5.5;
+    asharp.keyBinding = 'u';
+    asharp.blackKey = true;
+    pianoKeys.push_back(asharp);
+    
+    pianoKey b;
+    b.width = whiteKeyWidth;
+    b.height = whiteKeyHeight;
+    b.pos = 6.0;
+    b.keyBinding = 'j';
+    b.blackKey = false;
+    pianoKeys.push_back(b);
+    
+    pianoKey cOctvUp;
+    cOctvUp.width = whiteKeyWidth;
+    cOctvUp.height = whiteKeyHeight;
+    cOctvUp.pos = 7.0;
+    cOctvUp.keyBinding = 'k';
+    cOctvUp.blackKey = false;
+    pianoKeys.push_back(cOctvUp);
+    
 }
 
 //--------------------------------------------------------------
@@ -109,7 +222,86 @@ void testApp::update(){
 
 //--------------------------------------------------------------
 void testApp::draw(){
+    
+    //white keys
 
+    
+    float whiteKeyHeight = 300;
+    float whiteKeyWidth = 100;
+    float blackKeyHeight = 200;
+    float blackKeyWidth = 75;
+    
+    for (int i = 0; i < pianoKeys.size(); i++) {
+        if (!pianoKeys[i].blackKey) {
+            ofSetColor(255);
+            ofFill();
+            ofRect(pianoKeys[i].pos * whiteKeyWidth, 0, whiteKeyWidth, whiteKeyHeight);
+            
+            ofSetColor(0);
+            ofNoFill();
+            ofRect(pianoKeys[i].pos * whiteKeyWidth, 0, whiteKeyWidth, whiteKeyHeight);
+            
+            float kbX = pianoKeys[i].pos * whiteKeyWidth + whiteKeyWidth / 2;
+            float kbY = whiteKeyHeight - whiteKeyHeight / 6;
+            ofDrawBitmapString(pianoKeys[i].keyBinding, kbX, kbY);
+        }
+    }
+        
+    for (int i = 0; i < pianoKeys.size(); i++) {
+        if (pianoKeys[i].blackKey) {
+            ofSetColor(255);
+            ofFill();
+            ofRect(pianoKeys[i].pos * whiteKeyWidth + blackKeyWidth/6, 0, blackKeyWidth, blackKeyHeight);
+            
+            ofSetColor(0);
+            ofNoFill();
+            ofRect(pianoKeys[i].pos * whiteKeyWidth + blackKeyWidth/6, 0, blackKeyWidth, blackKeyHeight);
+            
+            float kbX = pianoKeys[i].pos * whiteKeyWidth + blackKeyWidth / 2;
+            float kbY = blackKeyHeight - blackKeyHeight / 6;
+            ofDrawBitmapString(pianoKeys[i].keyBinding, kbX, kbY);
+        }
+    }
+    
+    
+    /*
+    //white keys
+    int whiteKeyHeight = 300;
+    int whiteKeyWidth = 100;
+    
+    for (int i = 0; i < 7; i++) {
+        ofSetColor(255);
+        ofFill();
+        ofRect(i * whiteKeyWidth, 0, whiteKeyWidth, whiteKeyHeight);
+        
+        ofSetColor(0);
+        ofNoFill();
+        ofRect(i * whiteKeyWidth, 0, whiteKeyWidth, whiteKeyHeight);
+    }
+    
+    
+    //black keys
+    int blackKeyHeight = 200;
+    int blackKeyWidth = 75;
+    
+    vector<float> blackKeyPos;
+    blackKeyPos.push_back(0.5);
+    blackKeyPos.push_back(1.5);
+    blackKeyPos.push_back(3.5);
+    blackKeyPos.push_back(4.5);
+    blackKeyPos.push_back(5.5);
+    
+    
+    for (int i = 0; i < blackKeyPos.size(); i++) {
+        ofSetColor(255);
+        ofFill();
+        ofRect(blackKeyPos[i] * whiteKeyWidth + 12.5, 0, blackKeyWidth, blackKeyHeight);
+        
+        ofSetColor(0);
+        ofNoFill();
+        ofRect(blackKeyPos[i] * whiteKeyWidth + 12.5, 0, blackKeyWidth, blackKeyHeight);
+    }
+*/
     
 }
 
