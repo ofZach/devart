@@ -94,7 +94,7 @@ void testApp::addNote( int startTime, int endTime, int avgTone){
     int mins = (int)( startTimeF / 60.0);
     int secs = (int)((( startTimeF / 60.0) - mins) * 59);
     
-    string fileName = outputFolder + "/time(" + zeroPadNumber(mins, 2) + ":" + zeroPadNumber(secs, 2) + ")_note(" + ofToString(avgTone) + ").wav";
+    string fileName = outputFolder + "/time(" + zeroPadNumber(mins, 2) + "." + zeroPadNumber(secs, 2) + ")_note(" + ofToString(avgTone) + ").wav";
     //cout << fileName << endl;
     
     vector < float > audioSamplesOfNote;
