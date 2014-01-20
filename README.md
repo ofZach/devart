@@ -11,4 +11,6 @@ this should be at the root level of OF (0.8).  It's using OSX specific libraries
 - noteDetection: experiments in segmentation of notes
 - notePlayback: experiments in playing back note files
 
+uses develop branch of ofxUI
+(git checkout -b develop remotes/origin/develop)
 
