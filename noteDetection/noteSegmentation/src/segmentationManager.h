@@ -42,11 +42,13 @@ public:
     void update(float * samples);
     void draw();
     
+    void updateGraphs();
+    void scrollMarkers();
+    
     void playSegments(vector<float> &output);
     float audioVol, sinVol;
     int samplerOctavesUp, sinOctavesUp;
     float sinAngle;
-    
     
     float findMostCommonPitch(audioNote note);
     
@@ -86,7 +88,5 @@ public:
     //notes
     audioNote currentNote;
     vector < audioNote > notes;
-    
-    
     
 };

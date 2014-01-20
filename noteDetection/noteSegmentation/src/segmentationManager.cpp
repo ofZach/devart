@@ -55,44 +55,34 @@ void segmentationManager::setup( int numPitchDetectors, int _bufferSize ){
     audioVol = 1.0;
     sinVol = 0.0;
     samplerOctavesUp = sinOctavesUp = 0;
+    
+    //set up urrent note
+    currentNote.playhead = 0;
+    currentNote.bPlaying = true;
+    currentNote.bWasPlaying = false;
+    
 }
 
 void segmentationManager::update(float * samples){
     
-    for (int i = 0; i < PDM->size(); i++) {
-        pitchGraphs[i].addValue(PDM->getPitch(i));
-        smoothers[i].addValue(PDM->getPitch(i));
-        medianGraphs[i].addValue(smoothers[i].getMedian());
-        
-        
-        float lastVal = medianGraphs[i].valHistory[medianGraphs[i].valHistory.size() - 1];
-        float secondLastVal = medianGraphs[i].valHistory[medianGraphs[i].valHistory.size() - 2];
-        float vel = abs(lastVal - secondLastVal);
-        velGraphs[i].addValue(vel);
-    }
-    
-    
-    
+    updateGraphs();
     
     // count how many frames in a row the vel is below the threshold
     if ( velGraphs[PDM->PDMethod].getLast() < (bVelFine ? fineThreshold : coarseThreshold)) {
         //count buffers
         noteRun++;
-//        bAmRecording = true;
+        
         // record samples
         for (int i = 0; i < bufferSize; i++ ) {
             currentNote.samples.push_back(samples[i]);
         }
+        
         //record pitches
-//        pitchesForRecording.push_back(medianGraphs[PDM->PDMethod].getLast());
         currentNote.analysisFrames.push_back(medianGraphs[PDM->PDMethod].getLast());
 
     }
     else  {
         // if the vel is above the thresh then check if the current run is longer than the min duration. If so save the note.  Regardless, set the run count to zero.
-        
-        
-//        bAmRecording = false;
         
         if ( noteRun > minDuration) {
             
@@ -112,9 +102,6 @@ void segmentationManager::update(float * samples){
                 //add markers
                 markers.push_back(segment);
                 //add correspnding note
-                currentNote.playhead = 0;
-                currentNote.bPlaying = true;
-                currentNote.bWasPlaying = false;
                 currentNote.mostCommonPitch = findMostCommonPitch(currentNote);
                 notes.push_back(currentNote);
             }
@@ -126,17 +113,8 @@ void segmentationManager::update(float * samples){
         currentNote.analysisFrames.clear();
     }
     
-    //    cout << noteRun << " " << bAmRecording << " vel = " << velGraphs[PDMethod].getLast() << " thresh = " << threshold << endl;
+    scrollMarkers();
     
-//    runs.addValue(bAmRecording);
-    
-    //    scroll markers
-    if (markers.size() > 0) {
-        for (int i = 0; i < markers.size(); i++) {
-            markers[i].start--;
-            markers[i].end--;
-        }
-    }
 }
 
 void segmentationManager::draw(){
@@ -196,6 +174,32 @@ void segmentationManager::draw(){
 }
 
 
+void segmentationManager::updateGraphs(){
+    
+    for (int i = 0; i < PDM->size(); i++) {
+        pitchGraphs[i].addValue(PDM->getPitch(i));
+        smoothers[i].addValue(PDM->getPitch(i));
+        medianGraphs[i].addValue(smoothers[i].getMedian());
+        
+        
+        float lastVal = medianGraphs[i].valHistory[medianGraphs[i].valHistory.size() - 1];
+        float secondLastVal = medianGraphs[i].valHistory[medianGraphs[i].valHistory.size() - 2];
+        float vel = abs(lastVal - secondLastVal);
+        velGraphs[i].addValue(vel);
+    }
+}
+
+void segmentationManager::scrollMarkers(){
+
+    if (markers.size() > 0) {
+        for (int i = 0; i < markers.size(); i++) {
+            markers[i].start--;
+            markers[i].end--;
+        }
+    }
+}
+
+
 void segmentationManager::playSegments(vector<float> &output){
     
     for (int i = 0; i < notes.size(); i++){
@@ -243,7 +247,6 @@ void segmentationManager::playSegments(vector<float> &output){
         }
         
         notes[i].bWasPlaying = notes[i].bPlaying;
-        
     }
 
 }
