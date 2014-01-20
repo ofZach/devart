@@ -45,6 +45,8 @@ void testApp::setup(){
     }
     
     soundStream.setup(this, 2, 0, 44100, 256, 4);
+    
+    setupKeyboard();
 }
 
 
@@ -76,24 +78,26 @@ void testApp::audioOut(float * output, int bufferSize, int nChannels){
     }
     
     
-    setupKeyboard();
+
 }
 
 //--------------------------------------------------------------
 void testApp::setupKeyboard() {
-    keyboard['a'] = 60;
-    keyboard['w'] = 61;
-    keyboard['s'] = 62;
-    keyboard['e'] = 63;
-    keyboard['d'] = 64;
-    keyboard['f'] = 65;
-    keyboard['t'] = 66;
-    keyboard['g'] = 67;
-    keyboard['y'] = 68;
-    keyboard['h'] = 69;
-    keyboard['u'] = 70;
-    keyboard['j'] = 71;
-    keyboard['k'] = 72;
+    keyboard['a'] = 0;
+    keyboard['w'] = 1;
+    keyboard['s'] = 2;
+    keyboard['e'] = 3;
+    keyboard['d'] = 4;
+    keyboard['f'] = 5;
+    keyboard['t'] = 6;
+    keyboard['g'] = 7;
+    keyboard['y'] = 8;
+    keyboard['h'] = 9;
+    keyboard['u'] = 10;
+    keyboard['j'] = 11;
+    keyboard['k'] = 12;
+    
+    octave = 4;
 
 }
 
@@ -118,32 +122,46 @@ void testApp::keyPressed(int key){
     
     if (key < 97) return;
     
-    int note = keyboard[key]; //key - 97 + 55;
-    cout << "trying to play note " << note << endl;
-    vector < int > anyGoods;
-    for (int i = 0; i < notes.size(); i++){
-        int which = i;
-        if (notes[which]->mostCommonNote == note && notes[which]->bPlaying == false){
-            anyGoods.push_back(i);
-            //notes[which]->play();
-            //break;
-        }
+    if (key == 'z') {
+        octave--;
+        if (octave < 0) octave = 0;
     }
     
-    //if (ofRandom(0,1) > 0.3){
-    if (anyGoods.size() > 0){
-        int which = anyGoods[ ofRandom(0,anyGoods.size()) ];
-        notes[which]->play();
+    if (key == 'x') {
+        octave++;
+        if (octave > 6) octave = 6;
     }
-    //} else {
-        bPlayingTone = true;
-        startTime = ofGetElapsedTimef();
-        sinAngle = 0;
-        float freq = MIDI2freq(note);
-        sinAngleAdder = (freq * TWO_PI) / 44100.0;
+    
+
+    if (keyboard[key] != 0 || key == 'a') {
+        int note = keyboard[key] + (octave+1) * 12;
+        cout << "trying to play note " << note << endl;
         
+        vector < int > anyGoods;
+        for (int i = 0; i < notes.size(); i++){
+            int which = i;
+            if (notes[which]->mostCommonNote == note && notes[which]->bPlaying == false){
+                anyGoods.push_back(i);
+                //notes[which]->play();
+                //break;
+            }
+        }
         
-   // }
+        //if (ofRandom(0,1) > 0.3){
+        if (anyGoods.size() > 0){
+            int which = anyGoods[ ofRandom(0,anyGoods.size()) ];
+            notes[which]->play();
+        }
+        //} else {
+            bPlayingTone = true;
+            startTime = ofGetElapsedTimef();
+            sinAngle = 0;
+            float freq = MIDI2freq(note);
+            sinAngleAdder = (freq * TWO_PI) / 44100.0;
+            
+            
+       // }
+    }
     
     
 }
