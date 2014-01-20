@@ -31,7 +31,7 @@ void testApp::setup(){
     
     
     for (int i = 0; i < files.size(); i++){
-        note * tempNote =new note();
+        note * tempNote = new note();
         //tempNote->AA = &AA;
         tempNote->loadFile(files[i]);
         notes.push_back(tempNote);
@@ -76,7 +76,25 @@ void testApp::audioOut(float * output, int bufferSize, int nChannels){
     }
     
     
-    
+    setupKeyboard();
+}
+
+//--------------------------------------------------------------
+void testApp::setupKeyboard() {
+    keyboard['a'] = 60;
+    keyboard['w'] = 61;
+    keyboard['s'] = 62;
+    keyboard['e'] = 63;
+    keyboard['d'] = 64;
+    keyboard['f'] = 65;
+    keyboard['t'] = 66;
+    keyboard['g'] = 67;
+    keyboard['y'] = 68;
+    keyboard['h'] = 69;
+    keyboard['u'] = 70;
+    keyboard['j'] = 71;
+    keyboard['k'] = 72;
+
 }
 
 //--------------------------------------------------------------
@@ -100,7 +118,7 @@ void testApp::keyPressed(int key){
     
     if (key < 97) return;
     
-    int note = key - 97 + 55;
+    int note = keyboard[key]; //key - 97 + 55;
     cout << "trying to play note " << note << endl;
     vector < int > anyGoods;
     for (int i = 0; i < notes.size(); i++){

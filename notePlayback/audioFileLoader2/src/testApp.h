@@ -11,6 +11,8 @@ class testApp : public ofBaseApp {
 		void setup();
 		void update();
 		void draw();
+    
+        void setupKeyboard();
 
 		void keyPressed(int key);
 		void keyReleased(int key);
@@ -28,6 +30,7 @@ class testApp : public ofBaseApp {
         void audioOut(float * output, int bufferSize, int nChannels);
     
         vector < note * > notes;
+        map<int, int> keyboard;
     
         bool bPlayingTone;
         float sinAngle;
