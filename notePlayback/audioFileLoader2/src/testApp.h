@@ -4,11 +4,10 @@
 #include "note.h"
 
 struct pianoKey {
-    float width;
-    float height;
     bool blackKey;
     float pos;
-    string keyBinding;
+    char keyBinding;
+    bool keyPressed;
 };
 
 class testApp : public ofBaseApp {

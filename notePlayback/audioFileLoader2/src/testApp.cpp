@@ -46,8 +46,9 @@ void testApp::setup(){
     
     soundStream.setup(this, 2, 0, 44100, 256, 4);
     
-    setupKeyBindings();
     setupKeyboard();
+    setupKeyBindings();
+
 }
 
 
@@ -84,19 +85,24 @@ void testApp::audioOut(float * output, int bufferSize, int nChannels){
 
 //--------------------------------------------------------------
 void testApp::setupKeyBindings() {
-    keyboard['a'] = 0;
-    keyboard['w'] = 1;
-    keyboard['s'] = 2;
-    keyboard['e'] = 3;
-    keyboard['d'] = 4;
-    keyboard['f'] = 5;
-    keyboard['t'] = 6;
-    keyboard['g'] = 7;
-    keyboard['y'] = 8;
-    keyboard['h'] = 9;
-    keyboard['u'] = 10;
-    keyboard['j'] = 11;
-    keyboard['k'] = 12;
+//    keyboard['a'] = 0;
+//    keyboard['w'] = 1;
+//    keyboard['s'] = 2;
+//    keyboard['e'] = 3;
+//    keyboard['d'] = 4;
+//    keyboard['f'] = 5;
+//    keyboard['t'] = 6;
+//    keyboard['g'] = 7;
+//    keyboard['y'] = 8;
+//    keyboard['h'] = 9;
+//    keyboard['u'] = 10;
+//    keyboard['j'] = 11;
+//    keyboard['k'] = 12;
+    
+    
+    for (int i = 0; i < pianoKeys.size(); i++) {
+        keyboard[pianoKeys[i].keyBinding] = i;
+    }
     
     octave = 4;
 }
@@ -109,107 +115,94 @@ void testApp::setupKeyboard() {
     int blackKeyWidth = 75;
     
     pianoKey c;
-    c.width = whiteKeyWidth;
-    c.height = whiteKeyHeight;
     c.blackKey = false;
     c.pos = 0.0;
     c.keyBinding = 'a';
+    c.keyPressed = false;
     pianoKeys.push_back(c);
     
     pianoKey csharp;
-    csharp.width = blackKeyWidth;
-    csharp.height = blackKeyHeight;
     csharp.pos = 0.5;
     csharp.keyBinding = 'w';
     csharp.blackKey = true;
+    csharp.keyPressed = false;
     pianoKeys.push_back(csharp);
     
     pianoKey d;
-    d.width = whiteKeyWidth;
-    d.height = whiteKeyHeight;
     d.pos = 1.0;
     d.keyBinding = 's';
     d.blackKey = false;
+    d.keyPressed = false;
     pianoKeys.push_back(d);
     
     pianoKey dsharp;
-    dsharp.width = blackKeyWidth;
-    dsharp.height = blackKeyHeight;
     dsharp.pos = 1.5;
     dsharp.keyBinding = 'e';
     dsharp.blackKey = true;
+    dsharp.keyPressed = false;
     pianoKeys.push_back(dsharp);
     
     pianoKey e;
-    e.width = whiteKeyWidth;
-    e.height = whiteKeyHeight;
     e.pos = 2.0;
     e.keyBinding = 'd';
     e.blackKey = false;
+    e.keyPressed = false;
     pianoKeys.push_back(e);
     
     pianoKey f;
-    f.width = whiteKeyWidth;
-    f.height = whiteKeyHeight;
     f.pos = 3.0;
     f.keyBinding = 'f';
     f.blackKey = false;
+    f.keyPressed = false;
     pianoKeys.push_back(f);
     
     pianoKey fsharp;
-    fsharp.width = blackKeyWidth;
-    fsharp.height = blackKeyHeight;
     fsharp.pos = 3.5;
     fsharp.keyBinding = 't';
     fsharp.blackKey = true;
+    fsharp.keyPressed = false;
     pianoKeys.push_back(fsharp);
     
     pianoKey g;
-    g.width = whiteKeyWidth;
-    g.height = whiteKeyHeight;
     g.pos = 4.0;
     g.keyBinding = 'g';
     g.blackKey = false;
+    g.keyPressed = false;
     pianoKeys.push_back(g);
     
     pianoKey gsharp;
-    gsharp.width = blackKeyWidth;
-    gsharp.height = blackKeyHeight;
     gsharp.pos = 4.5;
     gsharp.keyBinding = 'y';
     gsharp.blackKey = true;
+    gsharp.keyPressed = false;
     pianoKeys.push_back(gsharp);
     
     pianoKey a;
-    a.width = whiteKeyWidth;
-    a.height = whiteKeyHeight;
     a.pos = 5.0;
     a.keyBinding = 'h';
     a.blackKey = false;
+    a.keyPressed = false;
     pianoKeys.push_back(a);
     
     pianoKey asharp;
-    asharp.width = blackKeyWidth;
-    asharp.height = blackKeyHeight;
     asharp.pos = 5.5;
     asharp.keyBinding = 'u';
     asharp.blackKey = true;
+    asharp.keyPressed = false;
     pianoKeys.push_back(asharp);
     
     pianoKey b;
-    b.width = whiteKeyWidth;
-    b.height = whiteKeyHeight;
     b.pos = 6.0;
     b.keyBinding = 'j';
     b.blackKey = false;
+    b.keyPressed = false;
     pianoKeys.push_back(b);
     
     pianoKey cOctvUp;
-    cOctvUp.width = whiteKeyWidth;
-    cOctvUp.height = whiteKeyHeight;
     cOctvUp.pos = 7.0;
     cOctvUp.keyBinding = 'k';
     cOctvUp.blackKey = false;
+    cOctvUp.keyPressed = false;
     pianoKeys.push_back(cOctvUp);
     
 }
@@ -233,33 +226,32 @@ void testApp::draw(){
     
     for (int i = 0; i < pianoKeys.size(); i++) {
         if (!pianoKeys[i].blackKey) {
-            ofSetColor(255);
+            ofSetColor((pianoKeys[i].keyPressed ? 0 : 255));
             ofFill();
             ofRect(pianoKeys[i].pos * whiteKeyWidth, 0, whiteKeyWidth, whiteKeyHeight);
             
-            ofSetColor(0);
+            ofSetColor((pianoKeys[i].keyPressed ? 255 : 0));
             ofNoFill();
             ofRect(pianoKeys[i].pos * whiteKeyWidth, 0, whiteKeyWidth, whiteKeyHeight);
             
             float kbX = pianoKeys[i].pos * whiteKeyWidth + whiteKeyWidth / 2;
             float kbY = whiteKeyHeight - whiteKeyHeight / 6;
-            ofDrawBitmapString(pianoKeys[i].keyBinding, kbX, kbY);
+            ofDrawBitmapString(ofToString(pianoKeys[i].keyBinding), kbX, kbY);
         }
     }
         
     for (int i = 0; i < pianoKeys.size(); i++) {
         if (pianoKeys[i].blackKey) {
-            ofSetColor(255);
+            ofSetColor((pianoKeys[i].keyPressed ? 0 : 255));
             ofFill();
             ofRect(pianoKeys[i].pos * whiteKeyWidth + blackKeyWidth/6, 0, blackKeyWidth, blackKeyHeight);
             
-            ofSetColor(0);
-            ofNoFill();
+            ofSetColor((pianoKeys[i].keyPressed ? 255 : 0));            ofNoFill();
             ofRect(pianoKeys[i].pos * whiteKeyWidth + blackKeyWidth/6, 0, blackKeyWidth, blackKeyHeight);
             
             float kbX = pianoKeys[i].pos * whiteKeyWidth + blackKeyWidth / 2;
             float kbY = blackKeyHeight - blackKeyHeight / 6;
-            ofDrawBitmapString(pianoKeys[i].keyBinding, kbX, kbY);
+            ofDrawBitmapString(ofToString(pianoKeys[i].keyBinding), kbX, kbY);
         }
     }
     
@@ -350,7 +342,8 @@ void testApp::keyPressed(int key){
             sinAngle = 0;
             float freq = MIDI2freq(note);
             sinAngleAdder = (freq * TWO_PI) / 44100.0;
-            
+        
+        pianoKeys[keyboard[key]].keyPressed = true;
             
        // }
     }
@@ -360,7 +353,7 @@ void testApp::keyPressed(int key){
 
 //--------------------------------------------------------------
 void testApp::keyReleased(int key){
-
+    pianoKeys[keyboard[key]].keyPressed = false;
 }
 
 //--------------------------------------------------------------
