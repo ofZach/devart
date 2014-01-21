@@ -72,5 +72,5 @@ public:
     vector < float > audioSamples;      // raw audio of what's playing.
     
     
-    
+    int state;
 };

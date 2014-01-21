@@ -46,6 +46,7 @@ public:
     void setup( int numPitchDetectors, int _bufferSize );
     void update(float * samples, int sampleTime);
     void draw();
+    void drawAllPDs();
     
     void updateGraphs();
     void scrollMarkers();

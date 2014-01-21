@@ -142,6 +142,8 @@ void testApp::setup(){
     }
     
     ofSetVerticalSync(false);
+    
+    state = 0;
 }
 
 
@@ -160,8 +162,13 @@ void testApp::update(){
 //--------------------------------------------------------------
 void testApp::draw(){
 
-    PDM.draw();
-    SM.draw();
+    if (state == 0) {
+        PDM.draw();
+        SM.draw();
+    }
+    else if (state == 1) {
+        SM.drawAllPDs();
+    }
   
 
 }
@@ -326,6 +333,11 @@ void testApp::keyPressed(int key){
             
         case 'm':
             SM.drawMarkers = !SM.drawMarkers;
+            break;
+            
+        case 's':
+            state++;
+            state %= 2;
             break;
     }
 

@@ -200,6 +200,20 @@ void segmentationManager::draw(){
 }
 
 
+void segmentationManager::drawAllPDs(){
+    ofSetColor(255,0,0);
+    
+    for (int i = 0; i < PDM->size(); i++) {
+        ofPushMatrix();
+        ofTranslate(0, i * (ofGetHeight() / (PDM->size()+1)));
+        medianGraphs[i].draw(ofGetHeight() / (PDM->size()+1));
+        ofPopMatrix();
+    }
+}
+
+
+
+
 void segmentationManager::updateGraphs(){
     
     for (int i = 0; i < PDM->size(); i++) {
