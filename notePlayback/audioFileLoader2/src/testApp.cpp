@@ -10,6 +10,7 @@ bool sortNotes(note * a, note *b){
 //--------------------------------------------------------------
 void testApp::setup(){
 
+    counter.assign(150,0);
     
     ofDirectory dir;
     dir.listDir( "../../../../audio/output/" );
@@ -41,7 +42,10 @@ void testApp::setup(){
    ofSort(notes, sortNotes);
     
     for (int i = 0; i < notes.size(); i++){
+        
         cout << notes[i]->mostCommonNote << endl;
+        
+        
     }
     
     myPiano.setup();
@@ -68,7 +72,7 @@ void testApp::audioOut(float * output, int bufferSize, int nChannels){
         
             for (int j = 0; j < bufferSize; j++){
                 for (int i = 0; i < nChannels; i++){
-                    output[j *nChannels + i] += sin(sinAngle) * 0.3;
+                //    output[j *nChannels + i] += sin(sinAngle) * 0.05;
                 }
                 sinAngle+=sinAngleAdder;
             }
@@ -113,21 +117,26 @@ void testApp::keyPressed(int key){
 
     if (myPiano.keyBindings[key] != 0 || key == 'a') {
         int note = myPiano.getNote(key);
-        cout << "trying to play note " << note << endl;
+        //cout << "trying to play note " << note << endl;
         
         vector < int > anyGoods;
         for (int i = 0; i < notes.size(); i++){
             int which = i;
-            if (notes[which]->mostCommonNote == note && notes[which]->bPlaying == false){
+            if (notes[which]->mostCommonNote == note){
                 anyGoods.push_back(i);
                 //notes[which]->play();
                 //break;
             }
         }
         
+        cout << anyGoods.size() << endl;
         //if (ofRandom(0,1) > 0.3){
         if (anyGoods.size() > 0){
-            int which = anyGoods[ ofRandom(0,anyGoods.size()) ];
+            
+            counter[note]++;
+            
+            
+            int which = anyGoods[ counter[note] % anyGoods.size() ];
             notes[which]->play();
         }
         //} else {

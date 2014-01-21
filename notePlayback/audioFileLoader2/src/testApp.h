@@ -35,4 +35,8 @@ public:
     float sinAngleAdder;
     
     
+    vector < int > counter;
+    
+    
+    
 };

@@ -71,6 +71,11 @@ public:
     
     vector < float > audioSamples;      // raw audio of what's playing.
     
+    void processAudioFileOffline();
+    
+    bool bSaving;
+    bool bPlayMidi;
+    bool bPlayingSamples;
     
     int state;
 };

@@ -39,6 +39,7 @@ public:
         
         float volume = sin((playFrame / (float)samples.size()) * PI);
         
+        volume = powf(volume, 0.3);
         if (playFrame < (samples.size() - bufferSize)){
             for (int i = 0; i < _nChannels; i++){
                 for (int j = 0; j < bufferSize; j++){

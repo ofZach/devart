@@ -73,3 +73,18 @@
     <Name>Sine wave octvs up</Name>
     <Value>0</Value>
 </Widget>
+<Widget>
+    <Kind>17</Kind>
+    <Name>saving notes</Name>
+    <Value>0</Value>
+</Widget>
+<Widget>
+    <Kind>17</Kind>
+    <Name>play midi</Name>
+    <Value>0</Value>
+</Widget>
+<Widget>
+    <Kind>17</Kind>
+    <Name>play samples</Name>
+    <Value>0</Value>
+</Widget>

@@ -63,11 +63,11 @@ void segmentationManager::update(float * samples, int sampleTime){
     
     updateGraphs();
     
-    // count how many frames in a row the vel is below the threshold
+     // count how many frames in a row the vel is below the threshold
     if ( velGraphs[PDM->PDMethod].getLast() < (bVelFine ? fineThreshold : coarseThreshold)) {
         //count buffers
         noteRun++;
-
+        
         // record samples
         for (int i = 0; i < bufferSize; i++ ) {
             currentNote.samples.push_back(samples[i]);
@@ -86,7 +86,8 @@ void segmentationManager::update(float * samples, int sampleTime){
 
     }
     else  {
-
+        
+        
         // if the vel is above the thresh then check if the current run is longer than the min duration. If so save the note.  Regardless, set the run count to zero.
         if ( noteRun > minDuration) {
             
@@ -120,7 +121,7 @@ void segmentationManager::update(float * samples, int sampleTime){
                 }
                 
             }
-            //            cout << "note recorded - min duration = " << minDuration << endl << endl;
+            cout << "note recorded - min duration = " << currentNote.startTime << endl << endl;
         }
         //reset
         noteRun = 0;

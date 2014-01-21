@@ -10,10 +10,7 @@ void testApp::loadAudio( string fileName ){
     
     string extension = fileName.substr(fileName.find_last_of(".") + 1);
     string preExtension = fileName.substr(0, fileName.find_last_of("."));
-    
-    
-    
-    
+
     // if MP3, make wave with 1 channel and 44100:
     // TODO: better compression options for afconvert?
     
@@ -39,10 +36,12 @@ void testApp::loadAudio( string fileName ){
     // get ready to do analysis
     string analysisFile = preExtension + ".vals.txt";
     string dataPathToVamp = ofToDataPath("") + "../../../../utils/vampCommandLine/";
-    string command = dataPathToVamp + "vampTestDebug -s mtg-melodia:melodia:melody " + fileName + " -o " + analysisFile;
     string soundFileGood = "\'" + fileName + "\'";
     string analysisFileGood = "\'" + analysisFile + "\'";
-    string commandStr = "python ../../../data/vampRunner.py " + soundFileGood + " " + analysisFileGood;
+    
+    // pyin: pyin:pyin:smoothedpitchtrack 
+    string vampPlugin = "mtg-melodia:melodia:melody";
+    string commandStr = "python ../../../data/vampRunner.py " + vampPlugin + " " + soundFileGood + " " + analysisFileGood;
     
     // if analysis doesn't exist, do it:
     ofFile file(analysisFile);
@@ -70,25 +69,50 @@ void testApp::loadAudio( string fileName ){
         }
     }
     
+    
+    ///processAudioFileOffline();
     //setFile(ofToDataPath(filename)); //Marc Terenzi - Love To Be Loved By You [692].mp3
     
     
 }
 
+void testApp::processAudioFileOffline(){
+    
+    bSaving = true;
+    ss.stop();
+    float samples[1024];
+    for (int i = 0; i < audioSamples.size(); i+=hopSize){
+        
+        for (int j = 0; j < 1024; j++){
+            samples[j] = audioSamples[i + j];
+        }
+        //memcpy(samples+i, &audioSamples[i], hopSize * sizeof(float));
+        int sampleTime = i;
+        PDM.processPitchDetectors(samples, hopSize, sampleTime);
+        SM.update(samples, sampleTime);
+    }
+    ss.start();
+    bSaving = false;
+}
+
+
 
 void testApp::addNote( int startTime, int endTime, int avgTone){
     
     note myNote;
-    myNote.startTime = startTime - 44100 * 0.5;
-    myNote.endTime = endTime + 44100 * 0.5;
+    myNote.startTime = startTime;
+    myNote.endTime = endTime;
     
     if (myNote.startTime < 0) myNote.startTime = 0;
     if (myNote.endTime > audioSamples.size()-1) myNote.endTime = audioSamples.size()-1;
     
     myNote.bPlaying = true;
     myNote.playbackTime = startTime;
-    notes.push_back(myNote);
-    AU.startNote(avgTone);
+   
+    if (bPlayingSamples)
+        notes.push_back(myNote);
+    if (bPlayMidi)
+        AU.startNote(avgTone);
     
     float startTimeF = myNote.startTime / 44100.;
     int mins = (int)( startTimeF / 60.0);
@@ -103,6 +127,7 @@ void testApp::addNote( int startTime, int endTime, int avgTone){
         audioSamplesOfNote[i-myNote.startTime] = audioSamples[i];
     }
     
+    if (bSaving)
     saveDataToAudio(fileName, audioSamplesOfNote);
     
 }
@@ -144,6 +169,9 @@ void testApp::setup(){
     ofSetVerticalSync(false);
     
     state = 0;
+    bSaving = false;
+    bPlayMidi = false;
+    bPlayingSamples = false;
 }
 
 
@@ -156,6 +184,8 @@ void testApp::update(){
         gui->saveSettings("settings.xml");
         bSaveGui = false;
     }
+    
+   
     
 }
 
@@ -193,6 +223,7 @@ void testApp::exit(){
 void testApp::audioIn(float * input, int bufferSize, int nChannels){
     //get samples
     float samples[bufferSize];
+    
     AU.getTapSamples(samples);
 
     int sampleTime = AU.getSampleTime();
@@ -281,6 +312,18 @@ void testApp::setupGUI(){
     gui->addSlider("Sine wave volume", 0.0, 1.0, &SM.sinVol, length-xInit, dim);
     gui->addIntSlider("Sampler octvs up", 0, 4, &SM.samplerOctavesUp, length-xInit, dim);
     gui->addIntSlider("Sine wave octvs up", 0, 4, &SM.sinOctavesUp, length-xInit, dim);
+    gui->addSpacer(length-xInit, 1);
+    gui->addSpacer(length-xInit, 1);
+    
+    gui->addLabelToggle("saving notes", &bSaving);
+    gui->addLabelToggle("play midi", &bPlayMidi);
+    gui->addLabelToggle("play samples", &bPlayingSamples);
+    /*
+     bSaving = false;
+     bPlayMidi = false;
+     bPlayingSamples = false;
+     */
+    
     ofAddListener(gui->newGUIEvent,this,&testApp::guiEvent);
     
     gui->loadSettings("settings.xml");
