@@ -35,7 +35,7 @@ void pitchDetectorManager::setup(int winSize, int hopSize){
     }
     
     fpd = new filePitchDetector();
-    ((filePitchDetector*)fpd)->loadAssociatedFile(getAudioDirectory() + "lankra.vals.txt");
+    ((filePitchDetector*)fpd)->loadAssociatedFile(getAudioDirectory() + "rebelradio.vals.txt");
     pitchDetectors.push_back(fpd);
 
     

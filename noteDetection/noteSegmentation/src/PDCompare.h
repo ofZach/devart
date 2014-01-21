@@ -23,6 +23,7 @@ public:
     //graphs
     vector<smoother> smoothers;
     vector<scrollingGraph> medianGraphs;
+    vector<scrollingGraph> noteFound;
     vector<float> means;
     vector<float> stdDevs;
     float graphWidth, graphHeight, graphMax;

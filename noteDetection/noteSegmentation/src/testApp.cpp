@@ -120,9 +120,9 @@ void testApp::setup(){
     PDM.setup(windowSize, hopSize);
     PDC.setup(&PDM);
 
-    AU.setup(getAudioDirectory() + "lankra.wav", hopSize);
+    AU.setup(getAudioDirectory() + "rebelradio.wav", hopSize);
     
-    loadAudioToData( getAudioDirectory() + "lankra.wav", audioSamples);
+    loadAudioToData( getAudioDirectory() + "rebelradio.wav", audioSamples);
 
     
     AU.playFile();
@@ -136,7 +136,7 @@ void testApp::setup(){
     ss.setup(this, 1, 1, samplerate, hopSize, 4);
     
     
-    outputFolder = getAudioDirectory() + "output/lankra";
+    outputFolder = getAudioDirectory() + "output/rebelradio";
     ofDirectory folder(outputFolder);
     if (!folder.exists()){
         folder.create();
@@ -285,8 +285,8 @@ void testApp::setupGUI(){
     gui->addIntSlider("Sine wave octvs up", 0, 4, &SM.sinOctavesUp, length-xInit, dim);
     gui->addSpacer(length-xInit, 1);
     gui->addLabel("PD Compare");
-    gui->addIntSlider("nFrames", 10, 100, &PDC.nFrames, length-xInit, dim);
-    gui->addSlider("stdDev Thresh", 1, 25, &PDC.stdDevThresh, length-xInit, dim);
+    gui->addIntSlider("nFrames", 5, 25, &PDC.nFrames, length-xInit, dim);
+    gui->addSlider("stdDev Thresh", 0.1, 5, &PDC.stdDevThresh, length-xInit, dim);
     ofAddListener(gui->newGUIEvent,this,&testApp::guiEvent);
     
     gui->loadSettings("settings.xml");

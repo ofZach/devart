@@ -20,21 +20,24 @@ void scrollingGraph::addValue(float val) {
     if (valHistory.size() > size) valHistory.erase(valHistory.begin());
 }
 
-void scrollingGraph::draw(float height, float min, float max) {
+void scrollingGraph::draw(float height, float min, float max, bool fill) {
+    ofPushStyle();
     if ( min == 0 && max == 0 ) {
         min = minVal;
         max = maxVal;
     }
     
-    ofNoFill();
+    fill ? ofFill() : ofNoFill();
     ofBeginShape();
+    if (fill) ofVertex(0, height);
     for (unsigned int j = 0; j < valHistory.size(); j++){
-//        float valNormalized = ofMap(valHistory[j], minVal, maxVal, 0.0, 1.0);
+        
         float y = ofMap(valHistory[j], min, max, height, 0, true);
         ofVertex(j*2, y);
     }
+    if (fill) ofVertex(size * 2, height);
     ofEndShape(false);
-    ofFill();
+    ofPopStyle();
 }
 
 
