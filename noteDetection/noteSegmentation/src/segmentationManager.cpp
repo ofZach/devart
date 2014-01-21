@@ -61,30 +61,17 @@ void segmentationManager::setup( int numPitchDetectors, int _bufferSize ){
 
 void segmentationManager::update(float * samples, int sampleTime){
     
-    for (int i = 0; i < PDM->size(); i++) {
-        pitchGraphs[i].addValue(PDM->getPitch(i));
-        smoothers[i].addValue(PDM->getPitch(i));
-        medianGraphs[i].addValue(smoothers[i].getMedian());
-        
-        
-        float lastVal = medianGraphs[i].valHistory[medianGraphs[i].valHistory.size() - 1];
-        float secondLastVal = medianGraphs[i].valHistory[medianGraphs[i].valHistory.size() - 2];
-        float vel = abs(lastVal - secondLastVal);
-        velGraphs[i].addValue(vel);
-    }
-    
-    
-    
+    updateGraphs();
     
     // count how many frames in a row the vel is below the threshold
     if ( velGraphs[PDM->PDMethod].getLast() < (bVelFine ? fineThreshold : coarseThreshold)) {
         //count buffers
         noteRun++;
+
         // record samples
         for (int i = 0; i < bufferSize; i++ ) {
             currentNote.samples.push_back(samples[i]);
         }
-        
         
         if (currentNote.nFramesRecording == 0){
             currentNote.startTime = sampleTime;
@@ -99,7 +86,7 @@ void segmentationManager::update(float * samples, int sampleTime){
 
     }
     else  {
-        
+
         // if the vel is above the thresh then check if the current run is longer than the min duration. If so save the note.  Regardless, set the run count to zero.
         if ( noteRun > minDuration) {
             
@@ -119,9 +106,6 @@ void segmentationManager::update(float * samples, int sampleTime){
                 //add markers
                 markers.push_back(segment);
                 //add correspnding note
-                currentNote.playhead = 0;
-                currentNote.bPlaying = true;
-                currentNote.bWasPlaying = false;
                 currentNote.mostCommonPitch = findMostCommonPitch(currentNote);
                 
                 
@@ -146,6 +130,7 @@ void segmentationManager::update(float * samples, int sampleTime){
         currentNote.startTime = 0;
         currentNote.endTime = 0;
     }
+
    
     
     //    scroll markers
@@ -155,6 +140,7 @@ void segmentationManager::update(float * samples, int sampleTime){
             markers[i].end--;
         }
     }
+
 }
 
 void segmentationManager::draw(){
@@ -214,56 +200,95 @@ void segmentationManager::draw(){
 }
 
 
+void segmentationManager::drawAllPDs(){
+    ofSetColor(255,0,0);
+    
+    for (int i = 0; i < PDM->size(); i++) {
+        ofPushMatrix();
+        ofTranslate(0, i * (ofGetHeight() / (PDM->size()+1)));
+        medianGraphs[i].draw(ofGetHeight() / (PDM->size()+1));
+        ofPopMatrix();
+    }
+}
+
+
+
+
+void segmentationManager::updateGraphs(){
+    
+    for (int i = 0; i < PDM->size(); i++) {
+        pitchGraphs[i].addValue(PDM->getPitch(i));
+        smoothers[i].addValue(PDM->getPitch(i));
+        medianGraphs[i].addValue(smoothers[i].getMedian());
+        
+        
+        float lastVal = medianGraphs[i].valHistory[medianGraphs[i].valHistory.size() - 1];
+        float secondLastVal = medianGraphs[i].valHistory[medianGraphs[i].valHistory.size() - 2];
+        float vel = abs(lastVal - secondLastVal);
+        velGraphs[i].addValue(vel);
+    }
+}
+
+void segmentationManager::scrollMarkers(){
+
+    if (markers.size() > 0) {
+        for (int i = 0; i < markers.size(); i++) {
+            markers[i].start--;
+            markers[i].end--;
+        }
+    }
+}
+
+
 void segmentationManager::playSegments(vector<float> &output){
     
-    
-//    for (int i = 0; i < notes.size(); i++){
-//        
-//        //play sampler
-//        if ( !notes[i].bWasPlaying && notes[i].bPlaying ) {
-//            AU->startNote(notes[i].mostCommonPitch + samplerOctavesUp * 12);
-//        }
-//        else if ( notes[i].bWasPlaying && !notes[i].bPlaying ) {
-//            AU->stopNote(notes[i].mostCommonPitch + samplerOctavesUp * 12);
-//        }
-//        
-//        //while audio clips are not finshed playing
-//        if (notes[i].bPlaying == true && (notes[i].playhead + bufferSize) < notes[i].samples.size() ){ //
-//            //play audio
-//            int playhead = notes[i].playhead;
-//            for (int j = 0; j < bufferSize; j++){
-//                output[j] += notes[i].samples[playhead + j] * 0.2 * audioVol;
-//            }
-//            notes[i].playhead += bufferSize ;
-//            
-//            //play sine wave
-//            int frame = playhead / bufferSize;
-//            int midiNote = notes[i].analysisFrames[frame];
-//            
-//            float freq = pow(2, float(midiNote-69)/12.0)*440;
-//            freq *= pow(2.0, sinOctavesUp);
-//            //            cout << frame << " / " << notes[i].analysisFrames.size() << " midi " << midiNote << " freq " << freq << endl;
-//            //fm  =  2(m−69)/12(440 Hz)
-//            float sinAngleAdder = freq * TWO_PI / 44100.0;
-//            
-//            for (int j = 0; j < bufferSize; j++){
-//                
-//                output[j] += sin(sinAngle) * 0.2 * sinVol;
-//                
-//                sinAngle+= sinAngleAdder;
-//                
-//            }
-//            
-//            while (sinAngle > PI) sinAngle -= TWO_PI;
-//            
-//        }
-//        else {
-//            notes[i].bPlaying = false;
-//        }
-//        
-//        notes[i].bWasPlaying = notes[i].bPlaying;
-//        
-//    }
+
+    for (int i = 0; i < notes.size(); i++){
+        
+        //play sampler
+        if ( !notes[i].bWasPlaying && notes[i].bPlaying ) {
+            AU->startNote(notes[i].mostCommonPitch + samplerOctavesUp * 12);
+        }
+        else if ( notes[i].bWasPlaying && !notes[i].bPlaying ) {
+            AU->stopNote(notes[i].mostCommonPitch + samplerOctavesUp * 12);
+        }
+        
+        //while audio clips are not finshed playing
+        if (notes[i].bPlaying == true && (notes[i].playhead + bufferSize) < notes[i].samples.size() ){ //
+            //play audio
+            int playhead = notes[i].playhead;
+            for (int j = 0; j < bufferSize; j++){
+                output[j] += notes[i].samples[playhead + j] * 0.2 * audioVol;
+            }
+            notes[i].playhead += bufferSize ;
+            
+            //play sine wave
+            int frame = playhead / bufferSize;
+            int midiNote = notes[i].analysisFrames[frame];
+            
+            float freq = pow(2, float(midiNote-69)/12.0)*440;
+            freq *= pow(2.0, sinOctavesUp);
+            //            cout << frame << " / " << notes[i].analysisFrames.size() << " midi " << midiNote << " freq " << freq << endl;
+            //fm  =  2(m−69)/12(440 Hz)
+            float sinAngleAdder = freq * TWO_PI / 44100.0;
+            
+            for (int j = 0; j < bufferSize; j++){
+                
+                output[j] += sin(sinAngle) * 0.2 * sinVol;
+                
+                sinAngle+= sinAngleAdder;
+                
+            }
+            
+            while (sinAngle > PI) sinAngle -= TWO_PI;
+            
+        }
+        else {
+            notes[i].bPlaying = false;
+        }
+        
+        notes[i].bWasPlaying = notes[i].bPlaying;
+    }
 
 }
 

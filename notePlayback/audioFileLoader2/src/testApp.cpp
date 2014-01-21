@@ -31,7 +31,7 @@ void testApp::setup(){
     
     
     for (int i = 0; i < files.size(); i++){
-        note * tempNote =new note();
+        note * tempNote = new note();
         //tempNote->AA = &AA;
         tempNote->loadFile(files[i]);
         notes.push_back(tempNote);
@@ -44,7 +44,10 @@ void testApp::setup(){
         cout << notes[i]->mostCommonNote << endl;
     }
     
+    myPiano.setup();
+    
     soundStream.setup(this, 2, 0, 44100, 256, 4);
+
 }
 
 
@@ -76,8 +79,9 @@ void testApp::audioOut(float * output, int bufferSize, int nChannels){
     }
     
     
-    
+
 }
+
 
 //--------------------------------------------------------------
 void testApp::update(){
@@ -87,8 +91,7 @@ void testApp::update(){
 
 //--------------------------------------------------------------
 void testApp::draw(){
-
-    
+    myPiano.draw();
 }
 
 float MIDI2freq(int MIDI_note) {
@@ -100,39 +103,51 @@ void testApp::keyPressed(int key){
     
     if (key < 97) return;
     
-    int note = key - 97 + 55;
-    cout << "trying to play note " << note << endl;
-    vector < int > anyGoods;
-    for (int i = 0; i < notes.size(); i++){
-        int which = i;
-        if (notes[which]->mostCommonNote == note && notes[which]->bPlaying == false){
-            anyGoods.push_back(i);
-            //notes[which]->play();
-            //break;
+    if (key == 'z') {
+        myPiano.octaveDown();
+    }
+    
+    if (key == 'x') {
+        myPiano.octaveUp();
+    }
+
+    if (myPiano.keyBindings[key] != 0 || key == 'a') {
+        int note = myPiano.getNote(key);
+        cout << "trying to play note " << note << endl;
+        
+        vector < int > anyGoods;
+        for (int i = 0; i < notes.size(); i++){
+            int which = i;
+            if (notes[which]->mostCommonNote == note && notes[which]->bPlaying == false){
+                anyGoods.push_back(i);
+                //notes[which]->play();
+                //break;
+            }
         }
-    }
-    
-    //if (ofRandom(0,1) > 0.3){
-    if (anyGoods.size() > 0){
-        int which = anyGoods[ ofRandom(0,anyGoods.size()) ];
-        notes[which]->play();
-    }
-    //} else {
-        bPlayingTone = true;
-        startTime = ofGetElapsedTimef();
-        sinAngle = 0;
-        float freq = MIDI2freq(note);
-        sinAngleAdder = (freq * TWO_PI) / 44100.0;
+        
+        //if (ofRandom(0,1) > 0.3){
+        if (anyGoods.size() > 0){
+            int which = anyGoods[ ofRandom(0,anyGoods.size()) ];
+            notes[which]->play();
+        }
+        //} else {
+            bPlayingTone = true;
+            startTime = ofGetElapsedTimef();
+            sinAngle = 0;
+            float freq = MIDI2freq(note);
+            sinAngleAdder = (freq * TWO_PI) / 44100.0;
         
         
-   // }
+            
+       // }
+    }
     
-    
+    myPiano.keyPressed(key);
 }
 
 //--------------------------------------------------------------
 void testApp::keyReleased(int key){
-
+    myPiano.keyReleased(key);
 }
 
 //--------------------------------------------------------------
