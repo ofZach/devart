@@ -8,6 +8,7 @@
 #include "pitchDetectorManager.h"
 //#include "audioUnitManager.h"
 #include "segmentationManager.h"
+#include "PDCompare.h"
 
 
 
@@ -61,6 +62,7 @@ public:
 
 
     pitchDetectorManager PDM;
+    PDCompare PDC;
     segmentationManager SM;
     audioUnitManager AU;
     ofxUICanvas * gui;

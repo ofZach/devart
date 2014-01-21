@@ -5,6 +5,8 @@
 //  Created by Jason Levine on 2014-01-06.
 //
 //
+#pragma once
+
 #include "ofMain.h"
 
 class scrollingGraph {

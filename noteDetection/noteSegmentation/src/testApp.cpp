@@ -118,6 +118,7 @@ void testApp::setup(){
     hopSize = 1024;
     
     PDM.setup(windowSize, hopSize);
+    PDC.setup(&PDM);
 
     AU.setup(getAudioDirectory() + "lankra.wav", hopSize);
     
@@ -150,7 +151,7 @@ void testApp::setup(){
 
 //--------------------------------------------------------------
 void testApp::update(){
-
+    
     
     if (bSaveGui){
         gui->saveSettings("settings.xml");
@@ -167,7 +168,7 @@ void testApp::draw(){
         SM.draw();
     }
     else if (state == 1) {
-        SM.drawAllPDs();
+        PDC.draw();
     }
   
 
@@ -199,6 +200,7 @@ void testApp::audioIn(float * input, int bufferSize, int nChannels){
     
     PDM.processPitchDetectors(samples, bufferSize, sampleTime);
     SM.update(samples, sampleTime);
+    PDC.update();
     
 }
 
