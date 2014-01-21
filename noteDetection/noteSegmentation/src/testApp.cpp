@@ -218,7 +218,6 @@ void testApp::audioOut(float * output, int bufferSize, int nChannels){
                 AU.stopNote(notes[i].mostCommonPitch);
             }
             
-            
         }
     
     }

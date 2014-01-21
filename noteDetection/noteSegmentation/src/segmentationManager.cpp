@@ -276,56 +276,6 @@ void segmentationManager::playSegments(vector<float> &output){
         notes[i].bWasPlaying = notes[i].bPlaying;
     }
 
-    
-//    for (int i = 0; i < notes.size(); i++){
-//        
-//        //play sampler
-//        if ( !notes[i].bWasPlaying && notes[i].bPlaying ) {
-//            AU->startNote(notes[i].mostCommonPitch + samplerOctavesUp * 12);
-//        }
-//        else if ( notes[i].bWasPlaying && !notes[i].bPlaying ) {
-//            AU->stopNote(notes[i].mostCommonPitch + samplerOctavesUp * 12);
-//        }
-//        
-//        //while audio clips are not finshed playing
-//        if (notes[i].bPlaying == true && (notes[i].playhead + bufferSize) < notes[i].samples.size() ){ //
-//            //play audio
-//            int playhead = notes[i].playhead;
-//            for (int j = 0; j < bufferSize; j++){
-//                output[j] += notes[i].samples[playhead + j] * 0.2 * audioVol;
-//            }
-//            notes[i].playhead += bufferSize ;
-//            
-//            //play sine wave
-//            int frame = playhead / bufferSize;
-//            int midiNote = notes[i].analysisFrames[frame];
-//            
-//            float freq = pow(2, float(midiNote-69)/12.0)*440;
-//            freq *= pow(2.0, sinOctavesUp);
-//            //            cout << frame << " / " << notes[i].analysisFrames.size() << " midi " << midiNote << " freq " << freq << endl;
-//            //fm  =  2(m−69)/12(440 Hz)
-//            float sinAngleAdder = freq * TWO_PI / 44100.0;
-//            
-//            for (int j = 0; j < bufferSize; j++){
-//                
-//                output[j] += sin(sinAngle) * 0.2 * sinVol;
-//                
-//                sinAngle+= sinAngleAdder;
-//                
-//            }
-//            
-//            while (sinAngle > PI) sinAngle -= TWO_PI;
-//            
-//        }
-//        else {
-//            notes[i].bPlaying = false;
-//        }
-//        
-//        notes[i].bWasPlaying = notes[i].bPlaying;
-//        
-//    }
-
-
 }
 
 
