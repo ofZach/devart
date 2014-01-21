@@ -24,5 +24,6 @@ public:
     vector<smoother> smoothers;
     vector<scrollingGraph> medianGraphs;
     vector<float> means;
+    vector<float> stdDevs;
     float graphWidth, graphHeight, graphMax;
 };

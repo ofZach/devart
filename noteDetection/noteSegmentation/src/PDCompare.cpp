@@ -7,6 +7,7 @@
 //
 
 #include "PDCompare.h"
+#include "computeStats.h"
 
 
 void PDCompare::setup(pitchDetectorManager * _PDM) {
@@ -31,11 +32,15 @@ void PDCompare::setup(pitchDetectorManager * _PDM) {
     }
     
     means.assign(PDM->size(), 0.0);
+    stdDevs.assign(PDM->size(), 0.0);
+    
     
 }
 
 void PDCompare::update(){
     means.assign(PDM->size(), 0.0);
+    stdDevs.assign(PDM->size(), 0.0);
+    
     for (int i = 0; i < PDM->size(); i++) {
         smoothers[i].addValue(PDM->getPitch(i));
         medianGraphs[i].addValue(smoothers[i].getMedian());
@@ -43,6 +48,8 @@ void PDCompare::update(){
             means[i]+=medianGraphs[i].valHistory[j];
         }
         means[i] /= nFrames;
+        stdDevs[i] = computeStdDev(medianGraphs[i].valHistory.end()-nFrames, medianGraphs[i].valHistory.end(), means[i]);
+        
     }
     
 }
@@ -54,11 +61,23 @@ void PDCompare::draw(){
     for (int i = 0; i < PDM->size(); i++) {
         ofPushMatrix();
         ofTranslate(0, i * height);
+        
+        //graphs
         ofSetColor(255,0,0);
         medianGraphs[i].draw(height);
+        
+        //mean
         float meanScaled = ofMap(means[i], 0, graphMax, height, 0, true);
         ofSetColor(0);
         ofLine(ofGetWidth() - nFrames, meanScaled, ofGetWidth(), meanScaled);
+        
+        //stdDEv
+        float stdDevScaled = ofMap(stdDevs[i], 0, graphMax, 0, height, true);
+        ofSetColor(25,25,25,100);
+        ofRect(ofGetWidth() - nFrames, meanScaled - stdDevScaled, ofGetWidth(), stdDevScaled * 2);
+        
+        
+        ofSetColor(0);
         ofDrawBitmapStringHighlight(PDM->pitchDetectors[i]->name, ofPoint(ofGetWidth()/2, height / 2));
         
         ofPopMatrix();

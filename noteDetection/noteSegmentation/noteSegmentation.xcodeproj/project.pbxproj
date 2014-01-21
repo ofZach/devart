@@ -205,6 +205,7 @@
 		904AE8DD18886C30005AD271 /* audioUnitManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = audioUnitManager.h; sourceTree = "<group>"; };
 		90C6A10C188EDEB900CCC161 /* PDCompare.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PDCompare.cpp; sourceTree = "<group>"; };
 		90C6A10D188EDEB900CCC161 /* PDCompare.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PDCompare.h; sourceTree = "<group>"; };
+		90C6A10F188EE68A00CCC161 /* computeStats.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = computeStats.h; sourceTree = "<group>"; };
 		92CCE1A718887F980001217C /* ofxUI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ofxUI.h; sourceTree = "<group>"; };
 		92CCE1A818887F980001217C /* ofxUI2DGraph.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ofxUI2DGraph.cpp; sourceTree = "<group>"; };
 		92CCE1A918887F980001217C /* ofxUI2DGraph.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ofxUI2DGraph.h; sourceTree = "<group>"; };
@@ -655,6 +656,7 @@
 		92CCE2461889660D0001217C /* utils */ = {
 			isa = PBXGroup;
 			children = (
+				90C6A10F188EE68A00CCC161 /* computeStats.h */,
 				92CCE2471889660D0001217C /* scrollingGraph.cpp */,
 				92CCE2481889660D0001217C /* scrollingGraph.h */,
 				92CCE2491889660D0001217C /* smoother.cpp */,
