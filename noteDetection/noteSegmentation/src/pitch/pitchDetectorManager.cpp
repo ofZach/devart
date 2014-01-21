@@ -16,7 +16,7 @@
 
 void pitchDetectorManager::setup(int winSize, int hopSize){
 
-    numAPDs = 6;
+    numAPDs = 2;
     
     for (int i = 0; i < numAPDs; i++) {
         pitchDetectors.push_back(new aubioPitchDetector);
@@ -24,10 +24,10 @@ void pitchDetectorManager::setup(int winSize, int hopSize){
     
     methods.push_back("yin");
     methods.push_back("yinfft");
-    methods.push_back("specacf");
-    methods.push_back("schmitt");
-    methods.push_back("mcomb");
-    methods.push_back("fcomb");
+//    methods.push_back("specacf");
+//    methods.push_back("schmitt");
+//    methods.push_back("mcomb");
+//    methods.push_back("fcomb");
     
     for (int i = 0; i < numAPDs; i++) {
         aubioPitchDetector * APD = static_cast<aubioPitchDetector*>(pitchDetectors[i]);
@@ -41,7 +41,7 @@ void pitchDetectorManager::setup(int winSize, int hopSize){
     
     nPitchDetectors = pitchDetectors.size();
     
-    PDMethod = 3;
+    PDMethod = 0;
 }
 
 

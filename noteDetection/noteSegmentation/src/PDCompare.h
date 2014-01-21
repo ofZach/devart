@@ -24,9 +24,12 @@ public:
     vector<smoother> smoothers;
     vector<scrollingGraph> medianGraphs;
     vector<scrollingGraph> noteFound;
+    scrollingGraph agreedNotes;
     vector<float> means;
     vector<float> stdDevs;
     float graphWidth, graphHeight, graphMax;
     
     float stdDevThresh;
+    
+    bool sum;
 };
