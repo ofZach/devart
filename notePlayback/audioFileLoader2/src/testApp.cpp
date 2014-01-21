@@ -65,7 +65,7 @@ void testApp::audioOut(float * output, int bufferSize, int nChannels){
         
             for (int j = 0; j < bufferSize; j++){
                 for (int i = 0; i < nChannels; i++){
-                    //output[j *nChannels + i] += sin(sinAngle) * 0.3;
+                    output[j *nChannels + i] += sin(sinAngle) * 0.3;
                 }
                 sinAngle+=sinAngleAdder;
             }

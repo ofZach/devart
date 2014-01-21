@@ -297,7 +297,6 @@ float segmentationManager::findMostCommonPitch(audioNote note){
     }
     
     float pct = (float)count / (float)(MAX(1, properPitches.size()));
-    cout << " pct " << pct << endl;
     
     
     if (pct < 0.35){
