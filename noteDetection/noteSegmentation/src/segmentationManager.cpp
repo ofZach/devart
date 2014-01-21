@@ -57,6 +57,9 @@ void segmentationManager::setup( int numPitchDetectors, int _bufferSize ){
     samplerOctavesUp = sinOctavesUp = 0;
     
     currentNote.nFramesRecording = 0;
+    
+    
+
 }
 
 void segmentationManager::update(float * samples, int sampleTime){
@@ -192,25 +195,12 @@ void segmentationManager::draw(){
                 ofLine(j * 2, -graphHeight, j * 2, graphHeight);
             }
         }
-        
     }
     
     ofPopMatrix();
-
-    
 }
 
 
-void segmentationManager::drawAllPDs(){
-    ofSetColor(255,0,0);
-    
-    for (int i = 0; i < PDM->size(); i++) {
-        ofPushMatrix();
-        ofTranslate(0, i * (ofGetHeight() / (PDM->size()+1)));
-        medianGraphs[i].draw(ofGetHeight() / (PDM->size()+1));
-        ofPopMatrix();
-    }
-}
 
 
 

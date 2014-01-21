@@ -143,10 +143,11 @@ void testApp::setup(){
     hopSize = 1024;
     
     PDM.setup(windowSize, hopSize);
+    PDC.setup(&PDM);
 
-    AU.setup(getAudioDirectory() + "lankra.wav", hopSize);
+    AU.setup(getAudioDirectory() + "rebelradio.wav", hopSize);
     
-    loadAudioToData( getAudioDirectory() + "lankra.wav", audioSamples);
+    loadAudioToData( getAudioDirectory() + "rebelradio.wav", audioSamples);
 
     
     AU.playFile();
@@ -160,7 +161,7 @@ void testApp::setup(){
     ss.setup(this, 1, 1, samplerate, hopSize, 4);
     
     
-    outputFolder = getAudioDirectory() + "output/lankra";
+    outputFolder = getAudioDirectory() + "output/rebelradio";
     ofDirectory folder(outputFolder);
     if (!folder.exists()){
         folder.create();
@@ -178,7 +179,7 @@ void testApp::setup(){
 
 //--------------------------------------------------------------
 void testApp::update(){
-
+    
     
     if (bSaveGui){
         gui->saveSettings("settings.xml");
@@ -197,7 +198,7 @@ void testApp::draw(){
         SM.draw();
     }
     else if (state == 1) {
-        SM.drawAllPDs();
+        PDC.draw();
     }
   
 
@@ -229,7 +230,21 @@ void testApp::audioIn(float * input, int bufferSize, int nChannels){
     int sampleTime = AU.getSampleTime();
     
     PDM.processPitchDetectors(samples, bufferSize, sampleTime);
-    SM.update(samples, sampleTime);
+//    SM.update(samples, sampleTime);
+    PDC.update();
+    float outputVol = 0.0;
+    if (PDC.sum) {
+        for (int i = 0; i < PDC.noteFound.size(); i++) {
+            outputVol += PDC.noteFound[i].getLast();
+        }
+        outputVol /= PDC.noteFound.size();
+    }
+    else {
+        outputVol = PDC.agreedNotes.getLast();
+    }
+    
+//    cout << "outputVol = " << outputVol << endl;
+    AU.mixer.setOutputVolume(outputVol * 0.5);
     
 }
 
@@ -237,28 +252,28 @@ void testApp::audioOut(float * output, int bufferSize, int nChannels){
 
 
     //SM.playSegments(outputSamples);
-    for (int i = 0; i < bufferSize; i++) {
-        output[i] = 0;
-    }
-    
-    
-    for (int i = 0; i < notes.size(); i++) {
-        if (notes[i].bPlaying == true){
-
-            for (int j = 0; j < bufferSize; j++) {
-                output[j] += audioSamples[notes[i].playbackTime + j] * 0.3 * SM.audioVol;
-            }
-            
-            notes[i].playbackTime +=bufferSize;
-                                    
-            if (notes[i].playbackTime >= notes[i].endTime){
-                notes[i].bPlaying = false;
-                AU.stopNote(notes[i].mostCommonPitch);
-            }
-            
-        }
-    
-    }
+//    for (int i = 0; i < bufferSize; i++) {
+//        output[i] = 0;
+//    }
+//    
+//    
+//    for (int i = 0; i < notes.size(); i++) {
+//        if (notes[i].bPlaying == true){
+//
+//            for (int j = 0; j < bufferSize; j++) {
+//                output[j] += audioSamples[notes[i].playbackTime + j] * 0.3 * SM.audioVol;
+//            }
+//            
+//            notes[i].playbackTime +=bufferSize;
+//                                    
+//            if (notes[i].playbackTime >= notes[i].endTime){
+//                notes[i].bPlaying = false;
+//                AU.stopNote(notes[i].mostCommonPitch);
+//            }
+//            
+//        }
+//    
+//    }
     
     /*
      myNote.startTime = startTime;
@@ -318,14 +333,15 @@ void testApp::setupGUI(){
     gui->addLabelToggle("saving notes", &bSaving);
     gui->addLabelToggle("play midi", &bPlayMidi);
     gui->addLabelToggle("play samples", &bPlayingSamples);
-    /*
-     bSaving = false;
-     bPlayMidi = false;
-     bPlayingSamples = false;
-     */
+    gui->addSpacer(length-xInit, 1);
+    
+
+    gui->addLabel("PD Compare");
+    gui->addIntSlider("nFrames", 5, 25, &PDC.nFrames, length-xInit, dim);
+    gui->addSlider("stdDev Thresh", 0.1, 5, &PDC.stdDevThresh, length-xInit, dim);
     
     ofAddListener(gui->newGUIEvent,this,&testApp::guiEvent);
-    
+    gui->addLabelToggle("Sum/Intersection", &PDC.sum);
     gui->loadSettings("settings.xml");
     
 
@@ -365,10 +381,10 @@ void testApp::keyPressed(int key){
         case '1':
         case '2':
         case '3':
-        case '4':
-        case '5':
-        case '6':
-        case '7':    
+//        case '4':
+//        case '5':
+//        case '6':
+//        case '7':    
         {
             PDM.setPitchMethod( key - 49 );
             break;

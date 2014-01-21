@@ -38,6 +38,7 @@
 		90184664188466300071B3F7 /* tinyxmlparser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9018465E188466300071B3F7 /* tinyxmlparser.cpp */; };
 		90184665188466300071B3F7 /* ofxXmlSettings.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 90184660188466300071B3F7 /* ofxXmlSettings.cpp */; };
 		904AE8DE18886C30005AD271 /* audioUnitManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 904AE8DC18886C30005AD271 /* audioUnitManager.cpp */; };
+		90C6A10E188EDEB900CCC161 /* PDCompare.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 90C6A10C188EDEB900CCC161 /* PDCompare.cpp */; };
 		92CCE20818887F980001217C /* ofxUI2DGraph.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 92CCE1A818887F980001217C /* ofxUI2DGraph.cpp */; };
 		92CCE20918887F980001217C /* ofxUI2DPad.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 92CCE1AA18887F980001217C /* ofxUI2DPad.cpp */; };
 		92CCE20A18887F980001217C /* ofxUIBaseDraws.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 92CCE1AC18887F980001217C /* ofxUIBaseDraws.cpp */; };
@@ -202,6 +203,9 @@
 		90184661188466300071B3F7 /* ofxXmlSettings.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ofxXmlSettings.h; sourceTree = "<group>"; };
 		904AE8DC18886C30005AD271 /* audioUnitManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = audioUnitManager.cpp; sourceTree = "<group>"; };
 		904AE8DD18886C30005AD271 /* audioUnitManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = audioUnitManager.h; sourceTree = "<group>"; };
+		90C6A10C188EDEB900CCC161 /* PDCompare.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PDCompare.cpp; sourceTree = "<group>"; };
+		90C6A10D188EDEB900CCC161 /* PDCompare.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PDCompare.h; sourceTree = "<group>"; };
+		90C6A10F188EE68A00CCC161 /* computeStats.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = computeStats.h; sourceTree = "<group>"; };
 		92CCE1A718887F980001217C /* ofxUI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ofxUI.h; sourceTree = "<group>"; };
 		92CCE1A818887F980001217C /* ofxUI2DGraph.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ofxUI2DGraph.cpp; sourceTree = "<group>"; };
 		92CCE1A918887F980001217C /* ofxUI2DGraph.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ofxUI2DGraph.h; sourceTree = "<group>"; };
@@ -652,6 +656,7 @@
 		92CCE2461889660D0001217C /* utils */ = {
 			isa = PBXGroup;
 			children = (
+				90C6A10F188EE68A00CCC161 /* computeStats.h */,
 				92CCE2471889660D0001217C /* scrollingGraph.cpp */,
 				92CCE2481889660D0001217C /* scrollingGraph.h */,
 				92CCE2491889660D0001217C /* smoother.cpp */,
@@ -894,6 +899,8 @@
 				92CCE23D188965000001217C /* segmentationManager.h */,
 				904AE8DC18886C30005AD271 /* audioUnitManager.cpp */,
 				904AE8DD18886C30005AD271 /* audioUnitManager.h */,
+				90C6A10C188EDEB900CCC161 /* PDCompare.cpp */,
+				90C6A10D188EDEB900CCC161 /* PDCompare.h */,
 			);
 			path = src;
 			sourceTree = SOURCE_ROOT;
@@ -1013,6 +1020,7 @@
 				901845FD18809B880071B3F7 /* AUParamInfo.cpp in Sources */,
 				92CCE21918887F980001217C /* ofxUIImageToggle.cpp in Sources */,
 				92CCE22818887F980001217C /* ofxUISlider.cpp in Sources */,
+				90C6A10E188EDEB900CCC161 /* PDCompare.cpp in Sources */,
 				92CCE21518887F980001217C /* ofxUIImage.cpp in Sources */,
 				92CCE244188965EF0001217C /* pitchDetector.cpp in Sources */,
 				92CCE21B18887F980001217C /* ofxUILabel.cpp in Sources */,
