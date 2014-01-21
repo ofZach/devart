@@ -46,6 +46,7 @@ public:
         return nPitchDetectors;
     }
     
-    filePitchDetector * fpd;
+    filePitchDetector * melo;
+    filePitchDetector * pyin;
 };
 

@@ -96,7 +96,7 @@ public:
             vals.push_back(val);
         }
         
-        name = "vamp";
+//        name = "vamp";
         
     }
     

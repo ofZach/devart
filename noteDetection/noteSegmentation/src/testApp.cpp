@@ -4,7 +4,7 @@
 
 
 void testApp::loadAudio( string fileName ){
-    
+    ss.stop();
     // this assumes either blah.mp3 or blah.wav
     // if mp3, convert to wav
     
@@ -39,7 +39,7 @@ void testApp::loadAudio( string fileName ){
     string soundFileGood = "\'" + fileName + "\'";
     string analysisFileGood = "\'" + analysisFile + "\'";
     
-    // pyin: pyin:pyin:smoothedpitchtrack 
+    // pyin: pyin:pyin:smoothedpitchtrack
     string vampPlugin = "mtg-melodia:melodia:melody";
     string commandStr = "python ../../../data/vampRunner.py " + vampPlugin + " " + soundFileGood + " " + analysisFileGood;
     
@@ -48,11 +48,46 @@ void testApp::loadAudio( string fileName ){
     if (!file.exists()){
         system(commandStr.c_str());
     }
+    PDM.melo->loadAssociatedFile(analysisFile);
     
+    /*
+    //MELODIA
+    // get ready to do analysis
+    string meloAnalysisFile = preExtension + ".melo" + ".vals.txt";
+    string dataPathToVamp = ofToDataPath("") + "../../../../utils/vampCommandLine/";
+    string soundFileGood = "\'" + fileName + "\'";
+    string meloAnalysisFileGood = "\'" + meloAnalysisFile + "\'";
+    
+    // pyin: pyin:pyin:smoothedpitchtrack 
+    string vampPlugin = "mtg-melodia:melodia:melody";
+    string commandStr = "python ../../../data/vampRunner.py " + vampPlugin + " " + soundFileGood + " " + meloAnalysisFileGood;
+    
+    // if analysis doesn't exist, do it:
+    ofFile meloFile(meloAnalysisFile);
+    if (!meloFile.exists()){
+        system(commandStr.c_str());
+    }
+    PDM.melo->loadAssociatedFile(meloAnalysisFile);
+    
+    //pYin
+    // get ready to do analysis
+    string pyinAnalysisFile = preExtension + ".pyin" + ".vals.txt";
+    string pyinAnalysisFileGood = "\'" + pyinAnalysisFile + "\'";
+    
+    // pyin: pyin:pyin:smoothedpitchtrack
+    vampPlugin = "pyin:pyin:smoothedpitchtrack";
+    commandStr = "python ../../../data/vampRunner.py " + vampPlugin + " " + soundFileGood + " " + pyinAnalysisFileGood;
+    
+    // if analysis doesn't exist, do it:
+    ofFile pyinFile(pyinAnalysisFile);
+    if (!pyinFile.exists()){
+        system(commandStr.c_str());
+    }
+    PDM.pyin->loadAssociatedFile(pyinAnalysisFile);
+     */
     
     
     AU.player.setFile(fileName);
-    PDM.fpd->loadAssociatedFile(analysisFile);
     AU.player.play();
     
     audioSamples.clear();
@@ -69,7 +104,7 @@ void testApp::loadAudio( string fileName ){
         }
     }
     
-    
+    ss.start();
     ///processAudioFileOffline();
     //setFile(ofToDataPath(filename)); //Marc Terenzi - Love To Be Loved By You [692].mp3
     
@@ -127,8 +162,7 @@ void testApp::addNote( int startTime, int endTime, int avgTone){
         audioSamplesOfNote[i-myNote.startTime] = audioSamples[i];
     }
     
-    if (bSaving)
-    saveDataToAudio(fileName, audioSamplesOfNote);
+    if (bSaving) saveDataToAudio(fileName, audioSamplesOfNote);
     
 }
 
@@ -142,13 +176,15 @@ void testApp::setup(){
     windowSize = 2048;
     hopSize = 1024;
     
-    PDM.setup(windowSize, hopSize);
-    PDC.setup(&PDM);
+    
 
     AU.setup(getAudioDirectory() + "rebelradio.wav", hopSize);
     
     loadAudioToData( getAudioDirectory() + "rebelradio.wav", audioSamples);
 
+
+    PDM.setup(windowSize, hopSize);
+    PDC.setup(&PDM);
     
     AU.playFile();
     
@@ -158,7 +194,7 @@ void testApp::setup(){
     
     setupGUI();
 
-    ss.setup(this, 1, 1, samplerate, hopSize, 4);
+    
     
     
     outputFolder = getAudioDirectory() + "output/rebelradio";
@@ -173,6 +209,8 @@ void testApp::setup(){
     bSaving = false;
     bPlayMidi = false;
     bPlayingSamples = false;
+    
+    ss.setup(this, 1, 1, samplerate, hopSize, 4);
 }
 
 
@@ -230,8 +268,9 @@ void testApp::audioIn(float * input, int bufferSize, int nChannels){
     int sampleTime = AU.getSampleTime();
     
     PDM.processPitchDetectors(samples, bufferSize, sampleTime);
-//    SM.update(samples, sampleTime);
+    SM.update(samples, sampleTime);
     PDC.update();
+    
     float outputVol = 0.0;
     if (PDC.sum) {
         for (int i = 0; i < PDC.noteFound.size(); i++) {
@@ -244,36 +283,37 @@ void testApp::audioIn(float * input, int bufferSize, int nChannels){
     }
     
 //    cout << "outputVol = " << outputVol << endl;
-    AU.mixer.setOutputVolume(outputVol * 0.5);
+    AU.mixer.setOutputVolume(state == 1 ? outputVol * 0.5 : 0);
     
 }
 
 void testApp::audioOut(float * output, int bufferSize, int nChannels){
 
+// SM.playSegments(outputSamples);
+    if (state == 0) {
+        for (int i = 0; i < bufferSize; i++) {
+            output[i] = 0;
+        }
+        
+        
+        for (int i = 0; i < notes.size(); i++) {
+            if (notes[i].bPlaying == true){
 
-    //SM.playSegments(outputSamples);
-//    for (int i = 0; i < bufferSize; i++) {
-//        output[i] = 0;
-//    }
-//    
-//    
-//    for (int i = 0; i < notes.size(); i++) {
-//        if (notes[i].bPlaying == true){
-//
-//            for (int j = 0; j < bufferSize; j++) {
-//                output[j] += audioSamples[notes[i].playbackTime + j] * 0.3 * SM.audioVol;
-//            }
-//            
-//            notes[i].playbackTime +=bufferSize;
-//                                    
-//            if (notes[i].playbackTime >= notes[i].endTime){
-//                notes[i].bPlaying = false;
-//                AU.stopNote(notes[i].mostCommonPitch);
-//            }
-//            
-//        }
-//    
-//    }
+                for (int j = 0; j < bufferSize; j++) {
+                    output[j] += audioSamples[notes[i].playbackTime + j] * 0.3 * SM.audioVol;
+                }
+                
+                notes[i].playbackTime +=bufferSize;
+                                        
+                if (notes[i].playbackTime >= notes[i].endTime){
+                    notes[i].bPlaying = false;
+                    AU.stopNote(notes[i].mostCommonPitch);
+                }
+                
+            }
+        
+        }
+    }
     
     /*
      myNote.startTime = startTime;

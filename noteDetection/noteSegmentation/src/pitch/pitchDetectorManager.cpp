@@ -34,10 +34,19 @@ void pitchDetectorManager::setup(int winSize, int hopSize){
         APD->setup("midi", methods[i], winSize, hopSize);
     }
     
-    fpd = new filePitchDetector();
-    ((filePitchDetector*)fpd)->loadAssociatedFile(getAudioDirectory() + "rebelradio.vals.txt");
-    pitchDetectors.push_back(fpd);
 
+    
+    melo = new filePitchDetector();
+    melo->name = "melodia";
+    ((filePitchDetector*)melo)->loadAssociatedFile(getAudioDirectory() + "rebelradio.vals.txt");
+    pitchDetectors.push_back(melo);
+    
+    /*
+    pyin = new filePitchDetector();
+    pyin->name = "pYin";
+    ((filePitchDetector*)pyin)->loadAssociatedFile(getAudioDirectory() + "rebelradio.pyin.vals.txt");
+    pitchDetectors.push_back(pyin);
+*/
     
     nPitchDetectors = pitchDetectors.size();
     
