@@ -26,4 +26,6 @@ public:
     vector<float> means;
     vector<float> stdDevs;
     float graphWidth, graphHeight, graphMax;
+    
+    float stdDevThresh;
 };

@@ -34,6 +34,7 @@ void PDCompare::setup(pitchDetectorManager * _PDM) {
     means.assign(PDM->size(), 0.0);
     stdDevs.assign(PDM->size(), 0.0);
     
+    stdDevThresh = 5;
     
 }
 
@@ -73,7 +74,7 @@ void PDCompare::draw(){
         
         //stdDEv
         float stdDevScaled = ofMap(stdDevs[i], 0, graphMax, 0, height, true);
-        ofSetColor(25,25,25,100);
+        (stdDevs[i] < stdDevThresh) ? ofSetColor(25,200,25,100) : ofSetColor(200,25,25,100);
         ofRect(ofGetWidth() - nFrames, meanScaled - stdDevScaled, ofGetWidth(), stdDevScaled * 2);
         
         

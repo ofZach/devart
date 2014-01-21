@@ -283,6 +283,10 @@ void testApp::setupGUI(){
     gui->addSlider("Sine wave volume", 0.0, 1.0, &SM.sinVol, length-xInit, dim);
     gui->addIntSlider("Sampler octvs up", 0, 4, &SM.samplerOctavesUp, length-xInit, dim);
     gui->addIntSlider("Sine wave octvs up", 0, 4, &SM.sinOctavesUp, length-xInit, dim);
+    gui->addSpacer(length-xInit, 1);
+    gui->addLabel("PD Compare");
+    gui->addIntSlider("nFrames", 10, 100, &PDC.nFrames, length-xInit, dim);
+    gui->addSlider("stdDev Thresh", 1, 25, &PDC.stdDevThresh, length-xInit, dim);
     ofAddListener(gui->newGUIEvent,this,&testApp::guiEvent);
     
     gui->loadSettings("settings.xml");
