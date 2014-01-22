@@ -33,58 +33,22 @@ void testApp::loadAudio( string fileName ){
         fileName = wavFile;
     }
     
-//    // get ready to do analysis
-//    string analysisFile = preExtension + ".vals.txt";
-//    string dataPathToVamp = ofToDataPath("") + "../../../../utils/vampCommandLine/";
-//    string soundFileGood = "\'" + fileName + "\'";
-//    string analysisFileGood = "\'" + analysisFile + "\'";
-//    
-//    // pyin: pyin:pyin:smoothedpitchtrack
-//    string vampPlugin = "mtg-melodia:melodia:melody";
-//    string commandStr = "python ../../../data/vampRunner.py " + vampPlugin + " " + soundFileGood + " " + analysisFileGood;
-//    
-//    // if analysis doesn't exist, do it:
-//    ofFile file(analysisFile);
-//    if (!file.exists()){
-//        system(commandStr.c_str());
-//    }
-//    PDM.melo->loadAssociatedFile(analysisFile);
-    
-    
-    //MELODIA
     // get ready to do analysis
-    string meloAnalysisFile = preExtension + ".melo" + ".vals.txt";
+    string analysisFile = preExtension + ".vals.txt";
     string dataPathToVamp = ofToDataPath("") + "../../../../utils/vampCommandLine/";
     string soundFileGood = "\'" + fileName + "\'";
-    string meloAnalysisFileGood = "\'" + meloAnalysisFile + "\'";
-    
-    // pyin: pyin:pyin:smoothedpitchtrack 
-    string vampPlugin = "mtg-melodia:melodia:melody";
-    string commandStr = "python ../../../data/vampRunner.py " + vampPlugin + " " + soundFileGood + " " + meloAnalysisFileGood;
-    
-    // if analysis doesn't exist, do it:
-    ofFile meloFile(meloAnalysisFile);
-    if (!meloFile.exists()){
-        system(commandStr.c_str());
-    }
-    PDM.melo->loadAssociatedFile(meloAnalysisFile);
-    
-    //pYin
-    // get ready to do analysis
-    string pyinAnalysisFile = preExtension + ".pyin" + ".vals.txt";
-    string pyinAnalysisFileGood = "\'" + pyinAnalysisFile + "\'";
+    string analysisFileGood = "\'" + analysisFile + "\'";
     
     // pyin: pyin:pyin:smoothedpitchtrack
-    vampPlugin = "pyin:pyin:smoothedpitchtrack";
-    commandStr = "python ../../../data/vampRunner.py " + vampPlugin + " " + soundFileGood + " " + pyinAnalysisFileGood;
+    string vampPlugin = "mtg-melodia:melodia:melody";
+    string commandStr = "python ../../../data/vampRunner.py " + vampPlugin + " " + soundFileGood + " " + analysisFileGood;
     
     // if analysis doesn't exist, do it:
-    ofFile pyinFile(pyinAnalysisFile);
-    if (!pyinFile.exists()){
+    ofFile file(analysisFile);
+    if (!file.exists()){
         system(commandStr.c_str());
     }
-    PDM.pyin->loadAssociatedFile(pyinAnalysisFile);
-    
+    PDM.melo->loadAssociatedFile(analysisFile);
     
     AU.player.setFile(fileName);
     AU.player.play();
