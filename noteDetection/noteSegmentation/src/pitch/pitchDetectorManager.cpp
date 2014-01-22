@@ -38,15 +38,15 @@ void pitchDetectorManager::setup(int winSize, int hopSize){
     
     melo = new filePitchDetector();
     melo->name = "melodia";
-    ((filePitchDetector*)melo)->loadAssociatedFile(getAudioDirectory() + "rebelradio.vals.txt");
+    ((filePitchDetector*)melo)->loadAssociatedFile(getAudioDirectory() + "pop.melo.vals.txt");
     pitchDetectors.push_back(melo);
     
-    /*
+    
     pyin = new filePitchDetector();
     pyin->name = "pYin";
-    ((filePitchDetector*)pyin)->loadAssociatedFile(getAudioDirectory() + "rebelradio.pyin.vals.txt");
+    ((filePitchDetector*)pyin)->loadAssociatedFile(getAudioDirectory() + "pop.pyin.vals.txt");
     pitchDetectors.push_back(pyin);
-*/
+
     
     nPitchDetectors = pitchDetectors.size();
     

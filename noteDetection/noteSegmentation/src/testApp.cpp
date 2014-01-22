@@ -33,24 +33,24 @@ void testApp::loadAudio( string fileName ){
         fileName = wavFile;
     }
     
-    // get ready to do analysis
-    string analysisFile = preExtension + ".vals.txt";
-    string dataPathToVamp = ofToDataPath("") + "../../../../utils/vampCommandLine/";
-    string soundFileGood = "\'" + fileName + "\'";
-    string analysisFileGood = "\'" + analysisFile + "\'";
+//    // get ready to do analysis
+//    string analysisFile = preExtension + ".vals.txt";
+//    string dataPathToVamp = ofToDataPath("") + "../../../../utils/vampCommandLine/";
+//    string soundFileGood = "\'" + fileName + "\'";
+//    string analysisFileGood = "\'" + analysisFile + "\'";
+//    
+//    // pyin: pyin:pyin:smoothedpitchtrack
+//    string vampPlugin = "mtg-melodia:melodia:melody";
+//    string commandStr = "python ../../../data/vampRunner.py " + vampPlugin + " " + soundFileGood + " " + analysisFileGood;
+//    
+//    // if analysis doesn't exist, do it:
+//    ofFile file(analysisFile);
+//    if (!file.exists()){
+//        system(commandStr.c_str());
+//    }
+//    PDM.melo->loadAssociatedFile(analysisFile);
     
-    // pyin: pyin:pyin:smoothedpitchtrack
-    string vampPlugin = "mtg-melodia:melodia:melody";
-    string commandStr = "python ../../../data/vampRunner.py " + vampPlugin + " " + soundFileGood + " " + analysisFileGood;
     
-    // if analysis doesn't exist, do it:
-    ofFile file(analysisFile);
-    if (!file.exists()){
-        system(commandStr.c_str());
-    }
-    PDM.melo->loadAssociatedFile(analysisFile);
-    
-    /*
     //MELODIA
     // get ready to do analysis
     string meloAnalysisFile = preExtension + ".melo" + ".vals.txt";
@@ -84,7 +84,6 @@ void testApp::loadAudio( string fileName ){
         system(commandStr.c_str());
     }
     PDM.pyin->loadAssociatedFile(pyinAnalysisFile);
-     */
     
     
     AU.player.setFile(fileName);
@@ -178,9 +177,9 @@ void testApp::setup(){
     
     
 
-    AU.setup(getAudioDirectory() + "rebelradio.wav", hopSize);
+    AU.setup(getAudioDirectory() + "pop.wav", hopSize);
     
-    loadAudioToData( getAudioDirectory() + "rebelradio.wav", audioSamples);
+    loadAudioToData( getAudioDirectory() + "pop.wav", audioSamples);
 
 
     PDM.setup(windowSize, hopSize);
@@ -197,7 +196,7 @@ void testApp::setup(){
     
     
     
-    outputFolder = getAudioDirectory() + "output/rebelradio";
+    outputFolder = getAudioDirectory() + "output/pop";
     ofDirectory folder(outputFolder);
     if (!folder.exists()){
         folder.create();
@@ -421,7 +420,7 @@ void testApp::keyPressed(int key){
         case '1':
         case '2':
         case '3':
-//        case '4':
+        case '4':
 //        case '5':
 //        case '6':
 //        case '7':    
