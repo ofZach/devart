@@ -190,7 +190,7 @@ void testApp::update(){
         bSaveGui = false;
     }
     
-   
+
     
 }
 
@@ -198,7 +198,7 @@ void testApp::update(){
 void testApp::draw(){
 
     if (state == 0) {
-        PDM.draw();
+        PDM.draw(true);
         SM.draw();
     }
     else if (state == 1) {
@@ -234,6 +234,7 @@ void testApp::audioIn(float * input, int bufferSize, int nChannels){
     int sampleTime = AU.getSampleTime();
     
     PDM.processPitchDetectors(samples, bufferSize, sampleTime);
+    PDM.updateGraphs();
     if (state == 0) SM.update(samples, sampleTime);
     if (state == 1) PDC.update(samples, sampleTime);
 //    
@@ -322,7 +323,7 @@ void testApp::setupGUI(){
     gui->addIntSlider("MF numPValues", 3, 33, 11, length-xInit, dim);
     gui->addSpacer(length-xInit, 1);
     gui->addLabel("SEGMENTATION");
-    gui->addSlider("Coarse Threshold", 0.0, SM.graphMax, &SM.coarseThreshold, length-xInit, dim);
+    gui->addSlider("Coarse Threshold", 0.0, PDM.graphMax, &SM.coarseThreshold, length-xInit, dim);
     gui->addSlider("Fine Threshold", 0.0, 2.0, &SM.fineThreshold, length-xInit, dim);
     gui->addLabelToggle("Coarse/Fine", &SM.bVelFine);
     gui->addSlider("Min duration", 1, 60, &PDC.minDuration, length-xInit, dim);
@@ -371,7 +372,7 @@ void testApp::guiEvent(ofxUIEventArgs &e){
     else if (name == "MF numPValues") {
         ofxUIIntSlider *slider = (ofxUIIntSlider *) e.widget;
         for (int i = 0; i < PDM.size(); i++) {
-            SM.smoothers[i].setNumPValues(slider->getValue());
+            PDM.smoothers[i].setNumPValues(slider->getValue());
         }
     }
     else if (name == "Sampler volume") {
