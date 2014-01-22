@@ -27,13 +27,13 @@ public:
     
     pitchDetectorManager * PDM;
     //graphs
-    vector<smoother> smoothers;
-    vector<scrollingGraph> medianGraphs;
+//    vector<smoother> smoothers;
+//    vector<scrollingGraph> medianGraphs;
     vector<scrollingGraph> noteFound;
     vector<float> agreedNotes;
     vector<float> means;
     vector<float> stdDevs;
-    float graphWidth, graphHeight, graphMax;
+//    float graphWidth, graphHeight, graphMax;
     
     float stdDevThresh;
     

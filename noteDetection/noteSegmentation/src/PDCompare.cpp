@@ -16,27 +16,14 @@ void PDCompare::setup(pitchDetectorManager * _PDM, int _bufferSize ) {
     bufferSize = _bufferSize;
     nFrames = 25;
     
-    smoother tempSmoother;
-    tempSmoother.setNumPValues(11);
-    for (int i = 0; i < PDM->size(); i++) {
-        smoothers.push_back(tempSmoother);
-    }
-    
-    graphWidth = ofGetWidth()/2;
-    graphHeight = ofGetHeight()/3;
-    graphMax = 120;
-    
-    scrollingGraph medianGraph;
-    medianGraph.setup(graphWidth, 0, 0, graphMax);
     
     scrollingGraph noteFoundGraph;
-    noteFoundGraph.setup(graphWidth, 0, 0, 1.0);
+    noteFoundGraph.setup(PDM->graphWidth, 0, 0, 1.0);
     for (int i = 0; i < PDM->size(); i++) {
-        medianGraphs.push_back(medianGraph);
         noteFound.push_back(noteFoundGraph);
     }
     
-    agreedNotes.assign(graphWidth, 0.0);
+    agreedNotes.assign(PDM->graphWidth, 0.0);
     means.assign(PDM->size(), 0.0);
     stdDevs.assign(PDM->size(), 0.0);
     
@@ -55,30 +42,27 @@ void PDCompare::update(float * samples, int sampleTime){
     stdDevs.assign(PDM->size(), 0.0);
     
     for (int i = 0; i < PDM->size(); i++) {
-        //update graphs
-        smoothers[i].addValue(PDM->getPitch(i));
-        medianGraphs[i].addValue(smoothers[i].getMedian());
         
         //calculate stats
-        for (int j = graphWidth - nFrames; j < graphWidth; j++) {
-            means[i]+=medianGraphs[i].valHistory[j];
+        for (int j = PDM->graphWidth - nFrames; j < PDM->graphWidth; j++) {
+            means[i]+=PDM->medianGraphs[i].valHistory[j];
         }
         means[i] /= nFrames;
-        stdDevs[i] = computeStdDev(medianGraphs[i].valHistory.end()-nFrames, medianGraphs[i].valHistory.end(), means[i]);
+        stdDevs[i] = computeStdDev(PDM->medianGraphs[i].valHistory.end()-nFrames, PDM->medianGraphs[i].valHistory.end(), means[i]);
         
         //if we are in a note go back nframes and make them all "in a note"
         int isNote = (stdDevs[i] < stdDevThresh && means[i] > 0) ? 1 : 0;
         noteFound[i].addValue(isNote);
         if (isNote == 1) {
             for (int j = nFrames; j > 0; j--) {
-                noteFound[i].valHistory[graphWidth - j] = 1;
+                noteFound[i].valHistory[PDM->graphWidth - j] = 1;
             }
         }
         
     }
     
     //find the intersection of PDs
-    for (int i = 0; i < graphWidth; i++) {
+    for (int i = 0; i < PDM->graphWidth; i++) {
         int agreeCount = 0;
         for (int j = 0; j < noteFound.size(); j++) {
             agreeCount += noteFound[j].valHistory[i];
@@ -87,7 +71,7 @@ void PDCompare::update(float * samples, int sampleTime){
     }
     
     // count how many frames in a row the vel is below the threshold
-    if ( agreedNotes[graphWidth-1] == 1) {
+    if ( noteFound[2].getLast() == 1) { //agreedNotes[PDM->graphWidth-1] == 1
         //count buffers
         noteRun++;
         
@@ -105,7 +89,7 @@ void PDCompare::update(float * samples, int sampleTime){
         
         //record pitches
         //pitchesForRecording.push_back(medianGraphs[PDM->PDMethod].getLast());
-        currentNote.analysisFrames.push_back(medianGraphs[2].getLast());
+        currentNote.analysisFrames.push_back(PDM->medianGraphs[2].getLast());
         
     }
     else  {
@@ -115,8 +99,8 @@ void PDCompare::update(float * samples, int sampleTime){
         if ( noteRun > minDuration) {
             cout << "note duration = " << noteRun << endl;
             marker segment;
-            segment.start = graphWidth - 1 - noteRun;
-            segment.end = graphWidth - 1;
+            segment.start = PDM->graphWidth - noteRun;
+            segment.end = PDM->graphWidth;
             
             float avg = 0;
             for (int i = 0; i < currentNote.analysisFrames.size(); i++){
@@ -177,19 +161,19 @@ void PDCompare::draw(){
         
         //graphs
         ofSetColor(255,0,0);
-        medianGraphs[i].draw(height);
+        PDM->medianGraphs[i].draw(height);
         
         ofSetColor(25,200,25,50);
         noteFound[i].draw(height, 0, 1, true);
         
         
         //mean
-        float meanScaled = ofMap(means[i], 0, graphMax, height, 0, true);
+        float meanScaled = ofMap(means[i], 0, PDM->graphMax, height, 0, true);
         ofSetColor(0);
         ofLine(ofGetWidth() - nFrames * 2, meanScaled, ofGetWidth(), meanScaled);
         
         //stdDEv
-        float stdDevScaled = ofMap(stdDevs[i], 0, graphMax, 0, height, true);
+        float stdDevScaled = ofMap(stdDevs[i], 0, PDM->graphMax, 0, height, true);
         (stdDevs[i] < stdDevThresh) ? ofSetColor(25,200,25,100) : ofSetColor(200,25,25,100);
         ofRect(ofGetWidth() - nFrames * 2, meanScaled - stdDevScaled, ofGetWidth(), stdDevScaled * 2);
         
@@ -214,7 +198,7 @@ void PDCompare::draw(){
         ofPushMatrix();
         ofTranslate(0, (PDM->size()) * height);
         ofSetColor(25,200,25,200);
-        for (int i = 0; i < graphWidth; i++) {
+        for (int i = 0; i < PDM->graphWidth; i++) {
             ofRect(i*2, 0, 2, agreedNotes[i] * height);
         }
         ofPopMatrix();
