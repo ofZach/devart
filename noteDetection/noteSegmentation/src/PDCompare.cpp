@@ -7,12 +7,13 @@
 //
 
 #include "PDCompare.h"
+#include "testApp.h"
 #include "computeStats.h"
 
 
-void PDCompare::setup(pitchDetectorManager * _PDM) {
+void PDCompare::setup(pitchDetectorManager * _PDM, int _bufferSize ) {
     PDM = _PDM;
-    
+    bufferSize = _bufferSize;
     nFrames = 25;
     
     smoother tempSmoother;
@@ -41,10 +42,14 @@ void PDCompare::setup(pitchDetectorManager * _PDM) {
     
     stdDevThresh = 5;
     
-    sum = true;
+    sum = false;
+    
+    minDuration = 25;
+    minPitch = 20;
+    currentNote.nFramesRecording = 0;
 }
 
-void PDCompare::update(){
+void PDCompare::update(float * samples, int sampleTime){
     //clear stats
     means.assign(PDM->size(), 0.0);
     stdDevs.assign(PDM->size(), 0.0);
@@ -61,7 +66,7 @@ void PDCompare::update(){
         means[i] /= nFrames;
         stdDevs[i] = computeStdDev(medianGraphs[i].valHistory.end()-nFrames, medianGraphs[i].valHistory.end(), means[i]);
         
-        //if wwe are in a note go back nframes and make them all "in a note"
+        //if we are in a note go back nframes and make them all "in a note"
         int isNote = (stdDevs[i] < stdDevThresh && means[i] > 0) ? 1 : 0;
         noteFound[i].addValue(isNote);
         if (isNote == 1) {
@@ -81,14 +86,83 @@ void PDCompare::update(){
         agreedNotes[i] = (agreeCount == noteFound.size() ? 1 : 0);
     }
     
-    //if the frames before graphWidth - nframes is not a note and the frame right after is a note, then we have found the start.
-    if (agreedNotes[graphWidth-nFrames-1] == 0 && agreedNotes[graphWidth-nFrames-1] == 1) {
+    // count how many frames in a row the vel is below the threshold
+    if ( agreedNotes[graphWidth-1] == 1) {
+        //count buffers
+        noteRun++;
+        
+        // record samples
+        for (int i = 0; i < bufferSize; i++ ) {
+            currentNote.samples.push_back(samples[i]);
+        }
+        
+        if (currentNote.nFramesRecording == 0){
+            currentNote.startTime = sampleTime;
+        }
+        
+        currentNote.endTime = sampleTime + bufferSize;
+        currentNote.nFramesRecording++;
+        
+        //record pitches
+        //pitchesForRecording.push_back(medianGraphs[PDM->PDMethod].getLast());
+        currentNote.analysisFrames.push_back(medianGraphs[2].getLast());
         
     }
-    
-    //if the last frame is a note and the current is not, we have foudn the end of a note
-    if (agreedNotes[graphWidth-2] == 1 && agreedNotes[graphWidth-1] == 0) {
+    else  {
         
+        
+        // if the vel is above the thresh then check if the current run is longer than the min duration. If so save the note.  Regardless, set the run count to zero.
+        if ( noteRun > minDuration) {
+            cout << "note duration = " << noteRun << endl;
+            marker segment;
+            segment.start = graphWidth - 1 - noteRun;
+            segment.end = graphWidth - 1;
+            
+            float avg = 0;
+            for (int i = 0; i < currentNote.analysisFrames.size(); i++){
+                avg += currentNote.analysisFrames[i];
+            }
+            avg /= (MAX(1.0, currentNote.analysisFrames.size()));
+            
+            //            pitchesForRecording.clear();
+            // zero periods look like 9, 10... etc...
+            if (avg > minPitch){
+                //add markers
+                markers.push_back(segment);
+                //add correspnding note
+                currentNote.mostCommonPitch = findMostCommonPitch(currentNote);
+                
+                
+                
+                float duration = (currentNote.endTime - currentNote.startTime ) / 44100. ;
+                // sometimes, when we wrap over a loop, bad stuff happens, let's be careful:
+                if (duration > 0 && currentNote.mostCommonPitch > 0){
+                    
+                    notes.push_back(currentNote);
+                    
+                    ((testApp *) ofGetAppPtr()) -> addNote(currentNote.startTime - nFrames * bufferSize, currentNote.endTime, currentNote.mostCommonPitch);
+                    
+                    cout << "note recorded - min duration = " << currentNote.startTime << endl << endl;
+                }
+                
+            }
+            
+        }
+        //reset
+        noteRun = nFrames;
+        currentNote.samples.clear();
+        currentNote.analysisFrames.clear();
+        currentNote.nFramesRecording = 0;
+        currentNote.startTime = 0;
+        currentNote.endTime = 0;
+    }
+
+
+    if (markers.size() > 0) {
+        for (int i = 0; i < markers.size(); i++) {
+            markers[i].start--;
+            markers[i].end--;
+        }
     }
 
 }
@@ -147,6 +221,59 @@ void PDCompare::draw(){
     }
 
     
+    
+    
+    
     ofSetColor(255,255,255,100);
     ofRect(ofGetWidth() - nFrames * 2, 0, nFrames * 2, ofGetHeight());
+    
+    
+    for (int i = 0; i < markers.size(); i++) {
+        ofSetColor(255,255,255,127);
+        ofRect(markers[i].start * 2, 0, markers[i].end * 2 - markers[i].start * 2, ofGetHeight());
+    }
+
 }
+
+float PDCompare::findMostCommonPitch(audioNote note){
+    
+    vector < int > properPitches;
+    
+    for (int i = 0; i < note.analysisFrames.size(); i++){
+        float detectedPitch = note.analysisFrames[i];
+        if (detectedPitch > minPitch && detectedPitch < 150) properPitches.push_back(detectedPitch);
+    }
+    // see utils.h
+    
+    int mostCommon = findMostCommon(properPitches);
+    
+    //cout << "-----------" << endl;
+    float avg = 0;
+    for (int i = 0; i < properPitches.size(); i++){
+        //  cout << properPitches[i] << endl;
+        avg +=properPitches[i];
+    }
+    avg /= (float)properPitches.size();
+    
+    //cout << avg << " " << mostCommon << endl;
+    int count = 0;
+    for (int i = 0; i < properPitches.size(); i++){
+        if (properPitches[i] == mostCommon){
+            count ++;
+        }
+    }
+    
+    float pct = (float)count / (float)(MAX(1, properPitches.size()));
+    
+    
+    if (pct < 0.35){
+        return -1;
+    } else
+        
+        return (int)mostCommon;
+    
+}
+
+
+
+

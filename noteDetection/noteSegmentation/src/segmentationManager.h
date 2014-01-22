@@ -17,26 +17,6 @@
 
 
 
-struct marker {
-    float start;
-    float end;
-};
-
-struct audioNote {
-    
-    bool bPlaying;
-    bool bWasPlaying;
-    
-    vector < float > samples;
-    vector < float > analysisFrames;
-    int mostCommonPitch;
-    int playhead;
-    
-    int nFramesRecording;
-    int startTime;
-    int endTime;
-    
-};
 
 
 class segmentationManager {

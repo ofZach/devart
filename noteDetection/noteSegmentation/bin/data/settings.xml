@@ -98,8 +98,3 @@
     <Name>stdDev Thresh</Name>
     <Value>5.000000000</Value>
 </Widget>
-<Widget>
-    <Kind>17</Kind>
-    <Name>Sum/Intersection</Name>
-    <Value>1</Value>
-</Widget>

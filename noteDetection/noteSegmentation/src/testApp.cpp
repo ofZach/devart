@@ -104,11 +104,14 @@ void testApp::addNote( int startTime, int endTime, int avgTone){
     if (myNote.startTime < 0) myNote.startTime = 0;
     if (myNote.endTime > audioSamples.size()-1) myNote.endTime = audioSamples.size()-1;
     
+    cout << (endTime - startTime) / 44100. << endl;
+    
     myNote.bPlaying = true;
     myNote.playbackTime = startTime;
    
-    if (bPlayingSamples)
+    if (bPlayingSamples){
         notes.push_back(myNote);
+    }
     if (bPlayMidi)
         AU.startNote(avgTone);
     
@@ -147,7 +150,7 @@ void testApp::setup(){
 
 
     PDM.setup(windowSize, hopSize);
-    PDC.setup(&PDM);
+    PDC.setup(&PDM, hopSize);
     
     AU.playFile();
     
@@ -168,7 +171,7 @@ void testApp::setup(){
     
     ofSetVerticalSync(false);
     
-    state = 0;
+    state = 1;
     bSaving = false;
     bPlayMidi = false;
     bPlayingSamples = false;
@@ -231,8 +234,8 @@ void testApp::audioIn(float * input, int bufferSize, int nChannels){
     int sampleTime = AU.getSampleTime();
     
     PDM.processPitchDetectors(samples, bufferSize, sampleTime);
-    SM.update(samples, sampleTime);
-    PDC.update();
+    if (state == 0) SM.update(samples, sampleTime);
+    if (state == 1) PDC.update(samples, sampleTime);
 //    
 //    float outputVol = 0.0;
 //    if (PDC.sum) {
@@ -253,7 +256,7 @@ void testApp::audioIn(float * input, int bufferSize, int nChannels){
 void testApp::audioOut(float * output, int bufferSize, int nChannels){
 
 // SM.playSegments(outputSamples);
-    if (state == 0) {
+//    if (state == 0) {
         for (int i = 0; i < bufferSize; i++) {
             output[i] = 0;
         }
@@ -261,7 +264,8 @@ void testApp::audioOut(float * output, int bufferSize, int nChannels){
         
         for (int i = 0; i < notes.size(); i++) {
             if (notes[i].bPlaying == true){
-
+                
+                //cout << "playing " << i << endl;
                 for (int j = 0; j < bufferSize; j++) {
                     output[j] += audioSamples[notes[i].playbackTime + j] * 0.3 * SM.audioVol;
                 }
@@ -276,7 +280,7 @@ void testApp::audioOut(float * output, int bufferSize, int nChannels){
             }
         
         }
-    }
+//    }
     
     /*
      myNote.startTime = startTime;
@@ -321,8 +325,8 @@ void testApp::setupGUI(){
     gui->addSlider("Coarse Threshold", 0.0, SM.graphMax, &SM.coarseThreshold, length-xInit, dim);
     gui->addSlider("Fine Threshold", 0.0, 2.0, &SM.fineThreshold, length-xInit, dim);
     gui->addLabelToggle("Coarse/Fine", &SM.bVelFine);
-    gui->addSlider("Min duration", 1, 60, &SM.minDuration, length-xInit, dim);
-    gui->addIntSlider("Min pitch", 0, 30, &SM.minPitch, length-xInit, dim);
+    gui->addSlider("Min duration", 1, 60, &PDC.minDuration, length-xInit, dim);
+    gui->addIntSlider("Min pitch", 0, 30, &PDC.minPitch, length-xInit, dim);
     gui->addSpacer(length-xInit, 1);
     gui->addLabel("AUDIO OUTPUT");
     gui->addSlider("Audio Volume", 0.0, 1.0, &SM.audioVol, length-xInit, dim);
@@ -344,7 +348,7 @@ void testApp::setupGUI(){
     gui->addSlider("stdDev Thresh", 0.1, 5, &PDC.stdDevThresh, length-xInit, dim);
     
     ofAddListener(gui->newGUIEvent,this,&testApp::guiEvent);
-    gui->addLabelToggle("Sum/Intersection", &PDC.sum);
+//    gui->addLabelToggle("Sum/Intersection", &PDC.sum);
     gui->loadSettings("settings.xml");
     
 

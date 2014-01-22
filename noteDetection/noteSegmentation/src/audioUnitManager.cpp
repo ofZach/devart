@@ -24,7 +24,7 @@ void audioUnitManager::setup(string filename, int _bufferSize){
     sampler.setProgram(0);
     
     mixer.setInputBusCount(2);
-    mixer.setInputVolume(0.5, 0);
+    mixer.setInputVolume(0.0, 0);
     mixer.setInputVolume(0.2, 1);
     
     player.connectTo(lpf).connectTo(tap).connectTo(mixer, 0);

@@ -6,18 +6,24 @@
 //
 //
 
+#pragma once
 
 #include "scrollingGraph.h"
 #include "smoother.h"
 #include "pitchDetectorManager.h"
+#include "utils.h"
+
 
 class PDCompare {
 public:
-    void setup(pitchDetectorManager * _PDM);
-    void update();
+    void setup(pitchDetectorManager * _PDM, int _bufferSize);
+    void update(float * samples, int sampleTime);
     void draw();
     
+    float findMostCommonPitch(audioNote note);
+    
     int nFrames;
+    int bufferSize;
     
     pitchDetectorManager * PDM;
     //graphs
@@ -32,4 +38,18 @@ public:
     float stdDevThresh;
     
     bool sum;
+    
+    //from segMan
+    float minDuration;
+    float noteRun;
+    
+    bool bAmRecording;
+    vector < float > pitchesForRecording;
+    
+    //notes
+    audioNote currentNote;
+    vector < audioNote > notes;
+    
+    int minPitch;
+    vector<marker> markers;
 };
