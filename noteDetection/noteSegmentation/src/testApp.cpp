@@ -233,20 +233,20 @@ void testApp::audioIn(float * input, int bufferSize, int nChannels){
     PDM.processPitchDetectors(samples, bufferSize, sampleTime);
     SM.update(samples, sampleTime);
     PDC.update();
-    
-    float outputVol = 0.0;
-    if (PDC.sum) {
-        for (int i = 0; i < PDC.noteFound.size(); i++) {
-            outputVol += PDC.noteFound[i].getLast();
-        }
-        outputVol /= PDC.noteFound.size();
-    }
-    else {
-        outputVol = PDC.agreedNotes.getLast();
-    }
+//    
+//    float outputVol = 0.0;
+//    if (PDC.sum) {
+//        for (int i = 0; i < PDC.noteFound.size(); i++) {
+//            outputVol += PDC.noteFound[i].getLast();
+//        }
+//        outputVol /= PDC.noteFound.size();
+//    }
+//    else {
+//        outputVol = PDC.agreedNotes.getLast();
+//    }
     
 //    cout << "outputVol = " << outputVol << endl;
-    AU.mixer.setOutputVolume(state == 1 ? outputVol * 0.5 : 0);
+//    AU.mixer.setOutputVolume(state == 1 ? outputVol * 0.5 : 0);
     
 }
 

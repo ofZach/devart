@@ -35,8 +35,7 @@ void PDCompare::setup(pitchDetectorManager * _PDM) {
         noteFound.push_back(noteFoundGraph);
     }
     
-    agreedNotes.setup(graphWidth, 0, 0, 1.0);
-    
+    agreedNotes.assign(graphWidth, 0.0);
     means.assign(PDM->size(), 0.0);
     stdDevs.assign(PDM->size(), 0.0);
     
@@ -46,21 +45,23 @@ void PDCompare::setup(pitchDetectorManager * _PDM) {
 }
 
 void PDCompare::update(){
+    //clear stats
     means.assign(PDM->size(), 0.0);
     stdDevs.assign(PDM->size(), 0.0);
     
-    
-    int agreeCount = 0;
     for (int i = 0; i < PDM->size(); i++) {
+        //update graphs
         smoothers[i].addValue(PDM->getPitch(i));
         medianGraphs[i].addValue(smoothers[i].getMedian());
         
+        //calculate stats
         for (int j = graphWidth - nFrames; j < graphWidth; j++) {
             means[i]+=medianGraphs[i].valHistory[j];
         }
         means[i] /= nFrames;
         stdDevs[i] = computeStdDev(medianGraphs[i].valHistory.end()-nFrames, medianGraphs[i].valHistory.end(), means[i]);
         
+        //if wwe are in a note go back nframes and make them all "in a note"
         int isNote = (stdDevs[i] < stdDevThresh && means[i] > 0) ? 1 : 0;
         noteFound[i].addValue(isNote);
         if (isNote == 1) {
@@ -69,10 +70,27 @@ void PDCompare::update(){
             }
         }
         
-        agreeCount+=isNote;
+    }
+    
+    //find the intersection of PDs
+    for (int i = 0; i < graphWidth; i++) {
+        int agreeCount = 0;
+        for (int j = 0; j < noteFound.size(); j++) {
+            agreeCount += noteFound[j].valHistory[i];
+        }
+        agreedNotes[i] = (agreeCount == noteFound.size() ? 1 : 0);
+    }
+    
+    //if the frames before graphWidth - nframes is not a note and the frame right after is a note, then we have found the start.
+    if (agreedNotes[graphWidth-nFrames-1] == 0 && agreedNotes[graphWidth-nFrames-1] == 1) {
         
     }
-    agreedNotes.addValue(agreeCount == PDM->size() ? 1 : 0);
+    
+    //if the last frame is a note and the current is not, we have foudn the end of a note
+    if (agreedNotes[graphWidth-2] == 1 && agreedNotes[graphWidth-1] == 0) {
+        
+    }
+
 }
 
 
@@ -122,7 +140,9 @@ void PDCompare::draw(){
         ofPushMatrix();
         ofTranslate(0, (PDM->size()) * height);
         ofSetColor(25,200,25,200);
-        agreedNotes.draw(height, 0, 1, true);
+        for (int i = 0; i < graphWidth; i++) {
+            ofRect(i*2, 0, 2, agreedNotes[i] * height);
+        }
         ofPopMatrix();
     }
 
