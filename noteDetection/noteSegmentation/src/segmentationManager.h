@@ -7,17 +7,11 @@
 //
 
 #include "ofMain.h"
-//#include "scrollingGraph.h"
-//#include "smoother.h"
 #include "pitchDetectorManager.h"
-#include "audioUnitManager.h"
 #include "PDCompare.h"
 #include "utils.h"
 
 #pragma once
-
-
-
 
 
 class segmentationManager {
@@ -32,19 +26,12 @@ public:
     void calcPDAgreement(int start, int end);
     void scrollMarkers();
     
-    void playSegments(vector<float> &output);
-    float audioVol, sinVol;
-    int samplerOctavesUp, sinOctavesUp;
-    float sinAngle;
-    
     float findMostCommonPitch(audioNote note);
     
     int bufferSize;
     
     pitchDetectorManager * PDM;
     PDCompare * PDC;
-    audioUnitManager * AU;
-    
     
     int minPitch;
     bool bBelowMinPitch;

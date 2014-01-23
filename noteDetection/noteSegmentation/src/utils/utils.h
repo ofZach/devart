@@ -25,7 +25,7 @@ struct audioNote {
     bool bPlaying;
     bool bWasPlaying;
     
-    vector < float > samples;
+//    vector < float > samples;
     vector < float > analysisFrames;
 
     int playhead;

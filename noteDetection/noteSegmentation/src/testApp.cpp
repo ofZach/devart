@@ -136,18 +136,12 @@ void testApp::addNote( int startTime, int endTime, int avgTone){
 //--------------------------------------------------------------
 void testApp::setup(){
     
-    
-    
     samplerate = 44100;
     windowSize = 2048;
     hopSize = 1024;
-    
-    
 
     AU.setup(getAudioDirectory() + "pop.wav", hopSize);
-    
     loadAudioToData( getAudioDirectory() + "pop.wav", audioSamples);
-
 
     PDM.setup(windowSize, hopSize);
     PDC.setup(&PDM, hopSize);
@@ -157,12 +151,8 @@ void testApp::setup(){
     SM.setup( PDM.size(), hopSize );
     SM.PDM = &PDM;
     SM.PDC = &PDC;
-    SM.AU = &AU;
     
     setupGUI();
-
-    
-    
     
     outputFolder = getAudioDirectory() + "output/pop";
     ofDirectory folder(outputFolder);
@@ -264,7 +254,7 @@ void testApp::audioOut(float * output, int bufferSize, int nChannels){
                 
                 //cout << "playing " << i << endl;
                 for (int j = 0; j < bufferSize; j++) {
-                    output[j] += audioSamples[notes[i].playbackTime + j] * 0.3 * SM.audioVol;
+                    output[j] += audioSamples[notes[i].playbackTime + j] * 0.3 * audioVol;
                 }
                 
                 notes[i].playbackTime +=bufferSize;
@@ -297,6 +287,7 @@ void testApp::setupGUI(){
 
     bSaveGui = false;
     SM.bVelFine = false;
+    audioVol = 0.0;
 
     //init gui dims
     float dim = 16;
@@ -330,7 +321,7 @@ void testApp::setupGUI(){
     gui->addSlider("stdDev Thresh", 0.1, 5, &PDC.stdDevThresh, length-xInit, dim);
     gui->addSpacer(length-xInit, 1);
     gui->addLabel("AUDIO OUTPUT");
-    gui->addSlider("Audio Volume", 0.0, 1.0, &SM.audioVol, length-xInit, dim);
+    gui->addSlider("Audio Volume", 0.0, 1.0, &audioVol, length-xInit, dim);
     gui->addSlider("Sampler volume", 0.0, 1.0, 1.0, length-xInit, dim);
 //    gui->addSlider("Sine wave volume", 0.0, 1.0, &SM.sinVol, length-xInit, dim);
 //    gui->addIntSlider("Sampler octvs up", 0, 4, &SM.samplerOctavesUp, length-xInit, dim);

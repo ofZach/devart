@@ -76,9 +76,9 @@ void PDCompare::update(float * samples, int sampleTime){
         noteRun++;
         
         // record samples
-        for (int i = 0; i < bufferSize; i++ ) {
-            currentNote.samples.push_back(samples[i]);
-        }
+//        for (int i = 0; i < bufferSize; i++ ) {
+//            currentNote.samples.push_back(samples[i]);
+//        }
         
         if (currentNote.nFramesRecording == 0){
             currentNote.startTime = sampleTime;
@@ -134,7 +134,7 @@ void PDCompare::update(float * samples, int sampleTime){
         }
         //reset
         noteRun = nFrames;
-        currentNote.samples.clear();
+//        currentNote.samples.clear();
         currentNote.analysisFrames.clear();
         currentNote.nFramesRecording = 0;
         currentNote.startTime = 0;

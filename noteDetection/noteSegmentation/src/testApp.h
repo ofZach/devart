@@ -2,11 +2,10 @@
 
 #include "ofMain.h"
 
-//#include "ofxAudioUnit.h"
 #include "ofxUI.h"
 #include "ofxXmlSettings.h"
 #include "pitchDetectorManager.h"
-//#include "audioUnitManager.h"
+#include "audioUnitManager.h"
 #include "segmentationManager.h"
 #include "PDCompare.h"
 
@@ -78,6 +77,10 @@ public:
     bool bSaving;
     bool bPlayMidi;
     bool bPlayingSamples;
+    
+    float audioVol, sinVol;
+    int samplerOctavesUp, sinOctavesUp;
+    float sinAngle;
     
     int state;
     
