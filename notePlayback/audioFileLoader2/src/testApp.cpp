@@ -50,6 +50,36 @@ void testApp::setup(){
     
     soundStream.setup(this, 2, 0, 44100, 256, 4);
 
+    setupGUI();
+}
+
+void testApp::setupGUI(){
+    //init gui dims
+    float dim = 16;
+	float xInit = OFX_UI_GLOBAL_WIDGET_SPACING;
+    float length = 255-xInit;
+    
+    //gui!
+    gui = new ofxUICanvas(0, 300, length+xInit, ofGetHeight());
+    
+    gui->addFPSSlider("FPS SLIDER", length-xInit, dim*.25, 60);
+    
+    gui->addSpacer(length-xInit, 1);
+    gui->addLabel("CONTEXT");
+    gui->addIntSlider("attack", 0, 44100, &attack);
+    gui->addIntSlider("release", 0, 44100, &release);
+    
+    gui->addSpacer(length-xInit, 1);
+    gui->addLabel("THRESHOLDS");
+    gui->addSlider("min pct MCN", 0.0, 1.0, &minPctMCN);
+    gui->addSlider("min melo stdDev", 0.0, 5.0, &minMeloStdDev);
+    gui->addSlider("min yin stdDev", 0.0, 15.0, &minYinStdDev);
+    gui->addSlider("min yinFFT stdDev", 0.0, 15.0, &minYinFFTStdDev);
+    gui->addSlider("min yin agree", 0.0, 1.0, &minYinAgree);
+    gui->addSlider("min yinFFT agree", 0.0, 1.0, &minYinFFTAgree);
+    gui->addSlider("min melo kurtosis", -5.0, 5.0, &minMeloKurtosis);
+    
+
 }
 
 
@@ -95,6 +125,8 @@ void testApp::update(){
 void testApp::draw(){
     myPiano.draw();
 }
+
+
 
 float MIDI2freq(int MIDI_note) {
 	return 440.0 * powf(2.0,(((float)MIDI_note-(float)69)/(float)12));

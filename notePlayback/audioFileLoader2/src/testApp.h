@@ -1,6 +1,8 @@
 #pragma once
 
 #include "ofMain.h"
+#include "ofxUI.h"
+
 #include "note.h"
 #include "piano.h"
 
@@ -10,6 +12,8 @@ public:
     void setup();
     void update();
     void draw();
+    
+    void setupGUI();
 
     void keyPressed(int key);
     void keyReleased(int key);
@@ -36,4 +40,9 @@ public:
     
     
     vector < int > counter;
+    
+    ofxUICanvas * gui;
+    
+    int attack, release;
+    float minPctMCN, minMeloStdDev, minYinStdDev, minYinFFTStdDev, minYinAgree,minYinFFTAgree, minMeloKurtosis;
 };
