@@ -27,11 +27,17 @@ struct audioNote {
     
     vector < float > samples;
     vector < float > analysisFrames;
-    int mostCommonPitch;
+
     int playhead;
     
     int nFramesRecording;
     int startTime;
     int endTime;
+    
+    //META DATA
+    int mostCommonPitch;
+    float yinStdDev;
+    float yinFFTStdDev;
+    float meloStdDev;
     
 };

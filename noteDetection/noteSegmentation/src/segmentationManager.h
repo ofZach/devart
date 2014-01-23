@@ -27,6 +27,7 @@ public:
     void update(float * samples, int sampleTime);
     void draw();
     
+    void calcOtherPDStdDev(int start, int end);
     void scrollMarkers();
     
     void playSegments(vector<float> &output);

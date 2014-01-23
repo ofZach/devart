@@ -184,14 +184,10 @@ void testApp::setup(){
 //--------------------------------------------------------------
 void testApp::update(){
     
-    
     if (bSaveGui){
         gui->saveSettings("settings.xml");
         bSaveGui = false;
     }
-    
-
-    
 }
 
 //--------------------------------------------------------------
@@ -204,7 +200,6 @@ void testApp::draw(){
     else if (state == 1) {
         PDC.draw();
     }
-  
 
 }
 

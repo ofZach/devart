@@ -8,6 +8,7 @@
 
 #include "segmentationManager.h"
 #include "testApp.h"
+#include "computeStats.h"
 
 void segmentationManager::setup( int numPitchDetectors, int _bufferSize ){
     
@@ -61,6 +62,10 @@ void segmentationManager::update(float * samples, int sampleTime){
             marker segment;
             segment.start = PDM->graphWidth - 1 - noteRun;
             segment.end = PDM->graphWidth - 1;
+            
+            //confidence from other PDs
+            calcOtherPDStdDev(segment.start, segment.end);
+            
             
             float avg = 0;
             for (int i = 0; i < currentNote.analysisFrames.size(); i++){
@@ -168,6 +173,36 @@ void segmentationManager::scrollMarkers(){
             markers[i].end--;
         }
     }
+}
+
+
+void segmentationManager::calcOtherPDStdDev(int start, int end) {
+    vector<float> yinValues, yinFFTValues, meloValues;
+    float yinMean = 0;
+    float yinFFTMean = 0;
+    float meloMean = 0;
+    
+    for (int i = start; i < end; i++) {
+        yinValues.push_back(PDM->medianGraphs[0].valHistory[i]);
+        yinMean += PDM->medianGraphs[0].valHistory[i];
+        
+        yinFFTValues.push_back(PDM->medianGraphs[1].valHistory[i]);
+        yinFFTMean += PDM->medianGraphs[1].valHistory[i];
+        
+        meloValues.push_back(PDM->medianGraphs[2].valHistory[i]);
+        meloMean += PDM->medianGraphs[2].valHistory[i];
+    }
+    yinMean /= yinValues.size();
+    yinFFTMean /= yinFFTValues.size();
+    meloMean /= meloValues.size();
+    
+    currentNote.yinStdDev = computeStdDev(yinValues.begin(), yinValues.end(), yinMean);
+    currentNote.yinFFTStdDev = computeStdDev(yinFFTValues.begin(), yinFFTValues.end(), yinFFTMean);
+    currentNote.meloStdDev = computeStdDev(meloValues.begin(), meloValues.end(), meloMean);
+
+    
+    cout << "yin stddev " << currentNote.yinStdDev << " yinFFT stddev " << currentNote.yinFFTStdDev << " melo stddev " << currentNote.meloStdDev << endl;
+
 }
 
 
