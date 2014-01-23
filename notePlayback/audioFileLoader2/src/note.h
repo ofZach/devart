@@ -5,6 +5,24 @@
 #include "ofMain.h"
 #include <sndfile.hh>
 
+
+struct metadata {
+    int preContext;
+    int postContext;
+    
+    float pctMostCommon;
+    
+    float meloStdDev;
+    float yinStdDev;
+    float yinFFTStdDev;
+    
+    float yinAgree;
+    float yinFFTAgree;
+    
+    float meloKurtosis;
+};
+
+
 class note {
    
 public: 
@@ -17,6 +35,8 @@ public:
     int nFrames;
     int mostCommonNote;
     
+    metadata MD;
+    
     string name;
     
     bool bPlaying;
@@ -24,6 +44,16 @@ public:
     
     void play(){
         cout << "playing " << name << endl;
+        cout << "preContext" << MD.preContext << endl
+        << "postContext" << MD.postContext << endl
+        << "pctMostCommon" << MD.pctMostCommon << endl
+        << "meloStdDev" << MD.meloStdDev << endl
+        << "yinStdDev" << MD.yinStdDev << endl
+        << "yinFFTStdDev" << MD.yinFFTStdDev << endl
+        << "yinAgree" << MD.yinAgree << endl
+        << "yinFFTAgree" << MD.yinFFTAgree << endl
+        << "meloKurtosis" << MD.meloKurtosis << endl;
+        
         bPlaying = true;
         playFrame = 0;
     }
@@ -80,6 +110,34 @@ public:
         
         name = fileNamePart;
         mostCommonNote = ofToInt(notePart);
+        
+        //jason added for loading metadata
+        string metadataFilename = fileName.substr(0, fileName.find_last_of("."));
+        metadataFilename += ".txt";
+//        cout << metadataFilename << endl;
+
+        ofFile metadataFile(metadataFilename);
+        ofBuffer buffer(metadataFile);
+        
+        //Read file line by line
+        while (!buffer.isLastLine()) {
+            string line = buffer.getNextLine();
+            
+            //Split line into strings
+            vector<string> data = ofSplitString(line, ":");
+            
+            if (data[0] == "preContext") MD.preContext = ofToInt(data[1]);
+            if (data[0] == "postContext") MD.postContext = ofToInt(data[1]);
+            if (data[0] == "pctMostCommon") MD.pctMostCommon = ofToFloat(data[1]);
+            if (data[0] == "meloStdDev") MD.meloStdDev = ofToFloat(data[1]);
+            if (data[0] == "yinStdDev") MD.yinStdDev = ofToFloat(data[1]);
+            if (data[0] == "yinFFTStdDev") MD.yinFFTStdDev = ofToFloat(data[1]);
+            if (data[0] == "yinAgree") MD.yinAgree = ofToFloat(data[1]);
+            if (data[0] == "yinFFTAgree") MD.yinFFTAgree = ofToFloat(data[1]);
+            if (data[0] == "meloKurtosis") MD.meloKurtosis = ofToFloat(data[1]);
+            
+        }
+
         
     }
     

@@ -36,7 +36,4 @@ public:
     
     
     vector < int > counter;
-    
-    
-    
 };

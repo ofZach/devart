@@ -20,6 +20,7 @@ void testApp::setup(){
     for (int i = 0; i < dir.size(); i++){
     
         ofDirectory dir2;
+        dir2.allowExt("wav");
         dir2.listDir(dir.getPath(i));
         
         for (int j = 0; j < dir2.size(); j++){
@@ -39,13 +40,10 @@ void testApp::setup(){
         
     }
     
-   ofSort(notes, sortNotes);
+    ofSort(notes, sortNotes);
     
     for (int i = 0; i < notes.size(); i++){
-        
         cout << notes[i]->mostCommonNote << endl;
-        
-        
     }
     
     myPiano.setup();
