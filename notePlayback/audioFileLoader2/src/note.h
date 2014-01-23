@@ -44,15 +44,15 @@ public:
     
     void play(){
         cout << "playing " << name << endl;
-        cout << "preContext" << MD.preContext << endl
-        << "postContext" << MD.postContext << endl
-        << "pctMostCommon" << MD.pctMostCommon << endl
-        << "meloStdDev" << MD.meloStdDev << endl
-        << "yinStdDev" << MD.yinStdDev << endl
-        << "yinFFTStdDev" << MD.yinFFTStdDev << endl
-        << "yinAgree" << MD.yinAgree << endl
-        << "yinFFTAgree" << MD.yinFFTAgree << endl
-        << "meloKurtosis" << MD.meloKurtosis << endl;
+        cout << "preContext " << MD.preContext << endl
+        << "postContext " << MD.postContext << endl
+        << "pctMostCommon " << MD.pctMostCommon << endl
+        << "meloStdDev " << MD.meloStdDev << endl
+        << "yinStdDev " << MD.yinStdDev << endl
+        << "yinFFTStdDev " << MD.yinFFTStdDev << endl
+        << "yinAgree " << MD.yinAgree << endl
+        << "yinFFTAgree " << MD.yinFFTAgree << endl
+        << "meloKurtosis " << MD.meloKurtosis << endl << endl;
         
         bPlaying = true;
         playFrame = 0;

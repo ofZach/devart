@@ -72,9 +72,9 @@ void testApp::setupGUI(){
     gui->addSpacer(length-xInit, 1);
     gui->addLabel("THRESHOLDS");
     gui->addSlider("min pct MCN", 0.0, 1.0, &minPctMCN);
-    gui->addSlider("min melo stdDev", 0.0, 5.0, &minMeloStdDev);
-    gui->addSlider("min yin stdDev", 0.0, 15.0, &minYinStdDev);
-    gui->addSlider("min yinFFT stdDev", 0.0, 15.0, &minYinFFTStdDev);
+    gui->addSlider("max melo stdDev", 5.0, 0.0, &maxMeloStdDev);
+    gui->addSlider("max yin stdDev", 15.0, 0.0, &maxYinStdDev);
+    gui->addSlider("max yinFFT stdDev", 15.0, 0.0, &maxYinFFTStdDev);
     gui->addSlider("min yin agree", 0.0, 1.0, &minYinAgree);
     gui->addSlider("min yinFFT agree", 0.0, 1.0, &minYinFFTAgree);
     gui->addSlider("min melo kurtosis", -5.0, 5.0, &minMeloKurtosis);
@@ -153,7 +153,15 @@ void testApp::keyPressed(int key){
         for (int i = 0; i < notes.size(); i++){
             int which = i;
             if (notes[which]->mostCommonNote == note){
+                if ( notes[which]->MD.pctMostCommon > minPctMCN
+                    && notes[which]->MD.meloStdDev < maxMeloStdDev
+                    && notes[which]->MD.yinStdDev < maxYinStdDev
+                    && notes[which]->MD.yinFFTStdDev < maxYinFFTStdDev
+                    && notes[which]->MD.yinAgree > minYinAgree
+                    && notes[which]->MD.yinFFTAgree > minYinFFTAgree
+                    && notes[which]->MD.meloKurtosis > minMeloKurtosis) {
                 anyGoods.push_back(i);
+                }
                 //notes[which]->play();
                 //break;
             }

@@ -44,5 +44,5 @@ public:
     ofxUICanvas * gui;
     
     int attack, release;
-    float minPctMCN, minMeloStdDev, minYinStdDev, minYinFFTStdDev, minYinAgree,minYinFFTAgree, minMeloKurtosis;
+    float minPctMCN, maxMeloStdDev, maxYinStdDev, maxYinFFTStdDev, minYinAgree,minYinFFTAgree, minMeloKurtosis;
 };
