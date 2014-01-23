@@ -49,6 +49,16 @@
     <Value>20</Value>
 </Widget>
 <Widget>
+    <Kind>42</Kind>
+    <Name>nFrames</Name>
+    <Value>25</Value>
+</Widget>
+<Widget>
+    <Kind>4</Kind>
+    <Name>stdDev Thresh</Name>
+    <Value>5.000000000</Value>
+</Widget>
+<Widget>
     <Kind>4</Kind>
     <Name>Audio Volume</Name>
     <Value>1.000000000</Value>
@@ -59,18 +69,13 @@
     <Value>1.000000000</Value>
 </Widget>
 <Widget>
-    <Kind>4</Kind>
-    <Name>Sine wave volume</Name>
-    <Value>0.000000000</Value>
-</Widget>
-<Widget>
     <Kind>42</Kind>
-    <Name>Sampler octvs up</Name>
+    <Name>pre context</Name>
     <Value>0</Value>
 </Widget>
 <Widget>
     <Kind>42</Kind>
-    <Name>Sine wave octvs up</Name>
+    <Name>post context</Name>
     <Value>0</Value>
 </Widget>
 <Widget>
@@ -87,14 +92,4 @@
     <Kind>17</Kind>
     <Name>play samples</Name>
     <Value>0</Value>
-</Widget>
-<Widget>
-    <Kind>42</Kind>
-    <Name>nFrames</Name>
-    <Value>25</Value>
-</Widget>
-<Widget>
-    <Kind>4</Kind>
-    <Name>stdDev Thresh</Name>
-    <Value>5.000000000</Value>
 </Widget>

@@ -80,4 +80,6 @@ public:
     bool bPlayingSamples;
     
     int state;
+    
+    int preContext, postContext;
 };

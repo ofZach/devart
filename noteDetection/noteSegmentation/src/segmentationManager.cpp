@@ -76,13 +76,13 @@ void segmentationManager::update(float * samples, int sampleTime){
                 currentNote.mostCommonPitch = findMostCommonPitch(currentNote);
                 
                 
-                
                 float duration = (currentNote.endTime - currentNote.startTime ) / 44100. ;
                 // sometimes, when we wrap over a loop, bad stuff happens, let's be careful:
                 if (duration > 0 && currentNote.mostCommonPitch > 0){
                     
                     notes.push_back(currentNote);
                     
+                    cout << "wout context" << duration << endl;
                     ((testApp *) ofGetAppPtr()) -> addNote(currentNote.startTime, currentNote.endTime, currentNote.mostCommonPitch);
                 }
                 
@@ -98,15 +98,7 @@ void segmentationManager::update(float * samples, int sampleTime){
         currentNote.endTime = 0;
     }
 
-   
-    
-    //    scroll markers
-    if (markers.size() > 0) {
-        for (int i = 0; i < markers.size(); i++) {
-            markers[i].start--;
-            markers[i].end--;
-        }
-    }
+    scrollMarkers();
 
 }
 

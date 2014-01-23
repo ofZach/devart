@@ -98,13 +98,13 @@ void testApp::processAudioFileOffline(){
 void testApp::addNote( int startTime, int endTime, int avgTone){
     
     note myNote;
-    myNote.startTime = startTime;
-    myNote.endTime = endTime;
+    myNote.startTime = startTime - preContext;
+    myNote.endTime = endTime + postContext;
     
     if (myNote.startTime < 0) myNote.startTime = 0;
     if (myNote.endTime > audioSamples.size()-1) myNote.endTime = audioSamples.size()-1;
     
-    cout << (endTime - startTime) / 44100. << endl;
+    cout << (myNote.endTime - myNote.startTime) / 44100. << endl;
     
     myNote.bPlaying = true;
     myNote.playbackTime = startTime;
@@ -329,31 +329,29 @@ void testApp::setupGUI(){
     gui->addSlider("Min duration", 1, 60, &PDC.minDuration, length-xInit, dim);
     gui->addIntSlider("Min pitch", 0, 30, &PDC.minPitch, length-xInit, dim);
     gui->addSpacer(length-xInit, 1);
-    gui->addLabel("AUDIO OUTPUT");
-    gui->addSlider("Audio Volume", 0.0, 1.0, &SM.audioVol, length-xInit, dim);
-    gui->addSlider("Sampler volume", 0.0, 1.0, 1.0, length-xInit, dim);
-    gui->addSlider("Sine wave volume", 0.0, 1.0, &SM.sinVol, length-xInit, dim);
-    gui->addIntSlider("Sampler octvs up", 0, 4, &SM.samplerOctavesUp, length-xInit, dim);
-    gui->addIntSlider("Sine wave octvs up", 0, 4, &SM.sinOctavesUp, length-xInit, dim);
-    gui->addSpacer(length-xInit, 1);
-    gui->addSpacer(length-xInit, 1);
-    
-    gui->addLabelToggle("saving notes", &bSaving);
-    gui->addLabelToggle("play midi", &bPlayMidi);
-    gui->addLabelToggle("play samples", &bPlayingSamples);
-    gui->addSpacer(length-xInit, 1);
-    
-
     gui->addLabel("PD Compare");
     gui->addIntSlider("nFrames", 5, 25, &PDC.nFrames, length-xInit, dim);
     gui->addSlider("stdDev Thresh", 0.1, 5, &PDC.stdDevThresh, length-xInit, dim);
+    gui->addSpacer(length-xInit, 1);
+    gui->addLabel("AUDIO OUTPUT");
+    gui->addSlider("Audio Volume", 0.0, 1.0, &SM.audioVol, length-xInit, dim);
+    gui->addSlider("Sampler volume", 0.0, 1.0, 1.0, length-xInit, dim);
+//    gui->addSlider("Sine wave volume", 0.0, 1.0, &SM.sinVol, length-xInit, dim);
+//    gui->addIntSlider("Sampler octvs up", 0, 4, &SM.samplerOctavesUp, length-xInit, dim);
+//    gui->addIntSlider("Sine wave octvs up", 0, 4, &SM.sinOctavesUp, length-xInit, dim);
+    gui->addSpacer(length-xInit, 1);
+    gui->addSpacer(length-xInit, 1);
+    gui->addLabel("SAVING");
+    gui->addIntSlider("pre context", 0, 44100, &preContext, length-xInit, dim);
+    gui->addIntSlider("post context", 0, 44100, &postContext, length-xInit, dim);
+    gui->addLabelToggle("saving notes", &bSaving);
+    gui->addLabelToggle("play midi", &bPlayMidi);
+    gui->addLabelToggle("play samples", &bPlayingSamples);
     
     ofAddListener(gui->newGUIEvent,this,&testApp::guiEvent);
 //    gui->addLabelToggle("Sum/Intersection", &PDC.sum);
     gui->loadSettings("settings.xml");
-    
 
-    
 }
 
 void testApp::guiEvent(ofxUIEventArgs &e){

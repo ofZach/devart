@@ -529,6 +529,17 @@
 			path = src;
 			sourceTree = "<group>";
 		};
+		90AD606E189091F50020B2FF /* segmentation */ = {
+			isa = PBXGroup;
+			children = (
+				92CCE23C188965000001217C /* segmentationManager.cpp */,
+				92CCE23D188965000001217C /* segmentationManager.h */,
+				90C6A10C188EDEB900CCC161 /* PDCompare.cpp */,
+				90C6A10D188EDEB900CCC161 /* PDCompare.h */,
+			);
+			name = segmentation;
+			sourceTree = "<group>";
+		};
 		90F813D318887724004FFE4E /* ofxUI */ = {
 			isa = PBXGroup;
 			children = (
@@ -892,15 +903,12 @@
 				92CCE2501889662E0001217C /* libs */,
 				92CCE2461889660D0001217C /* utils */,
 				92CCE23F188965EF0001217C /* pitch */,
+				90AD606E189091F50020B2FF /* segmentation */,
 				90184581188081C70071B3F7 /* main.cpp */,
 				901845BC188081C70071B3F7 /* testApp.cpp */,
 				901845BD188081C70071B3F7 /* testApp.h */,
-				92CCE23C188965000001217C /* segmentationManager.cpp */,
-				92CCE23D188965000001217C /* segmentationManager.h */,
 				904AE8DC18886C30005AD271 /* audioUnitManager.cpp */,
 				904AE8DD18886C30005AD271 /* audioUnitManager.h */,
-				90C6A10C188EDEB900CCC161 /* PDCompare.cpp */,
-				90C6A10D188EDEB900CCC161 /* PDCompare.h */,
 			);
 			path = src;
 			sourceTree = SOURCE_ROOT;
