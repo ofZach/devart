@@ -59,15 +59,6 @@ void segmentationManager::update(float * samples, int sampleTime){
         // if the vel is above the thresh then check if the current run is longer than the min duration. If so save the note.  Regardless, set the run count to zero.
         if ( noteRun > minDuration) {
             
-            marker segment;
-            segment.start = PDM->graphWidth - 1 - noteRun;
-            segment.end = PDM->graphWidth - 1;
-            
-            //confidence from other PDs
-            calcPDStdDev(segment.start, segment.end);
-            calcPDAgreement(segment.start, segment.end);
-            
-            
             float avg = 0;
             for (int i = 0; i < currentNote.analysisFrames.size(); i++){
                 avg += currentNote.analysisFrames[i];
@@ -76,19 +67,26 @@ void segmentationManager::update(float * samples, int sampleTime){
             
             // zero periods look like 9, 10... etc...
             if (avg > minPitch){
-                //add markers
-                markers.push_back(segment);
-                //add correspnding note
-                currentNote.mostCommonPitch = findMostCommonPitch(currentNote);
-                
                 
                 float duration = (currentNote.endTime - currentNote.startTime ) / 44100. ;
+                
+                currentNote.mostCommonPitch = findMostCommonPitch(currentNote);
                 // sometimes, when we wrap over a loop, bad stuff happens, let's be careful:
                 if (duration > 0 && currentNote.mostCommonPitch > 0){
                     
+                    //add markers
+                    marker segment;
+                    segment.start = PDM->graphWidth - 1 - noteRun;
+                    segment.end = PDM->graphWidth - 1;
+                    markers.push_back(segment);
+                    
+                    //note metadata
+                    calcPDStdDev(segment.start, segment.end);
+                    calcPDAgreement(segment.start, segment.end);
+
+                    
                     notes.push_back(currentNote);
                     
-                    cout << "wout context" << duration << endl;
                     ((testApp *) ofGetAppPtr()) -> addNote(currentNote.startTime, currentNote.endTime, currentNote.mostCommonPitch);
                 }
                 

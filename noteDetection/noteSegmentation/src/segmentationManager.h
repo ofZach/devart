@@ -65,8 +65,4 @@ public:
     audioNote currentNote;
     vector < audioNote > notes;
     
-    
-    
-
-    
 };
