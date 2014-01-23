@@ -10,10 +10,6 @@
 #include "PDCompare.h"
 
 
-
-
-
-
 class testApp : public ofBaseApp{
 
 public:
@@ -37,19 +33,9 @@ public:
     void dragEvent(ofDragInfo dragInfo);
     void gotMessage(ofMessage msg);
     
-    // for notes
-//    struct note {
-//        int startTime;
-//        int endTime;
-//        int playbackTime;
-//        int mostCommonPitch;
-//        bool bPlaying;
-//    };
     vector < note > notes;
 //    void addNote( int startTime, int endTime, int avgTone);
-    void addNote( note foundNote );
-    
-    
+    void addNote( note foundNote, metadata noteMetadata);
     
     
     int samplerate, windowSize, hopSize;
@@ -65,8 +51,8 @@ public:
     ofxUICanvas * gui;
     bool bSaveGui;
     
-    
     string outputFolder;
+    string absOutputFolder;
     
     vector < float > audioSamples;      // raw audio of what's playing.
     
@@ -75,6 +61,8 @@ public:
     bool bSaving;
     bool bPlayMidi;
     bool bPlayingSamples;
+    
+    bool bProcessOffline;
     
     float audioVol, sinVol;
     int samplerOctavesUp, sinOctavesUp;

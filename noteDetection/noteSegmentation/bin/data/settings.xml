@@ -69,13 +69,8 @@
     <Value>1.000000000</Value>
 </Widget>
 <Widget>
-    <Kind>42</Kind>
-    <Name>pre context</Name>
-    <Value>0</Value>
-</Widget>
-<Widget>
-    <Kind>42</Kind>
-    <Name>post context</Name>
+    <Kind>17</Kind>
+    <Name>process offline</Name>
     <Value>0</Value>
 </Widget>
 <Widget>

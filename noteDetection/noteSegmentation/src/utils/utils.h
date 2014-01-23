@@ -10,10 +10,26 @@ string getAudioDirectory();
 
 void loadAudioToData(string fileName, vector < float > & audioSamples);
 void saveDataToAudio(string fileName, vector < float > & audioSamples);
-
 string zeroPadNumber(int num, int sizeToBePaddedTo);
 
-//gonna move these somewhere else in the future...
+struct metadata {
+    int preContext;
+    int postContext;
+    
+    float pctMostCommon;
+    
+    float meloStdDev;
+    float yinStdDev;
+    float yinFFTStdDev;
+    
+    float yinAgree;
+    float yinFFTAgree;
+    
+    float meloKurtosis;
+};
+
+void saveMetaDataToFile(string fileName, metadata noteMetadata);
+
 
 struct marker {
     float start;
@@ -32,10 +48,4 @@ struct note {
 
 };
 
-struct metadata {
-    float yinStdDev;
-    float yinFFTStdDev;
-    float meloStdDev;
-    float yinAgree;
-    float yinFFTAgree;
-};
+

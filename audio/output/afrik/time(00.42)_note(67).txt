@@ -1,0 +1,9 @@
+preContext:44100
+postContext:44100
+pctMostCommon:0.759259
+yinStdDev:4.58281
+yinFFTStdDev:0.375076
+meloStdDev:0.501268
+meloKurtosis:1.68018
+yinAgree:1
+yinFFTAgree:1

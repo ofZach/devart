@@ -22,8 +22,9 @@ public:
     void update(float * samples, int sampleTime);
     void draw();
     
-    void calcPDStdDev(int start, int end);
+    void calcPDStats(int start, int end);
     void calcPDAgreement(int start, int end);
+    
     void scrollMarkers();
     
     float findMostCommonPitch();

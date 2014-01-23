@@ -13,6 +13,7 @@
 //---------------------------------------------------------------------------------------
 string getAudioDirectory(){
     return "../../../../audio/";        // string for locating where the audio is
+//    return "../../audio/";
 }
 
 
@@ -129,6 +130,31 @@ void saveDataToAudio(string fileName, vector < float > & audioSamples){
     outfile.write(&audioSamples[0], audioSamples.size());
  
 }
+
+void saveMetaDataToFile(string fileName, metadata noteMetadata){
+    ofFile relativeToAbsolute(fileName);
+    cout << relativeToAbsolute.getAbsolutePath() << endl;
+    
+    
+    ofFile metadataFile(relativeToAbsolute.getAbsolutePath(), ofFile::WriteOnly);
+    
+    metadataFile << "preContext:" << noteMetadata.preContext << endl;
+    metadataFile << "postContext:" << noteMetadata.postContext << endl;
+    
+    metadataFile << "pctMostCommon:" << noteMetadata.pctMostCommon << endl;
+
+    metadataFile << "yinStdDev:" << noteMetadata.yinStdDev << endl;
+    metadataFile << "yinFFTStdDev:" << noteMetadata.yinFFTStdDev << endl;
+    metadataFile << "meloStdDev:" << noteMetadata.meloStdDev << endl;
+    metadataFile << "meloKurtosis:" << noteMetadata.meloKurtosis << endl;
+    
+    metadataFile << "yinAgree:" << noteMetadata.yinAgree << endl;
+    metadataFile << "yinFFTAgree:" << noteMetadata.yinFFTAgree << endl;
+    
+//    metadataFile.close();
+
+}
+
 
 
 string zeroPadNumber(int num, int sizeToBePaddedTo)

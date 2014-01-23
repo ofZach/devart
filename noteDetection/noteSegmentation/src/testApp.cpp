@@ -61,6 +61,7 @@ void testApp::loadAudio( string fileName ){
     vector < string > split = ofSplitString(preExtension, "/");
     if (split.size() > 0){
         outputFolder = getAudioDirectory() + "output/" + split[split.size()-1];
+        absOutputFolder = ofFile("../../audio/output/" + split[split.size()-1]).getAbsolutePath();
         ofDirectory folder(outputFolder);
         if (!folder.exists()){
             folder.create();
@@ -68,7 +69,7 @@ void testApp::loadAudio( string fileName ){
     }
     
     ss.start();
-    ///processAudioFileOffline();
+    if(bProcessOffline) processAudioFileOffline();
     //setFile(ofToDataPath(filename)); //Marc Terenzi - Love To Be Loved By You [692].mp3
     
     
@@ -87,6 +88,8 @@ void testApp::processAudioFileOffline(){
         //memcpy(samples+i, &audioSamples[i], hopSize * sizeof(float));
         int sampleTime = i;
         PDM.processPitchDetectors(samples, hopSize, sampleTime);
+        PDM.updateGraphs();
+        PDC.update(samples, sampleTime);
         SM.update(samples, sampleTime);
     }
     ss.start();
@@ -95,7 +98,7 @@ void testApp::processAudioFileOffline(){
 
 
 
-void testApp::addNote( note foundNote ){
+void testApp::addNote( note foundNote, metadata noteMetadata){
     
     foundNote.startTime -= preContext;
     foundNote.endTime += postContext;
@@ -114,22 +117,36 @@ void testApp::addNote( note foundNote ){
     if (bPlayMidi)
         AU.startNote(foundNote.mostCommonPitch);
     
-    float startTimeF = foundNote.startTime / 44100.;
-    int mins = (int)( startTimeF / 60.0);
-    int secs = (int)((( startTimeF / 60.0) - mins) * 59);
-    
-    string fileName = outputFolder + "/time(" + zeroPadNumber(mins, 2) + "." + zeroPadNumber(secs, 2) + ")_note(" + ofToString(foundNote.mostCommonPitch) + ").wav";
-    //cout << fileName << endl;
-    
-    vector < float > audioSamplesOfNote;
-    audioSamplesOfNote.assign(foundNote.endTime-foundNote.startTime, 0);
-    for (int i = foundNote.startTime; i < foundNote.endTime; i++){
-        audioSamplesOfNote[i-foundNote.startTime] = audioSamples[i];
+    if (bSaving) {
+        float startTimeF = foundNote.startTime / 44100.;
+        int mins = (int)( startTimeF / 60.0);
+        int secs = (int)((( startTimeF / 60.0) - mins) * 59);
+        
+        string soundFileName =  outputFolder + "/time(" + zeroPadNumber(mins, 2) + "." + zeroPadNumber(secs, 2) + ")_note(" + ofToString(foundNote.mostCommonPitch) + ").wav";
+        //cout << fileName << endl;
+        
+        vector < float > audioSamplesOfNote;
+        audioSamplesOfNote.assign(foundNote.endTime-foundNote.startTime, 0);
+        for (int i = foundNote.startTime; i < foundNote.endTime; i++){
+            audioSamplesOfNote[i-foundNote.startTime] = audioSamples[i];
+        }
+        
+        saveDataToAudio(soundFileName, audioSamplesOfNote);
+        
+        
+        noteMetadata.preContext = preContext;
+        noteMetadata.postContext = postContext;
+        
+        
+        
+        string metadataFileName = absOutputFolder + "/time(" + zeroPadNumber(mins, 2) + "." + zeroPadNumber(secs, 2) + ")_note(" + ofToString(foundNote.mostCommonPitch) + ").txt";
+        
+        saveMetaDataToFile(metadataFileName, noteMetadata);
     }
     
-    if (bSaving) saveDataToAudio(fileName, audioSamplesOfNote);
-    
 }
+
+
 
 
 //void testApp::addNote( int startTime, int endTime, int avgTone){
@@ -176,9 +193,11 @@ void testApp::setup(){
     samplerate = 44100;
     windowSize = 2048;
     hopSize = 1024;
+    
+
 
     AU.setup(getAudioDirectory() + "pop.wav", hopSize);
-    loadAudioToData( getAudioDirectory() + "pop.wav", audioSamples);
+    loadAudioToData(getAudioDirectory() + "pop.wav", audioSamples);
 
     PDM.setup(windowSize, hopSize);
     PDC.setup(&PDM, hopSize);
@@ -192,6 +211,11 @@ void testApp::setup(){
     setupGUI();
     
     outputFolder = getAudioDirectory() + "output/pop";
+    absOutputFolder = ofFile("../../audio/output/pop").getAbsolutePath();
+//    ofFile relToAbs("../../audio/output/pop");
+//    cout << "audio folder rel: " << outputFolder << endl
+//    << "audio folder datapath: " << ofToDataPath(outputFolder) << endl
+//    << "audio folder abs: " << relToAbs.getAbsolutePath() << endl;
     ofDirectory folder(outputFolder);
     if (!folder.exists()){
         folder.create();
@@ -323,8 +347,10 @@ void testApp::setupGUI(){
     
 
     bSaveGui = false;
+    bProcessOffline = false;
     SM.bVelFine = false;
     audioVol = 0.0;
+    preContext = postContext = samplerate;
 
     //init gui dims
     float dim = 16;
@@ -366,8 +392,10 @@ void testApp::setupGUI(){
     gui->addSpacer(length-xInit, 1);
     gui->addSpacer(length-xInit, 1);
     gui->addLabel("SAVING");
-    gui->addIntSlider("pre context", 0, 44100, &preContext, length-xInit, dim);
-    gui->addIntSlider("post context", 0, 44100, &postContext, length-xInit, dim);
+//    gui->addIntSlider("pre context", 0, 44100, &preContext, length-xInit, dim);
+//    gui->addIntSlider("post context", 0, 44100, &postContext, length-xInit, dim);
+    gui->addLabelToggle("process offline", &bProcessOffline);
+
     gui->addLabelToggle("saving notes", &bSaving);
     gui->addLabelToggle("play midi", &bPlayMidi);
     gui->addLabelToggle("play samples", &bPlayingSamples);

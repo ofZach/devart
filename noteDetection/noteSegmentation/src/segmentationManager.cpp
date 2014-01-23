@@ -69,10 +69,10 @@ void segmentationManager::update(float * samples, int sampleTime){
                     markers.push_back(segment);
                     
                     //note metadata
-                    calcPDStdDev(segment.start, segment.end);
+                    calcPDStats(segment.start, segment.end);
                     calcPDAgreement(segment.start, segment.end);
                     
-                    ((testApp *) ofGetAppPtr()) -> addNote(currentNote);
+                    ((testApp *) ofGetAppPtr()) -> addNote(currentNote, currentMetadata);
                 }
                 
             }
@@ -158,7 +158,7 @@ void segmentationManager::scrollMarkers(){
 }
 
 
-void segmentationManager::calcPDStdDev(int start, int end) {
+void segmentationManager::calcPDStats(int start, int end) {
     vector<float> yinValues, yinFFTValues, meloValues;
     float yinMean = 0;
     float yinFFTMean = 0;
@@ -181,10 +181,12 @@ void segmentationManager::calcPDStdDev(int start, int end) {
     currentMetadata.yinStdDev = computeStdDev(yinValues.begin(), yinValues.end(), yinMean);
     currentMetadata.yinFFTStdDev = computeStdDev(yinFFTValues.begin(), yinFFTValues.end(), yinFFTMean);
     currentMetadata.meloStdDev = computeStdDev(meloValues.begin(), meloValues.end(), meloMean);
+    currentMetadata.meloKurtosis = computeKurtosisExcess(meloValues.begin(), meloValues.end(), meloMean);
+    
+    cout << "yin stddev " << currentMetadata.yinStdDev << " yinFFT stddev " << currentMetadata.yinFFTStdDev << " melo stddev " << currentMetadata.meloStdDev << " melo kurtosis " << currentMetadata.meloKurtosis <<endl;
 
     
-    cout << "yin stddev " << currentMetadata.yinStdDev << " yinFFT stddev " << currentMetadata.yinFFTStdDev << " melo stddev " << currentMetadata.meloStdDev << endl;
-
+    //A flatter distribution has a negative kurtosis, A distribution more peaked than a Gaussian distribution has a positive kurtosis.
 }
 
 void segmentationManager::calcPDAgreement(int start, int end) {
@@ -205,6 +207,8 @@ void segmentationManager::calcPDAgreement(int start, int end) {
     cout << "yin agree " << currentMetadata.yinAgree << " yinfft agree " << currentMetadata.yinFFTAgree << endl;
 
 }
+
+
 
 float segmentationManager::findMostCommonPitch(){
     
@@ -234,9 +238,9 @@ float segmentationManager::findMostCommonPitch(){
         }
     }
     
-    float pct = (float)count / (float)(MAX(1, properPitches.size()));
+    currentMetadata.pctMostCommon = (float)count / (float)(MAX(1, properPitches.size()));
     
-    if (pct < 0.35){
+    if (currentMetadata.pctMostCommon < 0.35){
         return -1;
     } else
     
