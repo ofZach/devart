@@ -95,42 +95,79 @@ void testApp::processAudioFileOffline(){
 
 
 
-void testApp::addNote( int startTime, int endTime, int avgTone){
+void testApp::addNote( note foundNote ){
     
-    note myNote;
-    myNote.startTime = startTime - preContext;
-    myNote.endTime = endTime + postContext;
+    foundNote.startTime -= preContext;
+    foundNote.endTime += postContext;
     
-    if (myNote.startTime < 0) myNote.startTime = 0;
-    if (myNote.endTime > audioSamples.size()-1) myNote.endTime = audioSamples.size()-1;
+    if (foundNote.startTime < 0) foundNote.startTime = 0;
+    if (foundNote.endTime > audioSamples.size()-1) foundNote.endTime = audioSamples.size()-1;
     
-    cout << (myNote.endTime - myNote.startTime) / 44100. << endl;
+    cout << (foundNote.endTime - foundNote.startTime) / 44100. << endl;
     
-    myNote.bPlaying = true;
-    myNote.playbackTime = startTime;
+    foundNote.bPlaying = true;
+    foundNote.playbackTime = foundNote.startTime;
    
     if (bPlayingSamples){
-        notes.push_back(myNote);
+        notes.push_back(foundNote);
     }
     if (bPlayMidi)
-        AU.startNote(avgTone);
+        AU.startNote(foundNote.mostCommonPitch);
     
-    float startTimeF = myNote.startTime / 44100.;
+    float startTimeF = foundNote.startTime / 44100.;
     int mins = (int)( startTimeF / 60.0);
     int secs = (int)((( startTimeF / 60.0) - mins) * 59);
     
-    string fileName = outputFolder + "/time(" + zeroPadNumber(mins, 2) + "." + zeroPadNumber(secs, 2) + ")_note(" + ofToString(avgTone) + ").wav";
+    string fileName = outputFolder + "/time(" + zeroPadNumber(mins, 2) + "." + zeroPadNumber(secs, 2) + ")_note(" + ofToString(foundNote.mostCommonPitch) + ").wav";
     //cout << fileName << endl;
     
     vector < float > audioSamplesOfNote;
-    audioSamplesOfNote.assign(myNote.endTime-myNote.startTime, 0);
-    for (int i = myNote.startTime; i < myNote.endTime; i++){
-        audioSamplesOfNote[i-myNote.startTime] = audioSamples[i];
+    audioSamplesOfNote.assign(foundNote.endTime-foundNote.startTime, 0);
+    for (int i = foundNote.startTime; i < foundNote.endTime; i++){
+        audioSamplesOfNote[i-foundNote.startTime] = audioSamples[i];
     }
     
     if (bSaving) saveDataToAudio(fileName, audioSamplesOfNote);
     
 }
+
+
+//void testApp::addNote( int startTime, int endTime, int avgTone){
+//    
+//    note myNote;
+//    myNote.startTime = startTime - preContext;
+//    myNote.endTime = endTime + postContext;
+//    
+//    if (myNote.startTime < 0) myNote.startTime = 0;
+//    if (myNote.endTime > audioSamples.size()-1) myNote.endTime = audioSamples.size()-1;
+//    
+//    cout << (myNote.endTime - myNote.startTime) / 44100. << endl;
+//    
+//    myNote.bPlaying = true;
+//    myNote.playbackTime = startTime;
+//    
+//    if (bPlayingSamples){
+//        notes.push_back(myNote);
+//    }
+//    if (bPlayMidi)
+//        AU.startNote(avgTone);
+//    
+//    float startTimeF = myNote.startTime / 44100.;
+//    int mins = (int)( startTimeF / 60.0);
+//    int secs = (int)((( startTimeF / 60.0) - mins) * 59);
+//    
+//    string fileName = outputFolder + "/time(" + zeroPadNumber(mins, 2) + "." + zeroPadNumber(secs, 2) + ")_note(" + ofToString(avgTone) + ").wav";
+//    //cout << fileName << endl;
+//    
+//    vector < float > audioSamplesOfNote;
+//    audioSamplesOfNote.assign(myNote.endTime-myNote.startTime, 0);
+//    for (int i = myNote.startTime; i < myNote.endTime; i++){
+//        audioSamplesOfNote[i-myNote.startTime] = audioSamples[i];
+//    }
+//    
+//    if (bSaving) saveDataToAudio(fileName, audioSamplesOfNote);
+//    
+//}
 
 
 //--------------------------------------------------------------

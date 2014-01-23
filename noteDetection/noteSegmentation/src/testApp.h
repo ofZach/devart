@@ -46,7 +46,8 @@ public:
 //        bool bPlaying;
 //    };
     vector < note > notes;
-    void addNote( int startTime, int endTime, int avgTone);
+//    void addNote( int startTime, int endTime, int avgTone);
+    void addNote( note foundNote );
     
     
     

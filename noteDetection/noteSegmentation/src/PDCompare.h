@@ -49,7 +49,6 @@ public:
     int nFramesRecording;
     
     note currentNote;
-
     
     int minPitch;
     vector<marker> markers;

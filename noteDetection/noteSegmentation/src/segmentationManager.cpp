@@ -72,7 +72,7 @@ void segmentationManager::update(float * samples, int sampleTime){
                     calcPDStdDev(segment.start, segment.end);
                     calcPDAgreement(segment.start, segment.end);
                     
-                    ((testApp *) ofGetAppPtr()) -> addNote(currentNote.startTime, currentNote.endTime, currentNote.mostCommonPitch);
+                    ((testApp *) ofGetAppPtr()) -> addNote(currentNote);
                 }
                 
             }
