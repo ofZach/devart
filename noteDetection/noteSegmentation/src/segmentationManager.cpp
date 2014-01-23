@@ -64,7 +64,8 @@ void segmentationManager::update(float * samples, int sampleTime){
             segment.end = PDM->graphWidth - 1;
             
             //confidence from other PDs
-            calcOtherPDStdDev(segment.start, segment.end);
+            calcPDStdDev(segment.start, segment.end);
+            calcPDAgreement(segment.start, segment.end);
             
             
             float avg = 0;
@@ -176,7 +177,7 @@ void segmentationManager::scrollMarkers(){
 }
 
 
-void segmentationManager::calcOtherPDStdDev(int start, int end) {
+void segmentationManager::calcPDStdDev(int start, int end) {
     vector<float> yinValues, yinFFTValues, meloValues;
     float yinMean = 0;
     float yinFFTMean = 0;
@@ -202,6 +203,25 @@ void segmentationManager::calcOtherPDStdDev(int start, int end) {
 
     
     cout << "yin stddev " << currentNote.yinStdDev << " yinFFT stddev " << currentNote.yinFFTStdDev << " melo stddev " << currentNote.meloStdDev << endl;
+
+}
+
+void segmentationManager::calcPDAgreement(int start, int end) {
+    float yinAgreement = 0;
+    float yinFFTAgreement = 0;
+    
+    for (int i = start; i < end; i++) {
+        yinAgreement += PDC->noteFound[0].valHistory[i];
+        yinFFTAgreement += PDC->noteFound[1].valHistory[i];
+    }
+    
+    yinAgreement /= (end-start);
+    yinFFTAgreement /= (end-start);
+    
+    currentNote.yinAgree = yinAgreement;
+    currentNote.yinFFTAgree = yinFFTAgreement;
+    
+    cout << "yin agree " << currentNote.yinAgree << " yinfft agree " << currentNote.yinFFTAgree << endl;
 
 }
 

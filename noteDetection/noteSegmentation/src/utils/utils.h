@@ -13,7 +13,7 @@ void saveDataToAudio(string fileName, vector < float > & audioSamples);
 
 string zeroPadNumber(int num, int sizeToBePaddedTo);
 
-//probably move these somewhere else in the future...
+//gonna move these somewhere else in the future...
 
 struct marker {
     float start;
@@ -39,5 +39,7 @@ struct audioNote {
     float yinStdDev;
     float yinFFTStdDev;
     float meloStdDev;
+    float yinAgree;
+    float yinFFTAgree;
     
 };

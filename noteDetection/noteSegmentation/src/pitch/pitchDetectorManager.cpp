@@ -44,7 +44,7 @@ void pitchDetectorManager::setup(int winSize, int hopSize){
     
     nPitchDetectors = pitchDetectors.size();
     
-    PDMethod = 0;
+    PDMethod = 2;
     
     
     smoother tempSmoother;

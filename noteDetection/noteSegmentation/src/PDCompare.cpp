@@ -121,10 +121,10 @@ void PDCompare::update(float * samples, int sampleTime){
                 float duration = (currentNote.endTime - currentNote.startTime ) / 44100. ;
                 // sometimes, when we wrap over a loop, bad stuff happens, let's be careful:
                 if (duration > 0 && currentNote.mostCommonPitch > 0){
-                    
-                    notes.push_back(currentNote);
-                    
-                    ((testApp *) ofGetAppPtr()) -> addNote(currentNote.startTime - nFrames * bufferSize, currentNote.endTime, currentNote.mostCommonPitch);
+                  //turned note saving off so we can run both segmanagers together.
+//                    notes.push_back(currentNote);
+//                    
+//                    ((testApp *) ofGetAppPtr()) -> addNote(currentNote.startTime - nFrames * bufferSize, currentNote.endTime, currentNote.mostCommonPitch);
                     
                     cout << "note recorded - min duration = " << currentNote.startTime << endl << endl;
                 }

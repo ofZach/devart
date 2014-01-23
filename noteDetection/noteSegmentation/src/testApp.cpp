@@ -156,6 +156,7 @@ void testApp::setup(){
     
     SM.setup( PDM.size(), hopSize );
     SM.PDM = &PDM;
+    SM.PDC = &PDC;
     SM.AU = &AU;
     
     setupGUI();
@@ -171,7 +172,7 @@ void testApp::setup(){
     
     ofSetVerticalSync(false);
     
-    state = 1;
+    state = 0;
     bSaving = false;
     bPlayMidi = false;
     bPlayingSamples = false;
@@ -230,8 +231,8 @@ void testApp::audioIn(float * input, int bufferSize, int nChannels){
     
     PDM.processPitchDetectors(samples, bufferSize, sampleTime);
     PDM.updateGraphs();
-    if (state == 0) SM.update(samples, sampleTime);
-    if (state == 1) PDC.update(samples, sampleTime);
+    SM.update(samples, sampleTime);
+    PDC.update(samples, sampleTime);
 //    
 //    float outputVol = 0.0;
 //    if (PDC.sum) {

@@ -11,6 +11,7 @@
 //#include "smoother.h"
 #include "pitchDetectorManager.h"
 #include "audioUnitManager.h"
+#include "PDCompare.h"
 #include "utils.h"
 
 #pragma once
@@ -27,7 +28,8 @@ public:
     void update(float * samples, int sampleTime);
     void draw();
     
-    void calcOtherPDStdDev(int start, int end);
+    void calcPDStdDev(int start, int end);
+    void calcPDAgreement(int start, int end);
     void scrollMarkers();
     
     void playSegments(vector<float> &output);
@@ -40,7 +42,7 @@ public:
     int bufferSize;
     
     pitchDetectorManager * PDM;
-    
+    PDCompare * PDC;
     audioUnitManager * AU;
     
     
