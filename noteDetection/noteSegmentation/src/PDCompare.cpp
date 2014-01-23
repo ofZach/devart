@@ -33,7 +33,7 @@ void PDCompare::setup(pitchDetectorManager * _PDM, int _bufferSize ) {
     
     minDuration = 25;
     minPitch = 20;
-    currentNote.nFramesRecording = 0;
+    nFramesRecording = 0;
 }
 
 void PDCompare::update(float * samples, int sampleTime){
@@ -80,16 +80,16 @@ void PDCompare::update(float * samples, int sampleTime){
 //            currentNote.samples.push_back(samples[i]);
 //        }
         
-        if (currentNote.nFramesRecording == 0){
+        if (nFramesRecording == 0){
             currentNote.startTime = sampleTime;
         }
         
         currentNote.endTime = sampleTime + bufferSize;
-        currentNote.nFramesRecording++;
+        nFramesRecording++;
         
         //record pitches
         //pitchesForRecording.push_back(medianGraphs[PDM->PDMethod].getLast());
-        currentNote.analysisFrames.push_back(PDM->medianGraphs[2].getLast());
+        analysisFrames.push_back(PDM->medianGraphs[2].getLast());
         
     }
     else  {
@@ -103,10 +103,10 @@ void PDCompare::update(float * samples, int sampleTime){
             segment.end = PDM->graphWidth;
             
             float avg = 0;
-            for (int i = 0; i < currentNote.analysisFrames.size(); i++){
-                avg += currentNote.analysisFrames[i];
+            for (int i = 0; i < analysisFrames.size(); i++){
+                avg += analysisFrames[i];
             }
-            avg /= (MAX(1.0, currentNote.analysisFrames.size()));
+            avg /= (MAX(1.0, analysisFrames.size()));
             
             //            pitchesForRecording.clear();
             // zero periods look like 9, 10... etc...
@@ -114,7 +114,7 @@ void PDCompare::update(float * samples, int sampleTime){
                 //add markers
                 markers.push_back(segment);
                 //add correspnding note
-                currentNote.mostCommonPitch = findMostCommonPitch(currentNote);
+                currentNote.mostCommonPitch = findMostCommonPitch();
                 
                 
                 
@@ -122,7 +122,6 @@ void PDCompare::update(float * samples, int sampleTime){
                 // sometimes, when we wrap over a loop, bad stuff happens, let's be careful:
                 if (duration > 0 && currentNote.mostCommonPitch > 0){
                   //turned note saving off so we can run both segmanagers together.
-//                    notes.push_back(currentNote);
 //                    
 //                    ((testApp *) ofGetAppPtr()) -> addNote(currentNote.startTime - nFrames * bufferSize, currentNote.endTime, currentNote.mostCommonPitch);
                     
@@ -135,8 +134,8 @@ void PDCompare::update(float * samples, int sampleTime){
         //reset
         noteRun = nFrames;
 //        currentNote.samples.clear();
-        currentNote.analysisFrames.clear();
-        currentNote.nFramesRecording = 0;
+        analysisFrames.clear();
+        nFramesRecording = 0;
         currentNote.startTime = 0;
         currentNote.endTime = 0;
     }
@@ -219,12 +218,12 @@ void PDCompare::draw(){
 
 }
 
-float PDCompare::findMostCommonPitch(audioNote note){
+float PDCompare::findMostCommonPitch(){
     
     vector < int > properPitches;
     
-    for (int i = 0; i < note.analysisFrames.size(); i++){
-        float detectedPitch = note.analysisFrames[i];
+    for (int i = 0; i < analysisFrames.size(); i++){
+        float detectedPitch = analysisFrames[i];
         if (detectedPitch > minPitch && detectedPitch < 150) properPitches.push_back(detectedPitch);
     }
     // see utils.h

@@ -21,7 +21,7 @@ void segmentationManager::setup( int numPitchDetectors, int _bufferSize ){
     bAmRecording = false;
     minPitch = 20;
     
-    currentNote.nFramesRecording = 0;
+    nFramesRecording = 0;
 }
 
 void segmentationManager::update(float * samples, int sampleTime){
@@ -31,15 +31,15 @@ void segmentationManager::update(float * samples, int sampleTime){
         //count buffers
         noteRun++;
         
-        if (currentNote.nFramesRecording == 0){
+        if (nFramesRecording == 0){
             currentNote.startTime = sampleTime;
         }
         
         currentNote.endTime = sampleTime + bufferSize;
-        currentNote.nFramesRecording++;
+        nFramesRecording++;
         
         //record pitches
-        currentNote.analysisFrames.push_back(PDM->medianGraphs[PDM->PDMethod].getLast());
+        analysisFrames.push_back(PDM->medianGraphs[PDM->PDMethod].getLast());
 
     }
     else  {
@@ -48,17 +48,17 @@ void segmentationManager::update(float * samples, int sampleTime){
         if ( noteRun > minDuration) {
             
             float avg = 0;
-            for (int i = 0; i < currentNote.analysisFrames.size(); i++){
-                avg += currentNote.analysisFrames[i];
+            for (int i = 0; i < analysisFrames.size(); i++){
+                avg += analysisFrames[i];
             }
-            avg /= (MAX(1.0, currentNote.analysisFrames.size()));
+            avg /= (MAX(1.0, analysisFrames.size()));
             
             // zero periods look like 9, 10... etc...
             if (avg > minPitch){
                 
                 float duration = (currentNote.endTime - currentNote.startTime ) / 44100. ;
                 
-                currentNote.mostCommonPitch = findMostCommonPitch(currentNote);
+                currentNote.mostCommonPitch = findMostCommonPitch();
                 // sometimes, when we wrap over a loop, bad stuff happens, let's be careful:
                 if (duration > 0 && currentNote.mostCommonPitch > 0){
                     
@@ -71,8 +71,6 @@ void segmentationManager::update(float * samples, int sampleTime){
                     //note metadata
                     calcPDStdDev(segment.start, segment.end);
                     calcPDAgreement(segment.start, segment.end);
-
-                    notes.push_back(currentNote);
                     
                     ((testApp *) ofGetAppPtr()) -> addNote(currentNote.startTime, currentNote.endTime, currentNote.mostCommonPitch);
                 }
@@ -82,9 +80,8 @@ void segmentationManager::update(float * samples, int sampleTime){
         }
         //reset
         noteRun = 0;
-//        currentNote.samples.clear();
-        currentNote.analysisFrames.clear();
-        currentNote.nFramesRecording = 0;
+        analysisFrames.clear();
+        nFramesRecording = 0;
         currentNote.startTime = 0;
         currentNote.endTime = 0;
     }
@@ -145,7 +142,6 @@ void segmentationManager::draw(){
         }
     }
 
-    
     ofPopMatrix();
 }
 
@@ -182,12 +178,12 @@ void segmentationManager::calcPDStdDev(int start, int end) {
     yinFFTMean /= yinFFTValues.size();
     meloMean /= meloValues.size();
     
-    currentNote.yinStdDev = computeStdDev(yinValues.begin(), yinValues.end(), yinMean);
-    currentNote.yinFFTStdDev = computeStdDev(yinFFTValues.begin(), yinFFTValues.end(), yinFFTMean);
-    currentNote.meloStdDev = computeStdDev(meloValues.begin(), meloValues.end(), meloMean);
+    currentMetadata.yinStdDev = computeStdDev(yinValues.begin(), yinValues.end(), yinMean);
+    currentMetadata.yinFFTStdDev = computeStdDev(yinFFTValues.begin(), yinFFTValues.end(), yinFFTMean);
+    currentMetadata.meloStdDev = computeStdDev(meloValues.begin(), meloValues.end(), meloMean);
 
     
-    cout << "yin stddev " << currentNote.yinStdDev << " yinFFT stddev " << currentNote.yinFFTStdDev << " melo stddev " << currentNote.meloStdDev << endl;
+    cout << "yin stddev " << currentMetadata.yinStdDev << " yinFFT stddev " << currentMetadata.yinFFTStdDev << " melo stddev " << currentMetadata.meloStdDev << endl;
 
 }
 
@@ -203,19 +199,19 @@ void segmentationManager::calcPDAgreement(int start, int end) {
     yinAgreement /= (end-start);
     yinFFTAgreement /= (end-start);
     
-    currentNote.yinAgree = yinAgreement;
-    currentNote.yinFFTAgree = yinFFTAgreement;
+    currentMetadata.yinAgree = yinAgreement;
+    currentMetadata.yinFFTAgree = yinFFTAgreement;
     
-    cout << "yin agree " << currentNote.yinAgree << " yinfft agree " << currentNote.yinFFTAgree << endl;
+    cout << "yin agree " << currentMetadata.yinAgree << " yinfft agree " << currentMetadata.yinFFTAgree << endl;
 
 }
 
-float segmentationManager::findMostCommonPitch(audioNote note){
+float segmentationManager::findMostCommonPitch(){
     
     vector < int > properPitches;
     
-    for (int i = 0; i < note.analysisFrames.size(); i++){
-        float detectedPitch = note.analysisFrames[i];
+    for (int i = 0; i < analysisFrames.size(); i++){
+        float detectedPitch = analysisFrames[i];
         if (detectedPitch > minPitch && detectedPitch < 150) properPitches.push_back(detectedPitch);
     }
     // see utils.h

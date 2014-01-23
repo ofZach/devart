@@ -20,26 +20,22 @@ struct marker {
     float end;
 };
 
-struct audioNote {
+struct note {
     
-    bool bPlaying;
-    bool bWasPlaying;
-    
-//    vector < float > samples;
-    vector < float > analysisFrames;
-
-    int playhead;
-    
-    int nFramesRecording;
     int startTime;
     int endTime;
     
-    //META DATA
     int mostCommonPitch;
+    
+    bool bPlaying;
+    int playbackTime;
+
+};
+
+struct metadata {
     float yinStdDev;
     float yinFFTStdDev;
     float meloStdDev;
     float yinAgree;
     float yinFFTAgree;
-    
 };

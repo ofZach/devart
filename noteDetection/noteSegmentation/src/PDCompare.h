@@ -20,20 +20,18 @@ public:
     void update(float * samples, int sampleTime);
     void draw();
     
-    float findMostCommonPitch(audioNote note);
+    float findMostCommonPitch();
     
     int nFrames;
     int bufferSize;
     
     pitchDetectorManager * PDM;
-    //graphs
-//    vector<smoother> smoothers;
-//    vector<scrollingGraph> medianGraphs;
+
     vector<scrollingGraph> noteFound;
     vector<float> agreedNotes;
     vector<float> means;
     vector<float> stdDevs;
-//    float graphWidth, graphHeight, graphMax;
+
     
     float stdDevThresh;
     
@@ -47,8 +45,11 @@ public:
     vector < float > pitchesForRecording;
     
     //notes
-    audioNote currentNote;
-    vector < audioNote > notes;
+    vector<float> analysisFrames;
+    int nFramesRecording;
+    
+    note currentNote;
+
     
     int minPitch;
     vector<marker> markers;

@@ -26,7 +26,7 @@ public:
     void calcPDAgreement(int start, int end);
     void scrollMarkers();
     
-    float findMostCommonPitch(audioNote note);
+    float findMostCommonPitch();
     
     int bufferSize;
     
@@ -49,7 +49,10 @@ public:
     bool bAmRecording;
     
     //notes
-    audioNote currentNote;
-    vector < audioNote > notes;
+    vector<float> analysisFrames;
+    int nFramesRecording;
+    
+    note currentNote;
+    metadata currentMetadata;
     
 };

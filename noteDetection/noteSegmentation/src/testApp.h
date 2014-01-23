@@ -24,8 +24,6 @@ public:
     
     void loadAudio( string fileName );
     
-    float findMostCommonPitch(audioNote note);
-    
     void setupGUI();
     void guiEvent(ofxUIEventArgs &e);
 
@@ -38,16 +36,15 @@ public:
     void windowResized(int w, int h);
     void dragEvent(ofDragInfo dragInfo);
     void gotMessage(ofMessage msg);
-
     
     // for notes
-    struct note {
-        int startTime;
-        int endTime;
-        int playbackTime;
-        int mostCommonPitch;
-        bool bPlaying;
-    };
+//    struct note {
+//        int startTime;
+//        int endTime;
+//        int playbackTime;
+//        int mostCommonPitch;
+//        bool bPlaying;
+//    };
     vector < note > notes;
     void addNote( int startTime, int endTime, int avgTone);
     
