@@ -94,10 +94,10 @@ void PDCompare::update(float * samples, int sampleTime){
     }
     else  {
         
-        
+        /*
         // if the vel is above the thresh then check if the current run is longer than the min duration. If so save the note.  Regardless, set the run count to zero.
         if ( noteRun > minDuration) {
-            cout << "note duration = " << noteRun << endl;
+//            cout << "note duration = " << noteRun << endl;
             marker segment;
             segment.start = PDM->graphWidth - noteRun;
             segment.end = PDM->graphWidth;
@@ -130,7 +130,7 @@ void PDCompare::update(float * samples, int sampleTime){
                 
             }
             
-        }
+        }*/
         //reset
         noteRun = nFrames;
 //        currentNote.samples.clear();

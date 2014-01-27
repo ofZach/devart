@@ -16,16 +16,18 @@ void segmentationManager::setup( int numPitchDetectors, int _bufferSize ){
     
     coarseThreshold = fineThreshold = 1.0;
     
-    minDuration = 25;
+    minDuration = 10;
     drawMarkers = true;
     bAmRecording = false;
     minPitch = 20;
     
     nFramesRecording = 0;
+    
+    bDebug = false;
 }
 
 void segmentationManager::update(float * samples, int sampleTime){
-    
+//    cout << sampleTime << " : " << PDM->pitchDetectors[PDM->PDMethod]->getPitch() << endl;
      // count how many frames in a row the vel is below the threshold
     if ( PDM->velGraphs[PDM->PDMethod].getLast() < (bVelFine ? fineThreshold : coarseThreshold)) {
         //count buffers
@@ -73,10 +75,13 @@ void segmentationManager::update(float * samples, int sampleTime){
                     calcPDAgreement(segment.start, segment.end);
                     
                     ((testApp *) ofGetAppPtr()) -> addNote(currentNote, currentMetadata);
+                    if (bDebug) cout << "note recorded: " << currentNote.startTime << " " << currentNote.mostCommonPitch << endl;
                 }
                 
             }
-            cout << "note recorded - min duration = " << currentNote.startTime << endl << endl;
+            else {
+                if (bDebug) cout << "note not recorded - minPitch > avg" << endl << endl;
+            }
         }
         //reset
         noteRun = 0;
@@ -183,7 +188,7 @@ void segmentationManager::calcPDStats(int start, int end) {
     currentMetadata.meloStdDev = computeStdDev(meloValues.begin(), meloValues.end(), meloMean);
     currentMetadata.meloKurtosis = computeKurtosisExcess(meloValues.begin(), meloValues.end(), meloMean);
     
-    cout << "yin stddev " << currentMetadata.yinStdDev << " yinFFT stddev " << currentMetadata.yinFFTStdDev << " melo stddev " << currentMetadata.meloStdDev << " melo kurtosis " << currentMetadata.meloKurtosis <<endl;
+//    cout << "yin stddev " << currentMetadata.yinStdDev << " yinFFT stddev " << currentMetadata.yinFFTStdDev << " melo stddev " << currentMetadata.meloStdDev << " melo kurtosis " << currentMetadata.meloKurtosis <<endl;
 
     
     //A flatter distribution has a negative kurtosis, A distribution more peaked than a Gaussian distribution has a positive kurtosis.
@@ -203,8 +208,6 @@ void segmentationManager::calcPDAgreement(int start, int end) {
     
     currentMetadata.yinAgree = yinAgreement;
     currentMetadata.yinFFTAgree = yinFFTAgreement;
-    
-    cout << "yin agree " << currentMetadata.yinAgree << " yinfft agree " << currentMetadata.yinFFTAgree << endl;
 
 }
 

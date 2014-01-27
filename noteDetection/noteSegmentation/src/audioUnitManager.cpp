@@ -36,7 +36,7 @@ void audioUnitManager::setup(string filename, int _bufferSize){
 }
 
 void audioUnitManager::playFile() {
-    player.loop();
+    player.play();
 }
 
 void audioUnitManager::getTapSamples(float * samples){

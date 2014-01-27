@@ -5,5 +5,5 @@ yinStdDev:11.3092
 yinFFTStdDev:1.44193
 meloStdDev:1.18934
 meloKurtosis:-1.01491
-yinAgree:0.857143
-yinFFTAgree:1
+yinAgree:0
+yinFFTAgree:0.964286

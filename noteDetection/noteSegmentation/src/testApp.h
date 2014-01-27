@@ -71,4 +71,5 @@ public:
     int state;
     
     int preContext, postContext;
+
 };

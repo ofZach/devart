@@ -56,4 +56,7 @@ public:
     note currentNote;
     metadata currentMetadata;
     
+    
+    bool bDebug;
+    
 };

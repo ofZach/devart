@@ -1,9 +1,9 @@
 preContext:44100
 postContext:44100
 pctMostCommon:0.555556
-yinStdDev:4.21366
-yinFFTStdDev:0.283392
+yinStdDev:5.21478
+yinFFTStdDev:3.19803
 meloStdDev:0.306706
 meloKurtosis:5.44265
-yinAgree:1
+yinAgree:0.962963
 yinFFTAgree:1

@@ -4,6 +4,10 @@
 
 
 void testApp::loadAudio( string fileName ){
+    cout << "-----------------------------------" << endl << fileName << (bProcessOffline ? " - OFFLINE" : " - ONLINE") << endl;
+    
+
+    
     ss.stop();
     // this assumes either blah.mp3 or blah.wav
     // if mp3, convert to wav
@@ -51,7 +55,7 @@ void testApp::loadAudio( string fileName ){
     PDM.melo->loadAssociatedFile(analysisFile);
     
     AU.player.setFile(fileName);
-    AU.player.play();
+    AU.player.loop(1);
     
     audioSamples.clear();
     
@@ -67,7 +71,7 @@ void testApp::loadAudio( string fileName ){
             folder.create();
         }
     }
-    
+    SM.bDebug = true;
     ss.start();
     if(bProcessOffline) processAudioFileOffline();
     //setFile(ofToDataPath(filename)); //Marc Terenzi - Love To Be Loved By You [692].mp3
@@ -89,11 +93,13 @@ void testApp::processAudioFileOffline(){
         int sampleTime = i;
         PDM.processPitchDetectors(samples, hopSize, sampleTime);
         PDM.updateGraphs();
-        PDC.update(samples, sampleTime);
         SM.update(samples, sampleTime);
+        PDC.update(samples, sampleTime);
+
     }
     ss.start();
     bSaving = false;
+    SM.bDebug = false;
 }
 
 
@@ -123,7 +129,8 @@ void testApp::addNote( note foundNote, metadata noteMetadata){
         int secs = (int)((( startTimeF / 60.0) - mins) * 59);
         
         string soundFileName =  outputFolder + "/time(" + zeroPadNumber(mins, 2) + "." + zeroPadNumber(secs, 2) + ")_note(" + ofToString(foundNote.mostCommonPitch) + ").wav";
-        //cout << fileName << endl;
+//        cout << soundFileName << " recorded to disk" << endl;
+        
         
         vector < float > audioSamplesOfNote;
         audioSamplesOfNote.assign(foundNote.endTime-foundNote.startTime, 0);
@@ -212,10 +219,7 @@ void testApp::setup(){
     
     outputFolder = getAudioDirectory() + "output/pop";
     absOutputFolder = ofFile("../../audio/output/pop").getAbsolutePath();
-//    ofFile relToAbs("../../audio/output/pop");
-//    cout << "audio folder rel: " << outputFolder << endl
-//    << "audio folder datapath: " << ofToDataPath(outputFolder) << endl
-//    << "audio folder abs: " << relToAbs.getAbsolutePath() << endl;
+
     ofDirectory folder(outputFolder);
     if (!folder.exists()){
         folder.create();
@@ -227,6 +231,7 @@ void testApp::setup(){
     bSaving = false;
     bPlayMidi = false;
     bPlayingSamples = false;
+    
     
     ss.setup(this, 1, 1, samplerate, hopSize, 4);
 }
@@ -252,6 +257,9 @@ void testApp::draw(){
     else if (state == 1) {
         PDC.draw();
     }
+    
+    float pct = (float)AU.getSampleTime() / audioSamples.size();
+    ofDrawBitmapString(ofToString(pct), ofGetWidth() / 2, 100);
 
 }
 
@@ -284,23 +292,11 @@ void testApp::audioIn(float * input, int bufferSize, int nChannels){
     PDM.updateGraphs();
     SM.update(samples, sampleTime);
     PDC.update(samples, sampleTime);
-//    
-//    float outputVol = 0.0;
-//    if (PDC.sum) {
-//        for (int i = 0; i < PDC.noteFound.size(); i++) {
-//            outputVol += PDC.noteFound[i].getLast();
-//        }
-//        outputVol /= PDC.noteFound.size();
-//    }
-//    else {
-//        outputVol = PDC.agreedNotes.getLast();
-//    }
-    
-//    cout << "outputVol = " << outputVol << endl;
-//    AU.mixer.setOutputVolume(state == 1 ? outputVol * 0.5 : 0);
-    
+
 }
 
+
+//--------------------------------------------------------------
 void testApp::audioOut(float * output, int bufferSize, int nChannels){
 
 // SM.playSegments(outputSamples);
@@ -318,7 +314,7 @@ void testApp::audioOut(float * output, int bufferSize, int nChannels){
                     output[j] += audioSamples[notes[i].playbackTime + j] * 0.3 * audioVol;
                 }
                 
-                notes[i].playbackTime +=bufferSize;
+                notes[i].playbackTime += bufferSize;
                                         
                 if (notes[i].playbackTime >= notes[i].endTime){
                     notes[i].bPlaying = false;
@@ -347,7 +343,7 @@ void testApp::setupGUI(){
     
 
     bSaveGui = false;
-    bProcessOffline = false;
+    bProcessOffline = true;
     SM.bVelFine = false;
     audioVol = 0.0;
     preContext = postContext = samplerate;
@@ -376,8 +372,8 @@ void testApp::setupGUI(){
     gui->addSlider("Coarse Threshold", 0.0, PDM.graphMax, &SM.coarseThreshold, length-xInit, dim);
     gui->addSlider("Fine Threshold", 0.0, 2.0, &SM.fineThreshold, length-xInit, dim);
     gui->addLabelToggle("Coarse/Fine", &SM.bVelFine);
-    gui->addSlider("Min duration", 1, 60, &PDC.minDuration, length-xInit, dim);
-    gui->addIntSlider("Min pitch", 0, 30, &PDC.minPitch, length-xInit, dim);
+    gui->addSlider("Min duration", 1, 60, &SM.minDuration, length-xInit, dim);
+    gui->addIntSlider("Min pitch", 0, 30, &SM.minPitch, length-xInit, dim);
     gui->addSpacer(length-xInit, 1);
     gui->addLabel("PD Compare");
     gui->addIntSlider("nFrames", 5, 25, &PDC.nFrames, length-xInit, dim);
@@ -497,7 +493,7 @@ void testApp::gotMessage(ofMessage msg){
 
 //--------------------------------------------------------------
 void testApp::dragEvent(ofDragInfo dragInfo){ 
-
-    loadAudio(dragInfo.files[0]);
-    
+    for (int i = 0; i < dragInfo.files.size(); i++) {
+        loadAudio(dragInfo.files[i]);
+    }
 }

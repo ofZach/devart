@@ -133,7 +133,7 @@ void saveDataToAudio(string fileName, vector < float > & audioSamples){
 
 void saveMetaDataToFile(string fileName, metadata noteMetadata){
     ofFile relativeToAbsolute(fileName);
-    cout << relativeToAbsolute.getAbsolutePath() << endl;
+//    cout << relativeToAbsolute.getAbsolutePath() << endl;
     
     
     ofFile metadataFile(relativeToAbsolute.getAbsolutePath(), ofFile::WriteOnly);
